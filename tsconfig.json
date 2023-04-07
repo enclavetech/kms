@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "strict": true,
+    "target": "ES2015"
+  },
+  "include": ["src/**/*"]
+}

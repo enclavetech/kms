@@ -1,0 +1,31 @@
+{
+  "name": "key-manager",
+  "description": "Private key management for web applications.",
+  "version": "1.0.0-PREVIEW",
+  "license": "MIT",
+  "private": true,
+  "author": "Enclave Technology",
+  "repository": "github:enclavetech/key-manager",
+  "homepage": "https://github.com/enclavetech/key-manager#readme",
+  "keywords": [
+    "encryption",
+    "crypto"
+  ],
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "prepare": "tsc"
+  },
+  "dependencies": {
+    "openpgp": "^5.7.0"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.55.0",
+    "@typescript-eslint/parser": "^5.55.0",
+    "eslint": "^8.36.0",
+    "eslint-config-prettier": "^8.7.0",
+    "prettier": "^2.8.4",
+    "typescript": "^5.0.2"
+  }
+}
