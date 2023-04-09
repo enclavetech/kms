@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "declaration": true,
+    "module": "ES2020",
     "moduleResolution": "node",
     "outDir": "./dist",
     "strict": true,

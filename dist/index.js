@@ -1,1 +1,2 @@
-"use strict";
+export * from './classes';
+export * from './interfaces';
