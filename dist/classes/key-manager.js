@@ -28,7 +28,7 @@ export class KeyManager {
     postMessage(message, callback) {
         const requestID = this.requestCounter++;
         this.pendingRequests.set(requestID, callback);
-        this.worker.postMessage(Object.assign(Object.assign({}, message), { requestID }));
+        this.worker.postMessage({ ...message, requestID });
     }
     put(id, armoredKey) {
         return new Promise((resolve, reject) => {
