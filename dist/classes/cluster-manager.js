@@ -14,13 +14,13 @@ export class ClusterManager {
     getNextWorker() {
         return this.cluster[(this.currentWorker = ++this.currentWorker >= this.cluster.length ? 0 : this.currentWorker)];
     }
-    async put(privateKeyID, armoredKey) {
-        return Promise.all(this.cluster.map((worker) => worker.put(privateKeyID, armoredKey))).then((results) => results[0]);
-    }
     decrypt(privateKeyID, data) {
         return this.getNextWorker().decrypt(privateKeyID, data);
     }
     encrypt(privateKeyID, data) {
         return this.getNextWorker().encrypt(privateKeyID, data);
+    }
+    async put(privateKeyID, armoredKey) {
+        return Promise.all(this.cluster.map((worker) => worker.put(privateKeyID, armoredKey))).then((results) => results[0]);
     }
 }

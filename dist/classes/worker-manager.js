@@ -32,13 +32,6 @@ export class WorkerManager {
             this.worker.postMessage({ ...job, requestID: jobID });
         });
     }
-    put(privateKeyID, armoredKey) {
-        return this.doJob({
-            action: 'put',
-            privateKeyID,
-            data: armoredKey,
-        });
-    }
     decrypt(privateKeyID, data) {
         return this.doJob({
             action: 'decrypt',
@@ -51,6 +44,13 @@ export class WorkerManager {
             action: 'encrypt',
             privateKeyID,
             data,
+        });
+    }
+    put(privateKeyID, armoredKey) {
+        return this.doJob({
+            action: 'put',
+            privateKeyID,
+            data: armoredKey,
         });
     }
 }

@@ -1,4 +1,5 @@
 import type {
+  IKeyManager,
   KeyManagerResult,
   WorkerDecryptJob,
   WorkerEncryptJob,
@@ -10,7 +11,7 @@ import type { KeyManagerAction, KeyManagerCallback, PrivateKey, PrivateKeyID } f
 
 // TODO: make an abstract API for this and `ClusterManager`
 
-export class WorkerManager {
+export class WorkerManager implements IKeyManager {
   private readonly worker = new Worker(new URL('../workers/key.worker.js?worker', import.meta.url), {
     type: 'module',
   });
@@ -50,14 +51,6 @@ export class WorkerManager {
     });
   }
 
-  put(privateKeyID: PrivateKeyID, armoredKey: PrivateKey): Promise<KeyManagerResult> {
-    return this.doJob<WorkerPutJob>({
-      action: 'put',
-      privateKeyID,
-      data: armoredKey,
-    });
-  }
-
   decrypt(privateKeyID: PrivateKeyID, data: string): Promise<KeyManagerResult> {
     return this.doJob<WorkerDecryptJob>({
       action: 'decrypt',
@@ -71,6 +64,14 @@ export class WorkerManager {
       action: 'encrypt',
       privateKeyID,
       data,
+    });
+  }
+
+  put(privateKeyID: PrivateKeyID, armoredKey: PrivateKey): Promise<KeyManagerResult> {
+    return this.doJob<WorkerPutJob>({
+      action: 'put',
+      privateKeyID,
+      data: armoredKey,
     });
   }
 }
