@@ -1,6 +1,6 @@
 import type { KeyManagerResult } from '../interfaces';
 import type { PrivateKey, PrivateKeyID } from '../types';
-export declare class KeyManager {
+export declare class WorkerManager {
     private readonly worker;
     private readonly pendingJobs;
     private requestCounter;

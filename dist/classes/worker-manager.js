@@ -1,4 +1,5 @@
-export class KeyManager {
+// TODO: make an abstract API for this and `ClusterManager`
+export class WorkerManager {
     constructor() {
         this.worker = new Worker(new URL('../workers/key.worker.js?worker', import.meta.url), {
             type: 'module',

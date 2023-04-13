@@ -8,7 +8,9 @@ import type {
 } from '../interfaces';
 import type { KeyManagerAction, KeyManagerCallback, PrivateKey, PrivateKeyID } from '../types';
 
-export class KeyManager {
+// TODO: make an abstract API for this and `ClusterManager`
+
+export class WorkerManager {
   private readonly worker = new Worker(new URL('../workers/key.worker.js?worker', import.meta.url), {
     type: 'module',
   });
