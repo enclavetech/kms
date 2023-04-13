@@ -1,12 +1,12 @@
-import type { KeyWorkerMessage, KeyManagerResponse } from '../interfaces';
-export type WorkerCallback = (error: Error | null, result?: KeyManagerResponse) => void;
+import type { KeyManagerResult } from '../interfaces';
+import type { PrivateKey, PrivateKeyID } from '../types';
 export declare class KeyManager {
     private readonly worker;
-    private readonly pendingRequests;
+    private readonly pendingJobs;
     private requestCounter;
     constructor();
-    postMessage(message: KeyWorkerMessage, callback: WorkerCallback): void;
-    put(id: string, armoredKey: string): Promise<KeyManagerResponse>;
-    decrypt(id: string, payload: string): Promise<KeyManagerResponse>;
-    encrypt(id: string, payload: string): Promise<KeyManagerResponse>;
+    private doJob;
+    put(privateKeyID: PrivateKeyID, armoredKey: PrivateKey): Promise<KeyManagerResult>;
+    decrypt(privateKeyID: PrivateKeyID, data: string): Promise<KeyManagerResult>;
+    encrypt(privateKeyID: PrivateKeyID, data: string): Promise<KeyManagerResult>;
 }

@@ -1,74 +1,52 @@
-const database = new Promise((resolve, reject) => {
-    const databaseRequest = self.indexedDB.open('keys', 1);
-    databaseRequest.onupgradeneeded = function () {
-        databaseRequest.result.createObjectStore('keys', { keyPath: 'id' });
-    };
-    databaseRequest.onsuccess = function () {
-        resolve(databaseRequest.result);
-    };
-    databaseRequest.onerror = function () {
-        reject(databaseRequest.error);
-    };
-});
-const memoryStore = new Map();
+import { PrivateKeyMap } from '../classes';
+const privateKeyMap = new PrivateKeyMap();
 self.onmessage = (event) => {
-    const { action, id, payload, requestID } = event.data;
-    const response = {
-        ok: false,
-        requestID,
-    };
-    try {
-        switch (action) {
-            case 'put':
-                memoryStore.set(id, payload);
-                database.then((database) => {
-                    database.transaction('keys', 'readwrite').objectStore('keys').put({ id, privateKey: payload });
-                    response.ok = true;
-                    self.postMessage(response);
-                });
-                break;
-            case 'decrypt': {
-                getKey(id)
-                    .then(() => (response.ok = true))
-                    .catch(() => (response.ok = false))
-                    .finally(() => self.postMessage(response));
-                break;
-            }
-            case 'encrypt': {
-                getKey(id)
-                    .then(() => (response.ok = true))
-                    .catch(() => (response.ok = false))
-                    .finally(() => self.postMessage(response));
-                break;
-            }
-            default:
-                response.ok = false;
-                response.error = 'Invalid action';
-                self.postMessage(response);
-                break;
-        }
-    }
-    catch (error) {
-        response.ok = false;
-        response.error = 'Exceptional exception occurred';
-        self.postMessage(response);
+    const job = event.data;
+    const action = job.action; // { action } = job as Types.WorkerJob<KeyManagerAction, never>;
+    switch (action) {
+        case 'put':
+            return self.postMessage(put(job));
+        case 'decrypt':
+            return self.postMessage(decrypt(job));
+        case 'encrypt':
+            return self.postMessage(encrypt(job));
+        default:
+            return self.postMessage(createErrorResponse('Invalid action', job));
     }
 };
-function getKey(id) {
-    return new Promise((resolve, reject) => {
-        const memoryKey = memoryStore.get(id);
-        if (memoryKey)
-            return resolve(memoryKey);
-        database.then((database) => {
-            const request = database.transaction('keys', 'readonly').objectStore('keys').get(id);
-            request.onsuccess = function () {
-                console.log(request.result);
-                resolve(request.result);
-            };
-            request.onerror = function () {
-                reject(request.error);
-            };
-        });
-    });
+function createErrorResponse(error, job) {
+    const { action, jobID } = job;
+    const response = {
+        action,
+        error,
+        jobID,
+        ok: false,
+    };
+    self.postMessage(response);
+    throw `Key Manager: ${action} job failed: ${error}.`;
 }
-export {};
+function getPrivateKeyOrFail(job) {
+    const { privateKeyID } = job;
+    const privateKey = privateKeyMap.get(privateKeyID);
+    if (!privateKey) {
+        throw createErrorResponse(`Key '${privateKeyID}' not found`, job);
+    }
+    return privateKey;
+}
+function decrypt(job) {
+    const privateKey = getPrivateKeyOrFail(job);
+    throw createErrorResponse('Decrypt jobs not implemented', job);
+}
+function encrypt(job) {
+    const privateKey = getPrivateKeyOrFail(job);
+    throw createErrorResponse('Encrypt jobs not implemented', job);
+}
+function put(job) {
+    const { action, data, jobID, privateKeyID } = job;
+    privateKeyMap.set(privateKeyID, data);
+    return {
+        action,
+        jobID,
+        ok: true,
+    };
+}

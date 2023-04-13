@@ -1,82 +1,84 @@
-import type { KeyWorkerMessage, KeyManagerResponse } from '../interfaces';
+import { PrivateKeyMap } from '../classes';
+import {
+  WorkerJob,
+  WorkerDecryptJob,
+  WorkerDecryptResponse,
+  WorkerEncryptJob,
+  WorkerEncryptResponse,
+  WorkerErrorResponse,
+  WorkerPutJob,
+  WorkerPutResponse,
+} from '../interfaces';
+import type { KeyManagerAction } from '../types';
 
-const database = new Promise<IDBDatabase>((resolve, reject) => {
-  const databaseRequest = self.indexedDB.open('keys', 1);
-  databaseRequest.onupgradeneeded = function () {
-    databaseRequest.result.createObjectStore('keys', { keyPath: 'id' });
-  };
-  databaseRequest.onsuccess = function () {
-    resolve(databaseRequest.result);
-  };
-  databaseRequest.onerror = function () {
-    reject(databaseRequest.error);
-  };
-});
+const privateKeyMap = new PrivateKeyMap();
 
-const memoryStore = new Map<string, string>();
+self.onmessage = (event: MessageEvent<WorkerJob<never, never>>) => {
+  const job = event.data;
+  const action: KeyManagerAction = job.action; // { action } = job as Types.WorkerJob<KeyManagerAction, never>;
 
-self.onmessage = (event: MessageEvent<KeyWorkerMessage & { requestID: number }>) => {
-  const { action, id, payload, requestID } = event.data;
+  switch (action) {
+    case 'put':
+      return self.postMessage(put(job));
 
-  const response: KeyManagerResponse = {
-    ok: false,
-    requestID,
-  };
+    case 'decrypt':
+      return self.postMessage(decrypt(job));
 
-  try {
-    switch (action) {
-      case 'put':
-        memoryStore.set(id, payload);
-        database.then((database) => {
-          database.transaction('keys', 'readwrite').objectStore('keys').put({ id, privateKey: payload });
-          response.ok = true;
-          self.postMessage(response);
-        });
-        break;
+    case 'encrypt':
+      return self.postMessage(encrypt(job));
 
-      case 'decrypt': {
-        getKey(id)
-          .then(() => (response.ok = true))
-          .catch(() => (response.ok = false))
-          .finally(() => self.postMessage(response));
-        break;
-      }
-
-      case 'encrypt': {
-        getKey(id)
-          .then(() => (response.ok = true))
-          .catch(() => (response.ok = false))
-          .finally(() => self.postMessage(response));
-        break;
-      }
-
-      default:
-        response.ok = false;
-        response.error = 'Invalid action';
-        self.postMessage(response);
-        break;
-    }
-  } catch (error) {
-    response.ok = false;
-    response.error = 'Exceptional exception occurred';
-    self.postMessage(response);
+    default:
+      return self.postMessage(createErrorResponse('Invalid action', job));
   }
 };
 
-function getKey(id: string) {
-  return new Promise<string>((resolve, reject) => {
-    const memoryKey = memoryStore.get(id);
-    if (memoryKey) return resolve(memoryKey);
+function createErrorResponse(error: string, job: WorkerJob<KeyManagerAction, unknown>): WorkerErrorResponse {
+  const { action, jobID } = job;
 
-    database.then((database) => {
-      const request = database.transaction('keys', 'readonly').objectStore('keys').get(id);
-      request.onsuccess = function () {
-        console.log(request.result);
-        resolve(request.result);
-      };
-      request.onerror = function () {
-        reject(request.error);
-      };
-    });
-  });
+  const response: WorkerErrorResponse = {
+    action,
+    error,
+    jobID,
+    ok: false,
+  };
+
+  self.postMessage(response);
+
+  throw `Key Manager: ${action} job failed: ${error}.`;
+}
+
+function getPrivateKeyOrFail(job: WorkerJob<KeyManagerAction, unknown>): string {
+  const { privateKeyID } = job;
+
+  const privateKey = privateKeyMap.get(privateKeyID);
+
+  if (!privateKey) {
+    throw createErrorResponse(`Key '${privateKeyID}' not found`, job);
+  }
+
+  return privateKey;
+}
+
+function decrypt(job: WorkerDecryptJob): WorkerDecryptResponse {
+  const privateKey = getPrivateKeyOrFail(job);
+
+  throw createErrorResponse('Decrypt jobs not implemented', job);
+}
+
+function encrypt(job: WorkerEncryptJob): WorkerEncryptResponse {
+  const privateKey = getPrivateKeyOrFail(job);
+
+  throw createErrorResponse('Encrypt jobs not implemented', job);
+}
+
+function put(job: WorkerPutJob): WorkerPutResponse {
+  const { action, data, jobID, privateKeyID } = job;
+
+  privateKeyMap.set(privateKeyID, data);
+
+  return {
+    action,
+    jobID,
+    ok: true,
+  };
 }

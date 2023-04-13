@@ -1,95 +1,74 @@
-import type { KeyWorkerMessage, KeyManagerResponse } from '../interfaces';
-
-export type WorkerCallback = (error: Error | null, result?: KeyManagerResponse) => void;
+import type {
+  KeyManagerResult,
+  WorkerDecryptJob,
+  WorkerEncryptJob,
+  WorkerJob,
+  WorkerPutJob,
+  WorkerResponse,
+} from '../interfaces';
+import type { KeyManagerAction, KeyManagerCallback, PrivateKey, PrivateKeyID } from '../types';
 
 export class KeyManager {
   private readonly worker = new Worker(new URL('../workers/key.worker.js?worker', import.meta.url), {
     type: 'module',
   });
-  private readonly pendingRequests = new Map<number, WorkerCallback>();
+
+  private readonly pendingJobs = new Map<number, KeyManagerCallback>();
   private requestCounter = 0;
 
   constructor() {
-    this.worker.onmessage = (event: MessageEvent) => {
-      const response = event.data as KeyManagerResponse;
-      const callback = this.pendingRequests.get(response.requestID);
+    this.worker.onmessage = (event: MessageEvent<WorkerResponse>) => {
+      const response = event.data;
+      const { jobID, ok } = response;
+
+      const callback = this.pendingJobs.get(jobID);
 
       if (!callback) {
         return console.warn(
-          `Key Manager: Request [${response.requestID}]: finished with status: ${JSON.stringify({
-            ok: response.ok,
+          `Key Manager: Job [${jobID}]: finished with status: ${JSON.stringify({
+            ok,
           })} but no callback found.`
         );
-      }
-
-      if (response.ok) {
-        callback(null, response);
-      } else if (response.error instanceof Error) {
-        callback(response.error);
       } else {
-        callback(new Error(response.error));
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { jobID, ...result } = response;
+        callback(result);
+        this.pendingJobs.delete(jobID);
       }
-
-      this.pendingRequests.delete(response.requestID);
     };
   }
 
-  postMessage(message: KeyWorkerMessage, callback: WorkerCallback) {
-    const requestID = this.requestCounter++;
-    this.pendingRequests.set(requestID, callback);
-    this.worker.postMessage({ ...message, requestID });
-  }
-
-  put(id: string, armoredKey: string) {
-    return new Promise<KeyManagerResponse>((resolve, reject) => {
-      this.postMessage(
-        {
-          action: 'put',
-          id,
-          payload: armoredKey,
-        },
-        (error, result) => {
-          error || !result ? reject(error) : resolve(result);
-        }
-      );
+  private doJob<J extends WorkerJob<KeyManagerAction, unknown>>(job: Omit<J, 'jobID'>) {
+    return new Promise<KeyManagerResult>((resolve, reject) => {
+      const jobID = this.requestCounter++;
+      this.pendingJobs.set(jobID, (result) => {
+        result.ok ? resolve(result) : reject(result);
+      });
+      this.worker.postMessage({ ...job, requestID: jobID });
     });
   }
 
-  decrypt(id: string, payload: string) {
-    return new Promise<KeyManagerResponse>((resolve, reject) => {
-      this.postMessage(
-        {
-          action: 'decrypt',
-          id,
-          payload,
-        },
-        (error, result) => {
-          if (error || !result) {
-            reject(error);
-          } else {
-            resolve(result);
-          }
-        }
-      );
+  put(privateKeyID: PrivateKeyID, armoredKey: PrivateKey): Promise<KeyManagerResult> {
+    return this.doJob<WorkerPutJob>({
+      action: 'put',
+      privateKeyID,
+      data: armoredKey,
     });
   }
 
-  encrypt(id: string, payload: string) {
-    return new Promise<KeyManagerResponse>((resolve, reject) => {
-      this.postMessage(
-        {
-          action: 'encrypt',
-          id,
-          payload,
-        },
-        (error, result) => {
-          if (error || !result) {
-            reject(error);
-          } else {
-            resolve(result);
-          }
-        }
-      );
+  decrypt(privateKeyID: PrivateKeyID, data: string): Promise<KeyManagerResult> {
+    return this.doJob<WorkerDecryptJob>({
+      action: 'decrypt',
+      privateKeyID,
+      data,
+    });
+  }
+
+  encrypt(privateKeyID: PrivateKeyID, data: string): Promise<KeyManagerResult> {
+    return this.doJob<WorkerEncryptJob>({
+      action: 'encrypt',
+      privateKeyID,
+      data,
     });
   }
 }
