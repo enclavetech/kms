@@ -8,6 +8,9 @@ import type { KeyManagerAction, PrivateKey, PrivateKeyID } from '../types';
 export interface KeyManagerRequest<A extends KeyManagerAction, Data> {
   action: A;
   data: Data;
+
+  // TODO: privateKeyID should be optional for put jobs
+  // An ID should be generated and returned if not provided
   privateKeyID: PrivateKeyID;
 }
 
