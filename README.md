@@ -1,7 +1,7 @@
 # PGP Key Manager
 
 > **Warning**
-> This is currently an unreleased preview, and as such the API is subject to change radically.
+> This is currently an unreleased preview. The API is subject to change.
 
 ## What is it?
 
@@ -11,7 +11,7 @@ This package deals with the handling of PGP keys in your web application. It aim
 
 Under the hood, it uses web workers to isolate the keys and function executions from the main thread. This helps security by making it much harder for rogue dependencies in your code to intercept those keys. This package has no dependencies besides OpenPGP.
 
-In code, you import decrypted keys into the key manager and then you can ask it to perform jobs like encryption and decryption. It will do asynchronously using an aforementioned web worker. This is all wrapped up in a simple API which uses promises and TypeScript types to make it easy to use.
+In code, you import decrypted keys into the key manager, which orchestrates the aforementioned web worker(s). You can then request jobs, like encryption and decryption, using a previously imported key by providing an ID reference. This is all wrapped up in a simple API which uses promises and TypeScript types to make it asynchronous and easy to use.
 
 ## What's Implemented?
 
@@ -45,7 +45,7 @@ With NPM:
 npm i "enclavetech/key-manager#preview"
 ```
 
-This will install from the tip of the preview branch here on GitHub. This is recommended for now. Substitute for another branch name, like `main` or `v1`, if you wish.
+This will install from the tip of the preview branch here on GitHub. This is recommended for now, however you could substitute `preview` for another branch name, like `main` or `v1`, if you wish.
 
 Also, ensure the peer dependency `openpgp` is installed:
 
