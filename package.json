@@ -18,8 +18,8 @@
     "dev": "tsc --watch",
     "prepare": "tsc"
   },
-  "dependencies": {
-    "openpgp": "^5.7.0"
+  "peerDependencies": {
+    "openpgp": ">=5"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.55.0",
