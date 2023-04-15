@@ -1,5 +1,5 @@
 import { PrivateKeyMap } from '../classes';
-import {
+import type {
   WorkerJob,
   WorkerDecryptJob,
   WorkerDecryptResponse,
