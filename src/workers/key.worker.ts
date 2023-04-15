@@ -1,4 +1,5 @@
-import { PrivateKeyMap } from '../classes';
+// Import specific file rather than index.ts to prevent circular dependency that trips up Vite
+import { PrivateKeyMap } from '../classes/private-key-map';
 import type {
   WorkerJob,
   WorkerDecryptJob,
@@ -15,7 +16,7 @@ const privateKeyMap = new PrivateKeyMap();
 
 self.onmessage = (event: MessageEvent<WorkerJob<never, never>>) => {
   const job = event.data;
-  const action: KeyManagerAction = job.action; // { action } = job as Types.WorkerJob<KeyManagerAction, never>;
+  const action: KeyManagerAction = job.action;
 
   switch (action) {
     case 'put':
