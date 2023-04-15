@@ -81,5 +81,6 @@ function put(job: WorkerPutJob): WorkerPutResponse {
     action,
     jobID,
     ok: true,
+    privateKeyID,
   };
 }

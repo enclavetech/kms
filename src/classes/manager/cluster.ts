@@ -1,13 +1,15 @@
 import { DEFAULT_CONFIG } from '../../constants';
 import type { IKeyManager, KeyManagerConfig, KeyManagerResult } from '../../interfaces';
 import type { PrivateKey, PrivateKeyID } from '../../types';
+import { Manager } from './manager';
 import { KeyWorker } from './worker';
 
-export class KeyWorkerCluster implements IKeyManager {
+export class KeyWorkerCluster extends Manager implements IKeyManager {
   private readonly cluster = new Array<KeyWorker>();
   private currentWorker = 0;
 
   constructor(config: KeyManagerConfig = DEFAULT_CONFIG) {
+    super();
     const clusterSize = config.clusterSize ?? DEFAULT_CONFIG.clusterSize;
 
     if (!clusterSize || clusterSize <= 0) {
@@ -25,16 +27,17 @@ export class KeyWorkerCluster implements IKeyManager {
     ];
   }
 
-  decrypt(privateKeyID: PrivateKeyID, data: string): Promise<KeyManagerResult> {
+  decrypt(data: string, privateKeyID: PrivateKeyID): Promise<KeyManagerResult> {
     return this.getNextWorker().decrypt(privateKeyID, data);
   }
 
-  encrypt(privateKeyID: PrivateKeyID, data: string): Promise<KeyManagerResult> {
+  encrypt(data: string, privateKeyID: PrivateKeyID): Promise<KeyManagerResult> {
     return this.getNextWorker().encrypt(privateKeyID, data);
   }
 
-  async put(privateKeyID: PrivateKeyID, armoredKey: PrivateKey): Promise<KeyManagerResult> {
-    return Promise.all(this.cluster.map((worker) => worker.put(privateKeyID, armoredKey))).then(
+  async put(armoredKey: PrivateKey, privateKeyID?: PrivateKeyID): Promise<KeyManagerResult> {
+    if (!privateKeyID) privateKeyID = this.getNextID();
+    return Promise.all(this.cluster.map((worker) => worker.put(armoredKey, privateKeyID))).then(
       (results) => results[0]
     );
   }

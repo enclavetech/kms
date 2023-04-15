@@ -10,8 +10,9 @@ import type {
   WorkerResponse,
 } from '../../interfaces';
 import type { KeyManagerAction, KeyManagerCallback, PrivateKey, PrivateKeyID } from '../../types';
+import { Manager } from './manager';
 
-export class KeyWorker implements IKeyManager {
+export class KeyWorker extends Manager implements IKeyManager {
   private readonly worker = new Worker(new URL('../../workers/key.worker.js?worker', import.meta.url), {
     type: 'module',
   });
@@ -21,6 +22,7 @@ export class KeyWorker implements IKeyManager {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   constructor(config: KeyManagerConfig = DEFAULT_CONFIG) {
+    super();
     this.worker.onmessage = (event: MessageEvent<WorkerResponse>) => {
       const response = event.data;
       const { jobID, ok } = response;
@@ -52,7 +54,7 @@ export class KeyWorker implements IKeyManager {
     });
   }
 
-  decrypt(privateKeyID: PrivateKeyID, data: string): Promise<KeyManagerResult> {
+  decrypt(data: string, privateKeyID: PrivateKeyID): Promise<KeyManagerResult> {
     return this.doJob<WorkerDecryptJob>({
       action: 'decrypt',
       privateKeyID,
@@ -60,7 +62,7 @@ export class KeyWorker implements IKeyManager {
     });
   }
 
-  encrypt(privateKeyID: PrivateKeyID, data: string): Promise<KeyManagerResult> {
+  encrypt(data: string, privateKeyID: PrivateKeyID): Promise<KeyManagerResult> {
     return this.doJob<WorkerEncryptJob>({
       action: 'encrypt',
       privateKeyID,
@@ -68,7 +70,8 @@ export class KeyWorker implements IKeyManager {
     });
   }
 
-  put(privateKeyID: PrivateKeyID, armoredKey: PrivateKey): Promise<KeyManagerResult> {
+  put(armoredKey: PrivateKey, privateKeyID?: PrivateKeyID): Promise<KeyManagerResult> {
+    if (!privateKeyID) privateKeyID = this.getNextID();
     return this.doJob<WorkerPutJob>({
       action: 'put',
       privateKeyID,

@@ -49,5 +49,6 @@ function put(job) {
         action,
         jobID,
         ok: true,
+        privateKeyID,
     };
 }

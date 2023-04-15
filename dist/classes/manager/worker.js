@@ -1,7 +1,9 @@
 import { DEFAULT_CONFIG } from '../../constants';
-export class KeyWorker {
+import { Manager } from './manager';
+export class KeyWorker extends Manager {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     constructor(config = DEFAULT_CONFIG) {
+        super();
         this.worker = new Worker(new URL('../../workers/key.worker.js?worker', import.meta.url), {
             type: 'module',
         });
@@ -33,21 +35,23 @@ export class KeyWorker {
             this.worker.postMessage({ ...job, jobID });
         });
     }
-    decrypt(privateKeyID, data) {
+    decrypt(data, privateKeyID) {
         return this.doJob({
             action: 'decrypt',
             privateKeyID,
             data,
         });
     }
-    encrypt(privateKeyID, data) {
+    encrypt(data, privateKeyID) {
         return this.doJob({
             action: 'encrypt',
             privateKeyID,
             data,
         });
     }
-    put(privateKeyID, armoredKey) {
+    put(armoredKey, privateKeyID) {
+        if (!privateKeyID)
+            privateKeyID = this.getNextID();
         return this.doJob({
             action: 'put',
             privateKeyID,

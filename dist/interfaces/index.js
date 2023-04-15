@@ -1,4 +1,4 @@
-export * from './config';
+export * from './configs';
 export * from './key-manager';
 export * from './jobs';
 export * from './requests';

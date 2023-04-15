@@ -22,6 +22,7 @@ In code, you import decrypted keys into the key manager, which orchestrates the 
 | :heavy_check_mark: | Store keys                         |  `1.0.0`  |
 |   :construction:   | Encrypt/decrypt jobs               |  `1.0.0`  |
 | :heavy_check_mark: | Pooling (multiple workers/threads) |  `1.0.0`  |
+|   :construction:   | Custom defined ID generators       |           |
 
 ### Platforms
 
