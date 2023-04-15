@@ -8,4 +8,4 @@ export * from './success-data';
 
 export type KeyManagerDecryptResult = KeyManagerSuccessDataResult;
 export type KeyManagerEncryptResult = KeyManagerSuccessDataResult;
-export type KeyManagerPutResult = KeyManagerSuccessResult;
+export type KeyManagerImportKeyResult = KeyManagerSuccessResult;

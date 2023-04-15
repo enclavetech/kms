@@ -1,7 +1,7 @@
 import type { PrivateKey } from 'openpgp';
 import type { PrivateKeyID } from '../../types';
-export interface KeyManagerPutRequest {
-    action: 'put';
+export interface KeyManagerImportKeyRequest {
+    action: 'importKey';
     data: PrivateKey;
     privateKeyID?: PrivateKeyID;
 }

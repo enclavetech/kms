@@ -6,8 +6,8 @@ self.onmessage = async (event) => {
     const job = event.data;
     const action = job.action;
     switch (action) {
-        case 'put':
-            return self.postMessage(putJob(job));
+        case 'importKey':
+            return self.postMessage(importKeyJob(job));
         case 'decrypt':
             return self.postMessage(await decryptJob(job));
         case 'encrypt':
@@ -61,7 +61,7 @@ async function encryptJob(job) {
         privateKeyID,
     };
 }
-function putJob(job) {
+function importKeyJob(job) {
     const { action, data, jobID, privateKeyID } = job;
     privateKeyMap.set(privateKeyID, data);
     return {

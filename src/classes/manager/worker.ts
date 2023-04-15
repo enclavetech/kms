@@ -7,7 +7,7 @@ import type {
   WorkerDecryptJob,
   WorkerEncryptJob,
   WorkerJob,
-  WorkerPutJob,
+  workerImportKeyJob,
   WorkerResponse,
 } from '../../interfaces';
 import type { KeyManagerAction, KeyManagerCallback, PrivateKeyID } from '../../types';
@@ -71,10 +71,10 @@ export class KeyWorker extends Manager implements IKeyManager {
     });
   }
 
-  put(privateKey: PrivateKey, privateKeyID?: PrivateKeyID): Promise<KeyManagerResult> {
+  importKey(privateKey: PrivateKey, privateKeyID?: PrivateKeyID): Promise<KeyManagerResult> {
     if (!privateKeyID) privateKeyID = this.getNextID();
-    return this.doJob<WorkerPutJob>({
-      action: 'put',
+    return this.doJob<workerImportKeyJob>({
+      action: 'importKey',
       privateKeyID,
       data: privateKey,
     });

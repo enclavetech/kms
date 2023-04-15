@@ -9,5 +9,5 @@ export declare class KeyWorkerCluster extends Manager implements IKeyManager {
     private getNextWorker;
     decrypt(data: string, privateKeyID: PrivateKeyID): Promise<KeyManagerResult>;
     encrypt(data: string, privateKeyID: PrivateKeyID): Promise<KeyManagerResult>;
-    put(privateKey: PrivateKey, privateKeyID?: PrivateKeyID): Promise<KeyManagerResult>;
+    importKey(privateKey: PrivateKey, privateKeyID?: PrivateKeyID): Promise<KeyManagerResult>;
 }

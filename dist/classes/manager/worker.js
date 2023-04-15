@@ -49,11 +49,11 @@ export class KeyWorker extends Manager {
             data,
         });
     }
-    put(privateKey, privateKeyID) {
+    importKey(privateKey, privateKeyID) {
         if (!privateKeyID)
             privateKeyID = this.getNextID();
         return this.doJob({
-            action: 'put',
+            action: 'importKey',
             privateKeyID,
             data: privateKey,
         });

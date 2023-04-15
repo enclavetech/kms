@@ -36,9 +36,9 @@ export class KeyWorkerCluster extends Manager implements IKeyManager {
     return this.getNextWorker().encrypt(privateKeyID, data);
   }
 
-  async put(privateKey: PrivateKey, privateKeyID?: PrivateKeyID): Promise<KeyManagerResult> {
+  async importKey(privateKey: PrivateKey, privateKeyID?: PrivateKeyID): Promise<KeyManagerResult> {
     if (!privateKeyID) privateKeyID = this.getNextID();
-    return Promise.all(this.cluster.map((worker) => worker.put(privateKey, privateKeyID))).then(
+    return Promise.all(this.cluster.map((worker) => worker.importKey(privateKey, privateKeyID))).then(
       (results) => results[0]
     );
   }

@@ -10,5 +10,5 @@ export declare class KeyWorker extends Manager implements IKeyManager {
     private doJob;
     decrypt(data: string, privateKeyID: PrivateKeyID): Promise<KeyManagerResult>;
     encrypt(data: string, privateKeyID: PrivateKeyID): Promise<KeyManagerResult>;
-    put(privateKey: PrivateKey, privateKeyID?: PrivateKeyID): Promise<KeyManagerResult>;
+    importKey(privateKey: PrivateKey, privateKeyID?: PrivateKeyID): Promise<KeyManagerResult>;
 }

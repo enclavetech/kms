@@ -5,5 +5,5 @@ import type { KeyManagerResult } from './results';
 export interface IKeyManager extends Manager {
     decrypt(data: string, privateKeyID: PrivateKeyID): Promise<KeyManagerResult>;
     encrypt(data: string, privateKeyID: PrivateKeyID): Promise<KeyManagerResult>;
-    put(privateKey: PrivateKey, privateKeyID?: PrivateKeyID): Promise<KeyManagerResult>;
+    importKey(privateKey: PrivateKey, privateKeyID?: PrivateKeyID): Promise<KeyManagerResult>;
 }

@@ -8,8 +8,8 @@ import type {
   WorkerEncryptJob,
   WorkerEncryptResponse,
   WorkerErrorResponse,
-  WorkerPutJob,
-  WorkerPutResponse,
+  workerImportKeyJob,
+  WorkerImportKeyResponse,
 } from '../interfaces';
 import type { KeyManagerAction } from '../types';
 
@@ -20,8 +20,8 @@ self.onmessage = async (event: MessageEvent<WorkerJob<never, never>>) => {
   const action: KeyManagerAction = job.action;
 
   switch (action) {
-    case 'put':
-      return self.postMessage(putJob(job));
+    case 'importKey':
+      return self.postMessage(importKeyJob(job));
 
     case 'decrypt':
       return self.postMessage(await decryptJob(job));
@@ -97,7 +97,7 @@ async function encryptJob(job: WorkerEncryptJob): Promise<WorkerEncryptResponse>
   };
 }
 
-function putJob(job: WorkerPutJob): WorkerPutResponse {
+function importKeyJob(job: workerImportKeyJob): WorkerImportKeyResponse {
   const { action, data, jobID, privateKeyID } = job;
 
   privateKeyMap.set(privateKeyID, data);

@@ -8,4 +8,4 @@ export * from './success-data';
 
 export type WorkerDecryptResponse = WorkerSuccessDataResponse;
 export type WorkerEncryptResponse = WorkerSuccessDataResponse;
-export type WorkerPutResponse = WorkerSuccessResponse;
+export type WorkerImportKeyResponse = WorkerSuccessResponse;
