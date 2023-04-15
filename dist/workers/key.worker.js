@@ -1,16 +1,17 @@
+import { createMessage, decrypt, encrypt } from 'openpgp';
 // Import specific file rather than index.ts to prevent circular dependency that trips up Vite
 import { PrivateKeyMap } from '../classes/private-key-map';
 const privateKeyMap = new PrivateKeyMap();
-self.onmessage = (event) => {
+self.onmessage = async (event) => {
     const job = event.data;
     const action = job.action;
     switch (action) {
         case 'put':
-            return self.postMessage(put(job));
+            return self.postMessage(putJob(job));
         case 'decrypt':
-            return self.postMessage(decrypt(job));
+            return self.postMessage(await decryptJob(job));
         case 'encrypt':
-            return self.postMessage(encrypt(job));
+            return self.postMessage(await encryptJob(job));
         default:
             return self.postMessage(createErrorResponse('Invalid action', job));
     }
@@ -34,15 +35,33 @@ function getPrivateKeyOrFail(job) {
     }
     return privateKey;
 }
-function decrypt(job) {
+async function decryptJob(job) {
+    const { action, data: encryptedData, jobID, privateKeyID } = job;
     const privateKey = getPrivateKeyOrFail(job);
-    throw createErrorResponse('Decrypt jobs not implemented', job);
+    const data = await createMessage({ text: encryptedData })
+        .then((message) => decrypt({ message, decryptionKeys: privateKey }))
+        .then((message) => message.data.toString());
+    return {
+        action,
+        data,
+        jobID,
+        ok: true,
+        privateKeyID,
+    };
 }
-function encrypt(job) {
+async function encryptJob(job) {
+    const { action, data: encryptedData, jobID, privateKeyID } = job;
     const privateKey = getPrivateKeyOrFail(job);
-    throw createErrorResponse('Encrypt jobs not implemented', job);
+    const data = await createMessage({ text: encryptedData }).then((message) => encrypt({ message, encryptionKeys: privateKey }));
+    return {
+        action,
+        data,
+        jobID,
+        ok: true,
+        privateKeyID,
+    };
 }
-function put(job) {
+function putJob(job) {
     const { action, data, jobID, privateKeyID } = job;
     privateKeyMap.set(privateKeyID, data);
     return {

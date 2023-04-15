@@ -1,4 +1,4 @@
-import { PrivateKey } from 'openpgp';
+import { createMessage, decrypt, encrypt, PrivateKey } from 'openpgp';
 // Import specific file rather than index.ts to prevent circular dependency that trips up Vite
 import { PrivateKeyMap } from '../classes/private-key-map';
 import type {
@@ -15,19 +15,19 @@ import type { KeyManagerAction } from '../types';
 
 const privateKeyMap = new PrivateKeyMap();
 
-self.onmessage = (event: MessageEvent<WorkerJob<never, never>>) => {
+self.onmessage = async (event: MessageEvent<WorkerJob<never, never>>) => {
   const job = event.data;
   const action: KeyManagerAction = job.action;
 
   switch (action) {
     case 'put':
-      return self.postMessage(put(job));
+      return self.postMessage(putJob(job));
 
     case 'decrypt':
-      return self.postMessage(decrypt(job));
+      return self.postMessage(await decryptJob(job));
 
     case 'encrypt':
-      return self.postMessage(encrypt(job));
+      return self.postMessage(await encryptJob(job));
 
     default:
       return self.postMessage(createErrorResponse('Invalid action', job));
@@ -61,19 +61,43 @@ function getPrivateKeyOrFail(job: WorkerJob<KeyManagerAction, unknown>): Private
   return privateKey;
 }
 
-function decrypt(job: WorkerDecryptJob): WorkerDecryptResponse {
+async function decryptJob(job: WorkerDecryptJob): Promise<WorkerDecryptResponse> {
+  const { action, data: encryptedData, jobID, privateKeyID } = job;
+
   const privateKey = getPrivateKeyOrFail(job);
 
-  throw createErrorResponse('Decrypt jobs not implemented', job);
+  const data = await createMessage({ text: encryptedData })
+    .then((message) => decrypt({ message, decryptionKeys: privateKey }))
+    .then((message) => message.data.toString());
+
+  return {
+    action,
+    data,
+    jobID,
+    ok: true,
+    privateKeyID,
+  };
 }
 
-function encrypt(job: WorkerEncryptJob): WorkerEncryptResponse {
+async function encryptJob(job: WorkerEncryptJob): Promise<WorkerEncryptResponse> {
+  const { action, data: encryptedData, jobID, privateKeyID } = job;
+
   const privateKey = getPrivateKeyOrFail(job);
 
-  throw createErrorResponse('Encrypt jobs not implemented', job);
+  const data = await createMessage({ text: encryptedData }).then((message) =>
+    encrypt({ message, encryptionKeys: privateKey })
+  );
+
+  return {
+    action,
+    data,
+    jobID,
+    ok: true,
+    privateKeyID,
+  };
 }
 
-function put(job: WorkerPutJob): WorkerPutResponse {
+function putJob(job: WorkerPutJob): WorkerPutResponse {
   const { action, data, jobID, privateKeyID } = job;
 
   privateKeyMap.set(privateKeyID, data);
