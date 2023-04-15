@@ -1,4 +1,5 @@
-import type { PrivateKey, PrivateKeyID } from '../types';
+import type { PrivateKey } from 'openpgp';
+import type { PrivateKeyID } from '../types';
 
 export class PrivateKeyMap extends Map<PrivateKeyID, PrivateKey> {
   constructor() {

@@ -49,13 +49,13 @@ export class KeyWorker extends Manager {
             data,
         });
     }
-    put(armoredKey, privateKeyID) {
+    put(privateKey, privateKeyID) {
         if (!privateKeyID)
             privateKeyID = this.getNextID();
         return this.doJob({
             action: 'put',
             privateKeyID,
-            data: armoredKey,
+            data: privateKey,
         });
     }
 }

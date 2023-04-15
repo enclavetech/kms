@@ -24,9 +24,9 @@ export class KeyWorkerCluster extends Manager {
     encrypt(data, privateKeyID) {
         return this.getNextWorker().encrypt(privateKeyID, data);
     }
-    async put(armoredKey, privateKeyID) {
+    async put(privateKey, privateKeyID) {
         if (!privateKeyID)
             privateKeyID = this.getNextID();
-        return Promise.all(this.cluster.map((worker) => worker.put(armoredKey, privateKeyID))).then((results) => results[0]);
+        return Promise.all(this.cluster.map((worker) => worker.put(privateKey, privateKeyID))).then((results) => results[0]);
     }
 }

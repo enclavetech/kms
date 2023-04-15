@@ -1,6 +1,7 @@
+import type { PrivateKey } from 'openpgp';
 import { DEFAULT_CONFIG } from '../../constants';
 import type { IKeyManager, KeyManagerConfig, KeyManagerResult } from '../../interfaces';
-import type { PrivateKey, PrivateKeyID } from '../../types';
+import type { PrivateKeyID } from '../../types';
 import { Manager } from './manager';
 import { KeyWorker } from './worker';
 
@@ -35,9 +36,9 @@ export class KeyWorkerCluster extends Manager implements IKeyManager {
     return this.getNextWorker().encrypt(privateKeyID, data);
   }
 
-  async put(armoredKey: PrivateKey, privateKeyID?: PrivateKeyID): Promise<KeyManagerResult> {
+  async put(privateKey: PrivateKey, privateKeyID?: PrivateKeyID): Promise<KeyManagerResult> {
     if (!privateKeyID) privateKeyID = this.getNextID();
-    return Promise.all(this.cluster.map((worker) => worker.put(armoredKey, privateKeyID))).then(
+    return Promise.all(this.cluster.map((worker) => worker.put(privateKey, privateKeyID))).then(
       (results) => results[0]
     );
   }

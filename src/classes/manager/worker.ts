@@ -1,3 +1,4 @@
+import type { PrivateKey } from 'openpgp';
 import { DEFAULT_CONFIG } from '../../constants';
 import type {
   IKeyManager,
@@ -9,7 +10,7 @@ import type {
   WorkerPutJob,
   WorkerResponse,
 } from '../../interfaces';
-import type { KeyManagerAction, KeyManagerCallback, PrivateKey, PrivateKeyID } from '../../types';
+import type { KeyManagerAction, KeyManagerCallback, PrivateKeyID } from '../../types';
 import { Manager } from './manager';
 
 export class KeyWorker extends Manager implements IKeyManager {
@@ -70,12 +71,12 @@ export class KeyWorker extends Manager implements IKeyManager {
     });
   }
 
-  put(armoredKey: PrivateKey, privateKeyID?: PrivateKeyID): Promise<KeyManagerResult> {
+  put(privateKey: PrivateKey, privateKeyID?: PrivateKeyID): Promise<KeyManagerResult> {
     if (!privateKeyID) privateKeyID = this.getNextID();
     return this.doJob<WorkerPutJob>({
       action: 'put',
       privateKeyID,
-      data: armoredKey,
+      data: privateKey,
     });
   }
 }

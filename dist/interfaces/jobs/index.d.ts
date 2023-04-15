@@ -1,4 +1,4 @@
-import type { PrivateKey } from '../../types';
+import type { PrivateKey } from 'openpgp';
 import type { WorkerJob } from './job';
 export type * from './job';
 export type WorkerDecryptJob = WorkerJob<'decrypt', string>;

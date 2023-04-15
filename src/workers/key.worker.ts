@@ -1,3 +1,4 @@
+import { PrivateKey } from 'openpgp';
 // Import specific file rather than index.ts to prevent circular dependency that trips up Vite
 import { PrivateKeyMap } from '../classes/private-key-map';
 import type {
@@ -48,7 +49,7 @@ function createErrorResponse(error: string, job: WorkerJob<KeyManagerAction, unk
   throw `Key Manager: ${action} job failed: ${error}.`;
 }
 
-function getPrivateKeyOrFail(job: WorkerJob<KeyManagerAction, unknown>): string {
+function getPrivateKeyOrFail(job: WorkerJob<KeyManagerAction, unknown>): PrivateKey {
   const { privateKeyID } = job;
 
   const privateKey = privateKeyMap.get(privateKeyID);
