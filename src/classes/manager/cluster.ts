@@ -1,24 +1,25 @@
-import type { IKeyManager, KeyManagerResult } from '../interfaces';
-import type { PrivateKey, PrivateKeyID } from '../types';
-import { WorkerManager } from './worker-manager';
+import { DEFAULT_CONFIG } from '../../constants';
+import type { IKeyManager, KeyManagerConfig, KeyManagerResult } from '../../interfaces';
+import type { PrivateKey, PrivateKeyID } from '../../types';
+import { KeyWorker } from './worker';
 
-// TODO: make an abstract API for this and `WorkerManager`
-
-export class ClusterManager implements IKeyManager {
-  private readonly cluster = new Array<WorkerManager>();
+export class KeyWorkerCluster implements IKeyManager {
+  private readonly cluster = new Array<KeyWorker>();
   private currentWorker = 0;
 
-  constructor(clusterCount = 1) {
-    if (clusterCount <= 0) {
-      throw 'Invalid cluster count';
+  constructor(config: KeyManagerConfig = DEFAULT_CONFIG) {
+    const clusterSize = config.clusterSize ?? DEFAULT_CONFIG.clusterSize;
+
+    if (!clusterSize || clusterSize <= 0) {
+      throw 'Invalid cluster size';
     }
 
-    for (let i = 0; i < clusterCount; i++) {
-      this.cluster.push(new WorkerManager());
+    for (let i = 0; i < clusterSize; i++) {
+      this.cluster.push(new KeyWorker());
     }
   }
 
-  private getNextWorker(): WorkerManager {
+  private getNextWorker(): KeyWorker {
     return this.cluster[
       (this.currentWorker = ++this.currentWorker >= this.cluster.length ? 0 : this.currentWorker)
     ];

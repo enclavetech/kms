@@ -1,14 +1,16 @@
-import { WorkerManager } from './worker-manager';
-// TODO: make an abstract API for this and `WorkerManager`
-export class ClusterManager {
-    constructor(clusterCount = 1) {
+import { DEFAULT_CONFIG } from '../../constants';
+import { KeyWorker } from './worker';
+export class KeyWorkerCluster {
+    constructor(config = DEFAULT_CONFIG) {
+        var _a;
         this.cluster = new Array();
         this.currentWorker = 0;
-        if (clusterCount <= 0) {
-            throw 'Invalid cluster count';
+        const clusterSize = (_a = config.clusterSize) !== null && _a !== void 0 ? _a : DEFAULT_CONFIG.clusterSize;
+        if (!clusterSize || clusterSize <= 0) {
+            throw 'Invalid cluster size';
         }
-        for (let i = 0; i < clusterCount; i++) {
-            this.cluster.push(new WorkerManager());
+        for (let i = 0; i < clusterSize; i++) {
+            this.cluster.push(new KeyWorker());
         }
     }
     getNextWorker() {

@@ -1,25 +1,26 @@
+import { DEFAULT_CONFIG } from '../../constants';
 import type {
   IKeyManager,
+  KeyManagerConfig,
   KeyManagerResult,
   WorkerDecryptJob,
   WorkerEncryptJob,
   WorkerJob,
   WorkerPutJob,
   WorkerResponse,
-} from '../interfaces';
-import type { KeyManagerAction, KeyManagerCallback, PrivateKey, PrivateKeyID } from '../types';
+} from '../../interfaces';
+import type { KeyManagerAction, KeyManagerCallback, PrivateKey, PrivateKeyID } from '../../types';
 
-// TODO: make an abstract API for this and `ClusterManager`
-
-export class WorkerManager implements IKeyManager {
-  private readonly worker = new Worker(new URL('../workers/key.worker.js?worker', import.meta.url), {
+export class KeyWorker implements IKeyManager {
+  private readonly worker = new Worker(new URL('../../workers/key.worker.js?worker', import.meta.url), {
     type: 'module',
   });
 
   private readonly pendingJobs = new Map<number, KeyManagerCallback>();
-  private requestCounter = 0;
+  private jobCounter = 0;
 
-  constructor() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  constructor(config: KeyManagerConfig = DEFAULT_CONFIG) {
     this.worker.onmessage = (event: MessageEvent<WorkerResponse>) => {
       const response = event.data;
       const { jobID, ok } = response;
@@ -43,11 +44,11 @@ export class WorkerManager implements IKeyManager {
 
   private doJob<J extends WorkerJob<KeyManagerAction, unknown>>(job: Omit<J, 'jobID'>) {
     return new Promise<KeyManagerResult>((resolve, reject) => {
-      const jobID = this.requestCounter++;
+      const jobID = this.jobCounter++;
       this.pendingJobs.set(jobID, (result) => {
         result.ok ? resolve(result) : reject(result);
       });
-      this.worker.postMessage({ ...job, requestID: jobID });
+      this.worker.postMessage({ ...job, jobID });
     });
   }
 

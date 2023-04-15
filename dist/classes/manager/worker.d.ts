@@ -1,10 +1,10 @@
-import type { IKeyManager, KeyManagerResult } from '../interfaces';
-import type { PrivateKey, PrivateKeyID } from '../types';
-export declare class WorkerManager implements IKeyManager {
+import type { IKeyManager, KeyManagerConfig, KeyManagerResult } from '../../interfaces';
+import type { PrivateKey, PrivateKeyID } from '../../types';
+export declare class KeyWorker implements IKeyManager {
     private readonly worker;
     private readonly pendingJobs;
-    private requestCounter;
-    constructor();
+    private jobCounter;
+    constructor(config?: KeyManagerConfig);
     private doJob;
     decrypt(privateKeyID: PrivateKeyID, data: string): Promise<KeyManagerResult>;
     encrypt(privateKeyID: PrivateKeyID, data: string): Promise<KeyManagerResult>;

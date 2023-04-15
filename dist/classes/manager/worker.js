@@ -1,11 +1,12 @@
-// TODO: make an abstract API for this and `ClusterManager`
-export class WorkerManager {
-    constructor() {
-        this.worker = new Worker(new URL('../workers/key.worker.js?worker', import.meta.url), {
+import { DEFAULT_CONFIG } from '../../constants';
+export class KeyWorker {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    constructor(config = DEFAULT_CONFIG) {
+        this.worker = new Worker(new URL('../../workers/key.worker.js?worker', import.meta.url), {
             type: 'module',
         });
         this.pendingJobs = new Map();
-        this.requestCounter = 0;
+        this.jobCounter = 0;
         this.worker.onmessage = (event) => {
             const response = event.data;
             const { jobID, ok } = response;
@@ -25,11 +26,11 @@ export class WorkerManager {
     }
     doJob(job) {
         return new Promise((resolve, reject) => {
-            const jobID = this.requestCounter++;
+            const jobID = this.jobCounter++;
             this.pendingJobs.set(jobID, (result) => {
                 result.ok ? resolve(result) : reject(result);
             });
-            this.worker.postMessage({ ...job, requestID: jobID });
+            this.worker.postMessage({ ...job, jobID });
         });
     }
     decrypt(privateKeyID, data) {

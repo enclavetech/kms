@@ -1,9 +1,9 @@
-import type { IKeyManager, KeyManagerResult } from '../interfaces';
-import type { PrivateKey, PrivateKeyID } from '../types';
-export declare class ClusterManager implements IKeyManager {
+import type { IKeyManager, KeyManagerConfig, KeyManagerResult } from '../../interfaces';
+import type { PrivateKey, PrivateKeyID } from '../../types';
+export declare class KeyWorkerCluster implements IKeyManager {
     private readonly cluster;
     private currentWorker;
-    constructor(clusterCount?: number);
+    constructor(config?: KeyManagerConfig);
     private getNextWorker;
     decrypt(privateKeyID: PrivateKeyID, data: string): Promise<KeyManagerResult>;
     encrypt(privateKeyID: PrivateKeyID, data: string): Promise<KeyManagerResult>;

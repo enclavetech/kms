@@ -17,11 +17,11 @@ In code, you import decrypted keys into the key manager, which orchestrates the 
 
 ### Features
 
-|     Status      | Feature                            | Milestone |
-| :-------------: | :--------------------------------- | :-------: |
-| :yellow_circle: | Store keys                         |  `1.0.0`  |
-| :yellow_circle: | Encrypt/decrypt jobs               |  `1.0.0`  |
-| :yellow_circle: | Pooling (multiple workers/threads) |           |
+|       Status       | Feature                            | Milestone |
+| :----------------: | :--------------------------------- | :-------: |
+| :white_check_mark: | Store keys                         |  `1.0.0`  |
+|   :construction:   | Encrypt/decrypt jobs               |  `1.0.0`  |
+| :white_check_mark: | Pooling (multiple workers/threads) |  `1.0.0`  |
 
 ### Platforms
 
@@ -56,9 +56,9 @@ npm i openpgp
 To get started:
 
 ```js
-import { createKeyManager } from 'key-manager';
+import { KeyManager } from 'key-manager';
 
-const keyManager = createKeyManager();
+const keyManager = KeyManager();
 ```
 
 ## Examples
