@@ -16,7 +16,9 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "prepare": "tsc"
+    "lint": "prettier --plugin-search-dir . --check . && eslint .",
+    "prepare": "tsc",
+    "prettier": "prettier --plugin-search-dir . --write ."
   },
   "peerDependencies": {
     "openpgp": "^5"
