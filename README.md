@@ -19,22 +19,22 @@ In code, you import decrypted keys into the key manager, which orchestrates the 
 
 |       Status       | Feature                            | Milestone |
 | :----------------: | :--------------------------------- | :-------: |
-| :white_check_mark: | Store keys                         |  `1.0.0`  |
+| :heavy_check_mark: | Store keys                         |  `1.0.0`  |
 |   :construction:   | Encrypt/decrypt jobs               |  `1.0.0`  |
-| :white_check_mark: | Pooling (multiple workers/threads) |  `1.0.0`  |
+| :heavy_check_mark: | Pooling (multiple workers/threads) |  `1.0.0`  |
 
 ### Platforms
 
 |       Status       | Platform | Milestone |
 | :----------------: | :------- | :-------: |
-| :white_check_mark: | Browser  |  `1.0.0`  |
+| :heavy_check_mark: | Browser  |  `1.0.0`  |
 |   :construction:   | Node.js  |           |
 
 ### Frameworks
 
 |       Status       | Framework | Milestone |
 | :----------------: | :-------- | :-------: |
-| :white_check_mark: | Svelte    |  `1.0.0`  |
+| :heavy_check_mark: | Svelte    |  `1.0.0`  |
 |    :red_circle:    | Others... |           |
 
 ## How to install?
