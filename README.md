@@ -54,6 +54,14 @@ Also, ensure the peer dependency `openpgp` is installed:
 npm i openpgp
 ```
 
+If you are using TypeScript, you may need to install `@openpgp/web-stream-tools` as a devDependency too.
+
+See: [openpgpjs#typescript](https://github.com/openpgpjs/openpgpjs#typescript).
+
+```sh
+npm i -D @openpgp/web-stream-tools
+```
+
 To get started:
 
 ```js
