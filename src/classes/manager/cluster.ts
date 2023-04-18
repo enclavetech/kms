@@ -1,45 +1,51 @@
 import type { PrivateKey } from 'openpgp';
 import { DEFAULT_CONFIG } from '../../constants';
-import type { IKeyManager, KeyManagerConfig, KeyManagerResult } from '../../interfaces';
+import type {
+  KeyManagerConfig,
+  KeyManagerDecryptResult,
+  KeyManagerEncryptResult,
+  KeyManagerImportKeyResult,
+} from '../../interfaces';
 import type { PrivateKeyID } from '../../types';
-import { Manager } from './manager';
-import { KeyWorker } from './worker';
+import { KeyManager } from './manager';
+import { KeyWorkerManager } from './worker';
 
-export class KeyWorkerCluster extends Manager implements IKeyManager {
-  private readonly cluster = new Array<KeyWorker>();
+export class KeyWorkerClusterManager extends KeyManager {
+  private readonly cluster = new Array<KeyWorkerManager>();
   private currentWorker = 0;
 
-  constructor(config: KeyManagerConfig = DEFAULT_CONFIG) {
+  constructor(protected readonly config: KeyManagerConfig = DEFAULT_CONFIG) {
     super();
-    const clusterSize = config.clusterSize ?? DEFAULT_CONFIG.clusterSize;
+
+    const clusterSize = this.config.clusterSize ?? DEFAULT_CONFIG.clusterSize;
 
     if (!clusterSize || clusterSize <= 0) {
       throw 'Invalid cluster size';
     }
 
     for (let i = 0; i < clusterSize; i++) {
-      this.cluster.push(new KeyWorker());
+      this.cluster.push(new KeyWorkerManager());
     }
   }
 
-  private getNextWorker(): KeyWorker {
+  private getNextWorker(): KeyWorkerManager {
     return this.cluster[
       (this.currentWorker = ++this.currentWorker >= this.cluster.length ? 0 : this.currentWorker)
     ];
   }
 
-  decrypt(data: string, privateKeyID: PrivateKeyID): Promise<KeyManagerResult> {
+  public async importKey(
+    privateKey: PrivateKey,
+    keyID: PrivateKeyID = this.getNextID()
+  ): Promise<KeyManagerImportKeyResult> {
+    return (await Promise.all(this.cluster.map((worker) => worker.importKey(privateKey, keyID))))[0];
+  }
+
+  public decrypt(privateKeyID: PrivateKeyID, data: string): Promise<KeyManagerDecryptResult> {
     return this.getNextWorker().decrypt(privateKeyID, data);
   }
 
-  encrypt(data: string, privateKeyID: PrivateKeyID): Promise<KeyManagerResult> {
+  public encrypt(privateKeyID: PrivateKeyID, data: string): Promise<KeyManagerEncryptResult> {
     return this.getNextWorker().encrypt(privateKeyID, data);
-  }
-
-  async importKey(privateKey: PrivateKey, privateKeyID?: PrivateKeyID): Promise<KeyManagerResult> {
-    if (!privateKeyID) privateKeyID = this.getNextID();
-    return Promise.all(this.cluster.map((worker) => worker.importKey(privateKey, privateKeyID))).then(
-      (results) => results[0]
-    );
   }
 }

@@ -1,9 +1,10 @@
 import { DEFAULT_CONFIG } from '../../constants';
-import { Manager } from './manager';
-export class KeyWorker extends Manager {
+import { KeyManager } from './manager';
+export class KeyWorkerManager extends KeyManager {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     constructor(config = DEFAULT_CONFIG) {
         super();
+        this.config = config;
         this.worker = new Worker(new URL('../../workers/key.worker.js?worker', import.meta.url), {
             type: 'module',
         });
@@ -26,36 +27,34 @@ export class KeyWorker extends Manager {
             }
         };
     }
-    doJob(job) {
+    doJob(request) {
         return new Promise((resolve, reject) => {
             const jobID = this.jobCounter++;
             this.pendingJobs.set(jobID, (result) => {
                 result.ok ? resolve(result) : reject(result);
             });
-            this.worker.postMessage({ ...job, jobID });
+            this.worker.postMessage({ ...request, jobID });
         });
     }
-    decrypt(data, privateKeyID) {
-        return this.doJob({
-            action: 'decrypt',
-            privateKeyID,
-            data,
-        });
-    }
-    encrypt(data, privateKeyID) {
-        return this.doJob({
-            action: 'encrypt',
-            privateKeyID,
-            data,
-        });
-    }
-    importKey(privateKey, privateKeyID) {
-        if (!privateKeyID)
-            privateKeyID = this.getNextID();
+    importKey(privateKey, keyID = this.getNextID()) {
         return this.doJob({
             action: 'importKey',
-            privateKeyID,
+            keyID,
             data: privateKey,
+        });
+    }
+    decrypt(data, keyID) {
+        return this.doJob({
+            action: 'decrypt',
+            keyID,
+            data,
+        });
+    }
+    encrypt(data, keyID) {
+        return this.doJob({
+            action: 'encrypt',
+            keyID,
+            data,
         });
     }
 }

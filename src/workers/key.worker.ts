@@ -1,43 +1,45 @@
 import { createMessage, decrypt, encrypt, PrivateKey } from 'openpgp';
-// Import specific file rather than index.ts to prevent circular dependency that trips up Vite
-import { PrivateKeyMap } from '../classes/private-key-map';
 import type {
   WorkerJob,
   WorkerDecryptJob,
   WorkerDecryptResponse,
   WorkerEncryptJob,
   WorkerEncryptResponse,
-  WorkerErrorResponse,
-  workerImportKeyJob,
+  WorkerImportKeyJob,
   WorkerImportKeyResponse,
+  WorkerFailResponse,
 } from '../interfaces';
-import type { KeyManagerAction } from '../types';
+import type { KeyManagerAction, PrivateKeyID } from '../types';
+import type { IKeyIdMixin } from '../interfaces';
 
-const privateKeyMap = new PrivateKeyMap();
+const keyMap = new Map<PrivateKeyID, PrivateKey>();
 
-self.onmessage = async (event: MessageEvent<WorkerJob<never, never>>) => {
+self.onmessage = async (event: MessageEvent<WorkerJob<KeyManagerAction>>) => {
   const job = event.data;
-  const action: KeyManagerAction = job.action;
+  const action = job.action;
 
   switch (action) {
     case 'importKey':
-      return self.postMessage(importKeyJob(job));
+      return self.postMessage(importKeyJob(job as WorkerImportKeyJob));
 
     case 'decrypt':
-      return self.postMessage(await decryptJob(job));
+      return self.postMessage(await decryptJob(job as WorkerDecryptJob));
 
     case 'encrypt':
-      return self.postMessage(await encryptJob(job));
+      return self.postMessage(await encryptJob(job as WorkerEncryptJob));
 
     default:
       return self.postMessage(createErrorResponse('Invalid action', job));
   }
 };
 
-function createErrorResponse(error: string, job: WorkerJob<KeyManagerAction, unknown>): WorkerErrorResponse {
+function createErrorResponse<Action extends KeyManagerAction>(
+  error: string,
+  job: WorkerJob<Action>
+): WorkerFailResponse<Action> {
   const { action, jobID } = job;
 
-  const response: WorkerErrorResponse = {
+  const response: WorkerFailResponse<Action> = {
     action,
     error,
     jobID,
@@ -49,63 +51,66 @@ function createErrorResponse(error: string, job: WorkerJob<KeyManagerAction, unk
   throw `Key Manager: ${action} job failed: ${error}.`;
 }
 
-function getPrivateKeyOrFail(job: WorkerJob<KeyManagerAction, unknown>): PrivateKey {
-  const { privateKeyID } = job;
+function getPrivateKeyOrFail<Action extends KeyManagerAction>(
+  job: WorkerJob<Action> & IKeyIdMixin
+): PrivateKey {
+  const { keyID } = job;
 
-  const privateKey = privateKeyMap.get(privateKeyID);
+  const privateKey = keyMap.get(keyID);
 
   if (!privateKey) {
-    throw createErrorResponse(`Key '${privateKeyID}' not found`, job);
+    throw createErrorResponse(`Key '${keyID}' not found`, job);
   }
 
   return privateKey;
 }
 
+// TODO: move jobs to separate function files
+
 async function decryptJob(job: WorkerDecryptJob): Promise<WorkerDecryptResponse> {
-  const { action, data: encryptedData, jobID, privateKeyID } = job;
+  const { action, data: text, jobID, keyID } = job;
 
   const privateKey = getPrivateKeyOrFail(job);
 
-  const data = await createMessage({ text: encryptedData })
-    .then((message) => decrypt({ message, decryptionKeys: privateKey }))
-    .then((message) => message.data.toString());
+  const message = await createMessage({ text });
+  const decryptedMessage = await decrypt({ message, decryptionKeys: privateKey });
+  const data = decryptedMessage.data.toString();
 
   return {
     action,
     data,
     jobID,
+    keyID,
     ok: true,
-    privateKeyID,
   };
 }
 
 async function encryptJob(job: WorkerEncryptJob): Promise<WorkerEncryptResponse> {
-  const { action, data: encryptedData, jobID, privateKeyID } = job;
+  const { action, data: text, jobID, keyID } = job;
 
   const privateKey = getPrivateKeyOrFail(job);
 
-  const data = await createMessage({ text: encryptedData }).then((message) =>
-    encrypt({ message, encryptionKeys: privateKey })
-  );
+  const message = await createMessage({ text });
+  const data = await encrypt({ message, encryptionKeys: privateKey });
 
   return {
     action,
     data,
     jobID,
+    keyID,
     ok: true,
-    privateKeyID,
   };
 }
 
-function importKeyJob(job: workerImportKeyJob): WorkerImportKeyResponse {
-  const { action, data, jobID, privateKeyID } = job;
+function importKeyJob(job: WorkerImportKeyJob): WorkerImportKeyResponse {
+  const { action, data, jobID, keyID } = job;
 
-  privateKeyMap.set(privateKeyID, data);
+  keyMap.set(keyID, data);
 
   return {
     action,
     jobID,
+    keyID,
     ok: true,
-    privateKeyID,
   };
 }

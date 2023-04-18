@@ -1,13 +1,14 @@
 import type { PrivateKey } from 'openpgp';
-import type { IKeyManager, KeyManagerConfig, KeyManagerResult } from '../../interfaces';
+import type { KeyManagerConfig, KeyManagerDecryptResult, KeyManagerEncryptResult, KeyManagerImportKeyResult } from '../../interfaces';
 import type { PrivateKeyID } from '../../types';
-import { Manager } from './manager';
-export declare class KeyWorkerCluster extends Manager implements IKeyManager {
+import { KeyManager } from './manager';
+export declare class KeyWorkerClusterManager extends KeyManager {
+    protected readonly config: KeyManagerConfig;
     private readonly cluster;
     private currentWorker;
     constructor(config?: KeyManagerConfig);
     private getNextWorker;
-    decrypt(data: string, privateKeyID: PrivateKeyID): Promise<KeyManagerResult>;
-    encrypt(data: string, privateKeyID: PrivateKeyID): Promise<KeyManagerResult>;
-    importKey(privateKey: PrivateKey, privateKeyID?: PrivateKeyID): Promise<KeyManagerResult>;
+    importKey(privateKey: PrivateKey, keyID?: PrivateKeyID): Promise<KeyManagerImportKeyResult>;
+    decrypt(privateKeyID: PrivateKeyID, data: string): Promise<KeyManagerDecryptResult>;
+    encrypt(privateKeyID: PrivateKeyID, data: string): Promise<KeyManagerEncryptResult>;
 }

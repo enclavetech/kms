@@ -1,4 +1,4 @@
-export class Manager {
+export class KeyManager {
     constructor() {
         this.idCounter = 0;
     }

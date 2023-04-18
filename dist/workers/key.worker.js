@@ -1,7 +1,5 @@
 import { createMessage, decrypt, encrypt } from 'openpgp';
-// Import specific file rather than index.ts to prevent circular dependency that trips up Vite
-import { PrivateKeyMap } from '../classes/private-key-map';
-const privateKeyMap = new PrivateKeyMap();
+const keyMap = new Map();
 self.onmessage = async (event) => {
     const job = event.data;
     const action = job.action;
@@ -28,46 +26,48 @@ function createErrorResponse(error, job) {
     throw `Key Manager: ${action} job failed: ${error}.`;
 }
 function getPrivateKeyOrFail(job) {
-    const { privateKeyID } = job;
-    const privateKey = privateKeyMap.get(privateKeyID);
+    const { keyID } = job;
+    const privateKey = keyMap.get(keyID);
     if (!privateKey) {
-        throw createErrorResponse(`Key '${privateKeyID}' not found`, job);
+        throw createErrorResponse(`Key '${keyID}' not found`, job);
     }
     return privateKey;
 }
+// TODO: move jobs to separate function files
 async function decryptJob(job) {
-    const { action, data: encryptedData, jobID, privateKeyID } = job;
+    const { action, data: text, jobID, keyID } = job;
     const privateKey = getPrivateKeyOrFail(job);
-    const data = await createMessage({ text: encryptedData })
-        .then((message) => decrypt({ message, decryptionKeys: privateKey }))
-        .then((message) => message.data.toString());
+    const message = await createMessage({ text });
+    const decryptedMessage = await decrypt({ message, decryptionKeys: privateKey });
+    const data = decryptedMessage.data.toString();
     return {
         action,
         data,
         jobID,
+        keyID,
         ok: true,
-        privateKeyID,
     };
 }
 async function encryptJob(job) {
-    const { action, data: encryptedData, jobID, privateKeyID } = job;
+    const { action, data: text, jobID, keyID } = job;
     const privateKey = getPrivateKeyOrFail(job);
-    const data = await createMessage({ text: encryptedData }).then((message) => encrypt({ message, encryptionKeys: privateKey }));
+    const message = await createMessage({ text });
+    const data = await encrypt({ message, encryptionKeys: privateKey });
     return {
         action,
         data,
         jobID,
+        keyID,
         ok: true,
-        privateKeyID,
     };
 }
 function importKeyJob(job) {
-    const { action, data, jobID, privateKeyID } = job;
-    privateKeyMap.set(privateKeyID, data);
+    const { action, data, jobID, keyID } = job;
+    keyMap.set(keyID, data);
     return {
         action,
         jobID,
+        keyID,
         ok: true,
-        privateKeyID,
     };
 }

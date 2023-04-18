@@ -19,9 +19,10 @@ In code, you import decrypted keys into the key manager, which orchestrates the 
 
 |       Status       | Feature                            | Milestone |
 | :----------------: | :--------------------------------- | :-------: |
-| :heavy_check_mark: | Store keys                         |  `1.0.0`  |
+| :white_check_mark: | Import keys                        |  `1.0.0`  |
 |  :yellow_circle:   | Encrypt/decrypt jobs               |  `1.0.0`  |
-| :heavy_check_mark: | Pooling (multiple workers/threads) |  `1.0.0`  |
+| :white_check_mark: | Pooling (multiple workers/threads) |  `1.0.0`  |
+|   :construction:   | Session import/export              |  `1.0.0`  |
 |   :construction:   | Custom defined ID generators       |           |
 
 ### Platforms
@@ -65,9 +66,9 @@ npm i -D @openpgp/web-stream-tools
 To get started:
 
 ```js
-import { KeyManager } from 'key-manager';
+import { createKeyManager } from 'key-manager';
 
-const keyManager = KeyManager();
+const keyManager = createKeyManager();
 ```
 
 ## Examples
