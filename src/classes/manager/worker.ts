@@ -16,6 +16,8 @@ import type {
   KeyManagerImportSessionResult,
   KeyManagerExportSessionRequest,
   KeyManagerImportSessionRequest,
+  KeyManagerDestroySessionResult,
+  KeyManagerDestroySessionRequest,
 } from '../../interfaces';
 import type { KeyManagerAction, KeyManagerCallback, PrivateKeyID } from '../../types';
 import { KeyManager } from './manager';
@@ -75,6 +77,12 @@ export class KeyWorkerManager extends KeyManager {
       action: 'importKey',
       keyID,
       data: privateKey,
+    });
+  }
+
+  public destroySession(): Promise<KeyManagerDestroySessionResult> {
+    return this.doJob<'destroySession', KeyManagerDestroySessionRequest, KeyManagerDestroySessionResult>({
+      action: 'destroySession',
     });
   }
 

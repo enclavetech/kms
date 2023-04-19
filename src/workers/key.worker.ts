@@ -12,6 +12,8 @@ import type {
   WorkerExportSessionResponse,
   WorkerImportSessionJob,
   WorkerImportSessionResponse,
+  WorkerDestroySessionJob,
+  WorkerDestroySessionResponse,
 } from '../interfaces';
 import type { KeyManagerAction, PrivateKeyID } from '../types';
 import type { IKeyIdMixin } from '../interfaces';
@@ -25,6 +27,9 @@ self.onmessage = async (event: MessageEvent<WorkerJob<KeyManagerAction>>) => {
   switch (action) {
     case 'importKey':
       return self.postMessage(importKeyJob(job as WorkerImportKeyJob));
+
+    case 'destroySession':
+      return self.postMessage(destroySessionJob(job as WorkerDestroySessionJob));
 
     case 'exportSession':
       return self.postMessage(exportSessionJob(job as WorkerExportSessionJob));
@@ -85,6 +90,19 @@ function importKeyJob(job: WorkerImportKeyJob): WorkerImportKeyResponse {
   };
 }
 
+function destroySessionJob(job: WorkerDestroySessionJob): WorkerDestroySessionResponse {
+  const { action, jobID } = job;
+
+  // TODO
+  throw createErrorResponse('Not implemented', job);
+
+  return {
+    action,
+    jobID,
+    ok: true,
+  };
+}
+
 function exportSessionJob(job: WorkerExportSessionJob): WorkerExportSessionResponse {
   const { action, jobID } = job;
 
@@ -93,6 +111,7 @@ function exportSessionJob(job: WorkerExportSessionJob): WorkerExportSessionRespo
 
   return {
     action,
+    data: 'TODO',
     jobID,
     ok: true,
   };

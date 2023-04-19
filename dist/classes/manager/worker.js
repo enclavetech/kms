@@ -43,6 +43,11 @@ export class KeyWorkerManager extends KeyManager {
             data: privateKey,
         });
     }
+    destroySession() {
+        return this.doJob({
+            action: 'destroySession',
+        });
+    }
     exportSession() {
         return this.doJob({
             action: 'exportSession',

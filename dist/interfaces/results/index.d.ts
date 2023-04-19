@@ -12,7 +12,8 @@ export interface KeyManagerSuccessResult<Action extends KeyManagerAction> extend
     ok: true;
 }
 export type KeyManagerImportKeyResult = KeyManagerSuccessResult<'importKey'> & IKeyIdMixin;
-export type KeyManagerExportSessionResult = KeyManagerSuccessResult<'exportSession'>;
+export type KeyManagerDestroySessionResult = KeyManagerSuccessResult<'destroySession'>;
+export type KeyManagerExportSessionResult = KeyManagerSuccessResult<'exportSession'> & IDataMixin<string>;
 export type KeyManagerImportSessionResult = KeyManagerSuccessResult<'importSession'>;
 export type KeyManagerDecryptResult = KeyManagerSuccessResult<'decrypt'> & IDataMixin<string> & IKeyIdMixin;
 export type KeyManagerEncryptResult = KeyManagerSuccessResult<'encrypt'> & IDataMixin<string> & IKeyIdMixin;

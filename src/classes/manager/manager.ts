@@ -2,6 +2,7 @@ import { PrivateKey } from 'openpgp';
 import {
   KeyManagerConfig,
   KeyManagerDecryptResult,
+  KeyManagerDestroySessionResult,
   KeyManagerEncryptResult,
   KeyManagerExportSessionResult,
   KeyManagerImportKeyResult,
@@ -23,6 +24,7 @@ export abstract class KeyManager {
     privateKeyID?: string | undefined
   ): Promise<KeyManagerImportKeyResult>;
 
+  public abstract destroySession(): Promise<KeyManagerDestroySessionResult>;
   public abstract exportSession(): Promise<KeyManagerExportSessionResult>;
   public abstract importSession(sessionPayload: string): Promise<KeyManagerImportSessionResult>;
 

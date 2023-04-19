@@ -6,6 +6,8 @@ self.onmessage = async (event) => {
     switch (action) {
         case 'importKey':
             return self.postMessage(importKeyJob(job));
+        case 'destroySession':
+            return self.postMessage(destroySessionJob(job));
         case 'exportSession':
             return self.postMessage(exportSessionJob(job));
         case 'importSession':
@@ -45,12 +47,23 @@ function importKeyJob(job) {
         ok: true,
     };
 }
+function destroySessionJob(job) {
+    const { action, jobID } = job;
+    // TODO
+    throw createErrorResponse('Not implemented', job);
+    return {
+        action,
+        jobID,
+        ok: true,
+    };
+}
 function exportSessionJob(job) {
     const { action, jobID } = job;
     // TODO
     throw createErrorResponse('Not implemented', job);
     return {
         action,
+        data: 'TODO',
         jobID,
         ok: true,
     };

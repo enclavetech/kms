@@ -3,6 +3,7 @@ import { DEFAULT_CONFIG } from '../../constants';
 import type {
   KeyManagerConfig,
   KeyManagerDecryptResult,
+  KeyManagerDestroySessionResult,
   KeyManagerEncryptResult,
   KeyManagerExportSessionResult,
   KeyManagerImportKeyResult,
@@ -41,6 +42,10 @@ export class KeyWorkerClusterManager extends KeyManager {
     keyID: PrivateKeyID = this.getNextID()
   ): Promise<KeyManagerImportKeyResult> {
     return (await Promise.all(this.cluster.map((worker) => worker.importKey(privateKey, keyID))))[0];
+  }
+
+  public async destroySession(): Promise<KeyManagerDestroySessionResult> {
+    return (await Promise.all(this.cluster.map((worker) => worker.destroySession())))[0];
   }
 
   public exportSession(): Promise<KeyManagerExportSessionResult> {

@@ -17,6 +17,7 @@ export type KeyManagerImportKeyRequest = KeyManagerRequest<'importKey'> &
   IMaybeKeyIdMixin;
 
 // Session I/O
+export type KeyManagerDestroySessionRequest = KeyManagerRequest<'destroySession'>;
 export type KeyManagerExportSessionRequest = KeyManagerRequest<'exportSession'>;
 export type KeyManagerImportSessionRequest = KeyManagerRequest<'importSession'> & IDataMixin<string>;
 
