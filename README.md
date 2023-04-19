@@ -3,6 +3,12 @@
 > **Warning**
 > This is currently an unreleased preview. The API is subject to change.
 
+<div align=center>
+
+[![Build Status](https://github.com/enclavetech/key-manager/actions/workflows/build.yml/badge.svg)](https://github.com/enclavetech/key-manager/actions/workflows/build.yml) [![Known Vulnerabilities](https://snyk.io/test/github/enclavetech/key-manager/badge.svg)](https://snyk.io/test/github/enclavetech/key-manager) ![License](https://img.shields.io/github/license/enclavetech/key-manager) <!-- ![Lines of code](https://img.shields.io/tokei/lines/github/enclavetech/key-manager) -->
+
+</div>
+
 ## What is it?
 
 This package deals with the handling of PGP keys in your web application. It aims to do so in a convenient, secure and performant way, exposing a simple API that does the heavy lifting for you.
@@ -22,22 +28,22 @@ In code, you import decrypted keys into the key manager, which orchestrates the 
 | :white_check_mark: | Import keys                        |  `1.0.0`  |
 |  :yellow_circle:   | Encrypt/decrypt jobs               |  `1.0.0`  |
 | :white_check_mark: | Pooling (multiple workers/threads) |  `1.0.0`  |
-|   :construction:   | Session import/export              |  `1.0.0`  |
+|  :yellow_circle:   | Session import/export              |  `1.0.0`  |
 |   :construction:   | Custom defined ID generators       |           |
 
 ### Platforms
 
 |       Status       | Platform | Milestone |
 | :----------------: | :------- | :-------: |
-| :heavy_check_mark: | Browser  |  `1.0.0`  |
+| :white_check_mark: | Browser  |  `1.0.0`  |
 |   :construction:   | Node.js  |           |
 
 ### Frameworks
 
 |       Status       | Framework | Milestone |
 | :----------------: | :-------- | :-------: |
-| :heavy_check_mark: | Svelte    |  `1.0.0`  |
-|    :red_circle:    | Others... |           |
+| :white_check_mark: | Svelte    |  `1.0.0`  |
+|        :x:         | Others... |           |
 
 ## How to install?
 
