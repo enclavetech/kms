@@ -7,9 +7,5 @@ export * from './interfaces';
 export * from './types';
 
 export function createKeyManager(config: KeyManagerConfig = DEFAULT_CONFIG): KeyManager {
-  return config.clusterSize
-    ? config.clusterSize > 1
-      ? new KeyWorkerClusterManager(config)
-      : new KeyWorkerManager(config)
-    : new KeyWorkerClusterManager(DEFAULT_CONFIG);
+  return config.clusterSize === 1 ? new KeyWorkerManager(config) : new KeyWorkerClusterManager(config);
 }
