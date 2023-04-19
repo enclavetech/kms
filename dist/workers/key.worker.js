@@ -86,7 +86,13 @@ async function exportSessionJob(job) {
 }
 async function importSessionJob(job) {
     const { action, data: armoredMessage, jobID } = job;
-    const privateKey = await retrieveSessionKey().then((armoredKey) => readPrivateKey({ armoredKey }));
+    let privateKey;
+    try {
+        privateKey = await retrieveSessionKey().then((armoredKey) => readPrivateKey({ armoredKey }));
+    }
+    catch (e) {
+        throw createErrorResponse('No key found for session', job);
+    }
     const message = await readMessage({ armoredMessage });
     const decryptedMessage = await decrypt({ message, decryptionKeys: privateKey });
     const sessionData = JSON.parse(decryptedMessage.data);

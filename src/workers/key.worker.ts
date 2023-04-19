@@ -132,7 +132,7 @@ async function exportSessionJob(job: WorkerExportSessionJob): Promise<WorkerExpo
   try {
     await saveSessionKey(privateKey.armor());
   } catch (e) {
-    throw createErrorResponse('Failed to save session key', job);
+    throw createErrorResponse<'exportSession'>('Failed to save session key', job);
   }
 
   const data = await encrypt({ message, encryptionKeys: privateKey });
@@ -148,7 +148,14 @@ async function exportSessionJob(job: WorkerExportSessionJob): Promise<WorkerExpo
 async function importSessionJob(job: WorkerImportSessionJob): Promise<WorkerImportSessionResponse> {
   const { action, data: armoredMessage, jobID } = job;
 
-  const privateKey = await retrieveSessionKey().then((armoredKey) => readPrivateKey({ armoredKey }));
+  let privateKey: PrivateKey;
+
+  try {
+    privateKey = await retrieveSessionKey().then((armoredKey) => readPrivateKey({ armoredKey }));
+  } catch (e) {
+    throw createErrorResponse<'importSession'>('No key found for session', job);
+  }
+
   const message = await readMessage({ armoredMessage });
   const decryptedMessage = await decrypt({ message, decryptionKeys: privateKey });
   const sessionData: { keys: Array<{ id: PrivateKeyID; armoredKey: string }> } = JSON.parse(
