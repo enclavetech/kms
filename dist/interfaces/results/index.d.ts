@@ -1,5 +1,5 @@
 import type { KeyManagerAction } from '../../types';
-import { IDataMixin, IKeyIdMixin } from '../mixins';
+import type { IDataMixin, IKeyIdMixin } from '../mixins';
 export interface KeyManagerResult<Action extends KeyManagerAction> {
     action: Action;
     ok: boolean;
@@ -12,5 +12,7 @@ export interface KeyManagerSuccessResult<Action extends KeyManagerAction> extend
     ok: true;
 }
 export type KeyManagerImportKeyResult = KeyManagerSuccessResult<'importKey'> & IKeyIdMixin;
+export type KeyManagerExportSessionResult = KeyManagerSuccessResult<'exportSession'>;
+export type KeyManagerImportSessionResult = KeyManagerSuccessResult<'importSession'>;
 export type KeyManagerDecryptResult = KeyManagerSuccessResult<'decrypt'> & IDataMixin<string> & IKeyIdMixin;
 export type KeyManagerEncryptResult = KeyManagerSuccessResult<'encrypt'> & IDataMixin<string> & IKeyIdMixin;

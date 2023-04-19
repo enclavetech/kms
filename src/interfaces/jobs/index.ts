@@ -3,7 +3,9 @@ import type { IKeyIdMixin } from '../mixins';
 import type {
   KeyManagerDecryptRequest,
   KeyManagerEncryptRequest,
+  KeyManagerExportSessionRequest,
   KeyManagerImportKeyRequest,
+  KeyManagerImportSessionRequest,
   KeyManagerRequest,
 } from '../requests';
 
@@ -17,6 +19,10 @@ export interface WorkerJob<Action extends KeyManagerAction> extends KeyManagerRe
 
 // Key I/O
 export type WorkerImportKeyJob = WorkerJob<'importKey'> & KeyManagerImportKeyRequest & IKeyIdMixin;
+
+// Session I/O
+export type WorkerExportSessionJob = WorkerJob<'exportSession'> & KeyManagerExportSessionRequest;
+export type WorkerImportSessionJob = WorkerJob<'importSession'> & KeyManagerImportSessionRequest;
 
 // Encrypt/decrypt
 export type WorkerDecryptJob = WorkerJob<'decrypt'> & KeyManagerDecryptRequest;

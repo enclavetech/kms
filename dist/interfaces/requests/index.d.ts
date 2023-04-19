@@ -10,5 +10,7 @@ export interface KeyManagerRequest<Action extends KeyManagerAction> {
     action: Action;
 }
 export type KeyManagerImportKeyRequest = KeyManagerRequest<'importKey'> & IDataMixin<PrivateKey> & IMaybeKeyIdMixin;
+export type KeyManagerExportSessionRequest = KeyManagerRequest<'exportSession'>;
+export type KeyManagerImportSessionRequest = KeyManagerRequest<'importSession'> & IDataMixin<string>;
 export type KeyManagerDecryptRequest = KeyManagerRequest<'decrypt'> & IDataMixin<string> & IKeyIdMixin;
 export type KeyManagerEncryptRequest = KeyManagerRequest<'encrypt'> & IDataMixin<string> & IKeyIdMixin;

@@ -6,12 +6,14 @@ self.onmessage = async (event) => {
     switch (action) {
         case 'importKey':
             return self.postMessage(importKeyJob(job));
+        case 'exportSession':
+            return self.postMessage(exportSessionJob(job));
+        case 'importSession':
+            return self.postMessage(importSessionJob(job));
         case 'decrypt':
             return self.postMessage(await decryptJob(job));
         case 'encrypt':
             return self.postMessage(await encryptJob(job));
-        default:
-            return self.postMessage(createErrorResponse('Invalid action', job));
     }
 };
 function createErrorResponse(error, job) {
@@ -33,7 +35,36 @@ function getPrivateKeyOrFail(job) {
     }
     return privateKey;
 }
-// TODO: move jobs to separate function files
+function importKeyJob(job) {
+    const { action, data, jobID, keyID } = job;
+    keyMap.set(keyID, data);
+    return {
+        action,
+        jobID,
+        keyID,
+        ok: true,
+    };
+}
+function exportSessionJob(job) {
+    const { action, jobID } = job;
+    // TODO
+    throw createErrorResponse('Not implemented', job);
+    return {
+        action,
+        jobID,
+        ok: true,
+    };
+}
+function importSessionJob(job) {
+    const { action, data, jobID } = job;
+    // TODO
+    throw createErrorResponse('Not implemented', job);
+    return {
+        action,
+        jobID,
+        ok: true,
+    };
+}
 async function decryptJob(job) {
     const { action, data: text, jobID, keyID } = job;
     const privateKey = getPrivateKeyOrFail(job);
@@ -56,16 +87,6 @@ async function encryptJob(job) {
     return {
         action,
         data,
-        jobID,
-        keyID,
-        ok: true,
-    };
-}
-function importKeyJob(job) {
-    const { action, data, jobID, keyID } = job;
-    keyMap.set(keyID, data);
-    return {
-        action,
         jobID,
         keyID,
         ok: true,

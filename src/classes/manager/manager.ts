@@ -3,7 +3,9 @@ import {
   KeyManagerConfig,
   KeyManagerDecryptResult,
   KeyManagerEncryptResult,
+  KeyManagerExportSessionResult,
   KeyManagerImportKeyResult,
+  KeyManagerImportSessionResult,
 } from '../../interfaces';
 import { PrivateKeyID } from '../../types';
 
@@ -20,6 +22,9 @@ export abstract class KeyManager {
     privateKey: PrivateKey,
     privateKeyID?: string | undefined
   ): Promise<KeyManagerImportKeyResult>;
+
+  public abstract exportSession(): Promise<KeyManagerExportSessionResult>;
+  public abstract importSession(sessionPayload: string): Promise<KeyManagerImportSessionResult>;
 
   public abstract decrypt(privateKeyID: string, data: string): Promise<KeyManagerDecryptResult>;
   public abstract encrypt(privateKeyID: string, data: string): Promise<KeyManagerEncryptResult>;

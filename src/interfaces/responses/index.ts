@@ -2,7 +2,9 @@ import type { KeyManagerAction } from '../../types';
 import type {
   KeyManagerDecryptResult,
   KeyManagerEncryptResult,
+  KeyManagerExportSessionResult,
   KeyManagerImportKeyResult,
+  KeyManagerImportSessionResult,
   KeyManagerResult,
 } from '../results';
 
@@ -21,6 +23,12 @@ export interface WorkerSuccessResponse<Action extends KeyManagerAction> extends 
 
 // Key I/O
 export type WorkerImportKeyResponse = WorkerSuccessResponse<'importKey'> & KeyManagerImportKeyResult;
+
+// Session I/O
+export type WorkerExportSessionResponse = WorkerSuccessResponse<'exportSession'> &
+  KeyManagerExportSessionResult;
+export type WorkerImportSessionResponse = WorkerSuccessResponse<'importSession'> &
+  KeyManagerImportSessionResult;
 
 // Encrypt/decrypt
 export type WorkerDecryptResponse = WorkerSuccessResponse<'decrypt'> & KeyManagerDecryptResult;

@@ -12,6 +12,10 @@ import type {
   KeyManagerImportKeyRequest,
   KeyManagerEncryptResult,
   KeyManagerImportKeyResult,
+  KeyManagerExportSessionResult,
+  KeyManagerImportSessionResult,
+  KeyManagerExportSessionRequest,
+  KeyManagerImportSessionRequest,
 } from '../../interfaces';
 import type { KeyManagerAction, KeyManagerCallback, PrivateKeyID } from '../../types';
 import { KeyManager } from './manager';
@@ -71,6 +75,19 @@ export class KeyWorkerManager extends KeyManager {
       action: 'importKey',
       keyID,
       data: privateKey,
+    });
+  }
+
+  public exportSession(): Promise<KeyManagerExportSessionResult> {
+    return this.doJob<'exportSession', KeyManagerExportSessionRequest, KeyManagerExportSessionResult>({
+      action: 'exportSession',
+    });
+  }
+
+  public importSession(data: string): Promise<KeyManagerImportSessionResult> {
+    return this.doJob<'importSession', KeyManagerImportSessionRequest, KeyManagerImportSessionResult>({
+      action: 'importSession',
+      data,
     });
   }
 

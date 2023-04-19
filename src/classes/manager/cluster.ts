@@ -4,7 +4,9 @@ import type {
   KeyManagerConfig,
   KeyManagerDecryptResult,
   KeyManagerEncryptResult,
+  KeyManagerExportSessionResult,
   KeyManagerImportKeyResult,
+  KeyManagerImportSessionResult,
 } from '../../interfaces';
 import type { PrivateKeyID } from '../../types';
 import { KeyManager } from './manager';
@@ -39,6 +41,14 @@ export class KeyWorkerClusterManager extends KeyManager {
     keyID: PrivateKeyID = this.getNextID()
   ): Promise<KeyManagerImportKeyResult> {
     return (await Promise.all(this.cluster.map((worker) => worker.importKey(privateKey, keyID))))[0];
+  }
+
+  public exportSession(): Promise<KeyManagerExportSessionResult> {
+    return this.getNextWorker().exportSession();
+  }
+
+  public async importSession(sessionPayload: string): Promise<KeyManagerImportSessionResult> {
+    return (await Promise.all(this.cluster.map((worker) => worker.importSession(sessionPayload))))[0];
   }
 
   public decrypt(privateKeyID: PrivateKeyID, data: string): Promise<KeyManagerDecryptResult> {

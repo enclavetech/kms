@@ -1,5 +1,5 @@
 import type { KeyManagerAction } from '../../types';
-import type { KeyManagerDecryptResult, KeyManagerEncryptResult, KeyManagerImportKeyResult, KeyManagerResult } from '../results';
+import type { KeyManagerDecryptResult, KeyManagerEncryptResult, KeyManagerExportSessionResult, KeyManagerImportKeyResult, KeyManagerImportSessionResult, KeyManagerResult } from '../results';
 export interface WorkerResponse<Action extends KeyManagerAction> extends KeyManagerResult<Action> {
     jobID: number;
 }
@@ -11,5 +11,7 @@ export interface WorkerSuccessResponse<Action extends KeyManagerAction> extends 
     ok: true;
 }
 export type WorkerImportKeyResponse = WorkerSuccessResponse<'importKey'> & KeyManagerImportKeyResult;
+export type WorkerExportSessionResponse = WorkerSuccessResponse<'exportSession'> & KeyManagerExportSessionResult;
+export type WorkerImportSessionResponse = WorkerSuccessResponse<'importSession'> & KeyManagerImportSessionResult;
 export type WorkerDecryptResponse = WorkerSuccessResponse<'decrypt'> & KeyManagerDecryptResult;
 export type WorkerEncryptResponse = WorkerSuccessResponse<'encrypt'> & KeyManagerEncryptResult;

@@ -8,6 +8,10 @@ import type {
   WorkerImportKeyJob,
   WorkerImportKeyResponse,
   WorkerFailResponse,
+  WorkerExportSessionJob,
+  WorkerExportSessionResponse,
+  WorkerImportSessionJob,
+  WorkerImportSessionResponse,
 } from '../interfaces';
 import type { KeyManagerAction, PrivateKeyID } from '../types';
 import type { IKeyIdMixin } from '../interfaces';
@@ -22,14 +26,17 @@ self.onmessage = async (event: MessageEvent<WorkerJob<KeyManagerAction>>) => {
     case 'importKey':
       return self.postMessage(importKeyJob(job as WorkerImportKeyJob));
 
+    case 'exportSession':
+      return self.postMessage(exportSessionJob(job as WorkerExportSessionJob));
+
+    case 'importSession':
+      return self.postMessage(importSessionJob(job as WorkerImportSessionJob));
+
     case 'decrypt':
       return self.postMessage(await decryptJob(job as WorkerDecryptJob));
 
     case 'encrypt':
       return self.postMessage(await encryptJob(job as WorkerEncryptJob));
-
-    default:
-      return self.postMessage(createErrorResponse('Invalid action', job));
   }
 };
 
@@ -65,7 +72,44 @@ function getPrivateKeyOrFail<Action extends KeyManagerAction>(
   return privateKey;
 }
 
-// TODO: move jobs to separate function files
+function importKeyJob(job: WorkerImportKeyJob): WorkerImportKeyResponse {
+  const { action, data, jobID, keyID } = job;
+
+  keyMap.set(keyID, data);
+
+  return {
+    action,
+    jobID,
+    keyID,
+    ok: true,
+  };
+}
+
+function exportSessionJob(job: WorkerExportSessionJob): WorkerExportSessionResponse {
+  const { action, jobID } = job;
+
+  // TODO
+  throw createErrorResponse('Not implemented', job);
+
+  return {
+    action,
+    jobID,
+    ok: true,
+  };
+}
+
+function importSessionJob(job: WorkerImportSessionJob): WorkerImportSessionResponse {
+  const { action, data, jobID } = job;
+
+  // TODO
+  throw createErrorResponse('Not implemented', job);
+
+  return {
+    action,
+    jobID,
+    ok: true,
+  };
+}
 
 async function decryptJob(job: WorkerDecryptJob): Promise<WorkerDecryptResponse> {
   const { action, data: text, jobID, keyID } = job;
@@ -96,19 +140,6 @@ async function encryptJob(job: WorkerEncryptJob): Promise<WorkerEncryptResponse>
   return {
     action,
     data,
-    jobID,
-    keyID,
-    ok: true,
-  };
-}
-
-function importKeyJob(job: WorkerImportKeyJob): WorkerImportKeyResponse {
-  const { action, data, jobID, keyID } = job;
-
-  keyMap.set(keyID, data);
-
-  return {
-    action,
     jobID,
     keyID,
     ok: true,

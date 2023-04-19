@@ -16,6 +16,10 @@ export type KeyManagerImportKeyRequest = KeyManagerRequest<'importKey'> &
   IDataMixin<PrivateKey> &
   IMaybeKeyIdMixin;
 
+// Session I/O
+export type KeyManagerExportSessionRequest = KeyManagerRequest<'exportSession'>;
+export type KeyManagerImportSessionRequest = KeyManagerRequest<'importSession'> & IDataMixin<string>;
+
 // Encrypt/decrypt
 export type KeyManagerDecryptRequest = KeyManagerRequest<'decrypt'> & IDataMixin<string> & IKeyIdMixin;
 export type KeyManagerEncryptRequest = KeyManagerRequest<'encrypt'> & IDataMixin<string> & IKeyIdMixin;

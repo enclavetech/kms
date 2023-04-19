@@ -43,6 +43,17 @@ export class KeyWorkerManager extends KeyManager {
             data: privateKey,
         });
     }
+    exportSession() {
+        return this.doJob({
+            action: 'exportSession',
+        });
+    }
+    importSession(data) {
+        return this.doJob({
+            action: 'importSession',
+            data,
+        });
+    }
     decrypt(data, keyID) {
         return this.doJob({
             action: 'decrypt',
