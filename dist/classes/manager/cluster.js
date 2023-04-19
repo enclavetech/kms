@@ -19,8 +19,8 @@ export class KeyWorkerClusterManager extends KeyManager {
     getNextWorker() {
         return this.cluster[(this.currentWorker = ++this.currentWorker >= this.cluster.length ? 0 : this.currentWorker)];
     }
-    async importKey(privateKey, keyID = this.getNextID()) {
-        return (await Promise.all(this.cluster.map((worker) => worker.importKey(privateKey, keyID))))[0];
+    async importKey(armoredKey, keyID = this.getNextID()) {
+        return (await Promise.all(this.cluster.map((worker) => worker.importKey(armoredKey, keyID))))[0];
     }
     async destroySession() {
         return (await Promise.all(this.cluster.map((worker) => worker.destroySession())))[0];

@@ -1,4 +1,3 @@
-import type { PrivateKey } from 'openpgp';
 import type { KeyManagerAction } from '../../types';
 import type { IDataMixin, IKeyIdMixin, IMaybeKeyIdMixin } from '../mixins';
 /**
@@ -9,7 +8,7 @@ import type { IDataMixin, IKeyIdMixin, IMaybeKeyIdMixin } from '../mixins';
 export interface KeyManagerRequest<Action extends KeyManagerAction> {
     action: Action;
 }
-export type KeyManagerImportKeyRequest = KeyManagerRequest<'importKey'> & IDataMixin<PrivateKey> & IMaybeKeyIdMixin;
+export type KeyManagerImportKeyRequest = KeyManagerRequest<'importKey'> & IDataMixin<string> & IMaybeKeyIdMixin;
 export type KeyManagerDestroySessionRequest = KeyManagerRequest<'destroySession'>;
 export type KeyManagerExportSessionRequest = KeyManagerRequest<'exportSession'>;
 export type KeyManagerImportSessionRequest = KeyManagerRequest<'importSession'> & IDataMixin<string>;

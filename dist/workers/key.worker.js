@@ -1,17 +1,17 @@
-import { createMessage, decrypt, encrypt } from 'openpgp';
+import { createMessage, decrypt, encrypt, generateKey, readMessage, readPrivateKey, } from 'openpgp';
 const keyMap = new Map();
 self.onmessage = async (event) => {
     const job = event.data;
     const action = job.action;
     switch (action) {
         case 'importKey':
-            return self.postMessage(importKeyJob(job));
+            return self.postMessage(await importKeyJob(job));
         case 'destroySession':
             return self.postMessage(destroySessionJob(job));
         case 'exportSession':
-            return self.postMessage(exportSessionJob(job));
+            return self.postMessage(await exportSessionJob(job));
         case 'importSession':
-            return self.postMessage(importSessionJob(job));
+            return self.postMessage(await importSessionJob(job));
         case 'decrypt':
             return self.postMessage(await decryptJob(job));
         case 'encrypt':
@@ -37,9 +37,10 @@ function getPrivateKeyOrFail(job) {
     }
     return privateKey;
 }
-function importKeyJob(job) {
-    const { action, data, jobID, keyID } = job;
-    keyMap.set(keyID, data);
+async function importKeyJob(job) {
+    const { action, data: armoredKey, jobID, keyID } = job;
+    const key = await readPrivateKey({ armoredKey });
+    keyMap.set(keyID, key);
     return {
         action,
         jobID,
@@ -57,27 +58,49 @@ function destroySessionJob(job) {
         ok: true,
     };
 }
-function exportSessionJob(job) {
+async function exportSessionJob(job) {
     const { action, jobID } = job;
-    // TODO
-    throw createErrorResponse('Not implemented', job);
+    const sessionExport = {
+        keys: new Array(),
+    };
+    for (const [id, key] of keyMap) {
+        sessionExport.keys.push({ id, armoredKey: key.armor() });
+    }
+    const text = JSON.stringify(sessionExport);
+    const message = await createMessage({ text });
+    // Generate a new key & save it
+    const { privateKey } = await generateKey({ format: 'object', userIDs: {} });
+    try {
+        await saveSessionKey(privateKey.armor());
+    }
+    catch (e) {
+        throw createErrorResponse('Failed to save session key', job);
+    }
+    const data = await encrypt({ message, encryptionKeys: privateKey });
     return {
         action,
-        data: 'TODO',
+        data,
         jobID,
         ok: true,
     };
 }
-function importSessionJob(job) {
-    const { action, data, jobID } = job;
-    // TODO
-    throw createErrorResponse('Not implemented', job);
+async function importSessionJob(job) {
+    const { action, data: armoredMessage, jobID } = job;
+    const privateKey = await retrieveSessionKey().then((armoredKey) => readPrivateKey({ armoredKey }));
+    const message = await readMessage({ armoredMessage });
+    const decryptedMessage = await decrypt({ message, decryptionKeys: privateKey });
+    const sessionData = JSON.parse(decryptedMessage.data);
+    await Promise.all(sessionData.keys.map(async ({ id, armoredKey }) => {
+        const key = await readPrivateKey({ armoredKey });
+        keyMap.set(id, key);
+    }));
     return {
         action,
         jobID,
         ok: true,
     };
 }
+// TODO: importExportSessionJob
 async function decryptJob(job) {
     const { action, data: text, jobID, keyID } = job;
     const privateKey = getPrivateKeyOrFail(job);
@@ -104,4 +127,48 @@ async function encryptJob(job) {
         keyID,
         ok: true,
     };
+}
+// TODO: move indexeddb operations to a utils file and optimise
+function saveSessionKey(value) {
+    return new Promise((resolve, reject) => {
+        const openRequest = indexedDB.open('enclave_km', 1);
+        openRequest.onupgradeneeded = (event) => {
+            event.target.result.createObjectStore('kv', { keyPath: 'key' });
+        };
+        openRequest.onerror = (errorEvent) => {
+            reject(errorEvent.target.error);
+        };
+        openRequest.onsuccess = (event) => {
+            const putRequest = event.target.result
+                .transaction('kv', 'readwrite')
+                .objectStore('kv')
+                .put({ key: 'session_key', value });
+            putRequest.onerror = (errorEvent) => {
+                reject(errorEvent.target.error);
+            };
+            putRequest.onsuccess = () => {
+                resolve();
+            };
+        };
+    });
+}
+function retrieveSessionKey() {
+    return new Promise((resolve, reject) => {
+        const openRequest = indexedDB.open('enclave_km', 1);
+        openRequest.onerror = (errorEvent) => {
+            reject(errorEvent.target.error);
+        };
+        openRequest.onsuccess = (event) => {
+            const getRequest = event.target.result
+                .transaction('kv', 'readwrite')
+                .objectStore('kv')
+                .get('session_key');
+            getRequest.onerror = (errorEvent) => {
+                reject(errorEvent.target.error);
+            };
+            getRequest.onsuccess = () => {
+                resolve(getRequest.result.value);
+            };
+        };
+    });
 }

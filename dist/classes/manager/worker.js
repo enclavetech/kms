@@ -36,11 +36,11 @@ export class KeyWorkerManager extends KeyManager {
             this.worker.postMessage({ ...request, jobID });
         });
     }
-    importKey(privateKey, keyID = this.getNextID()) {
+    importKey(data, keyID = this.getNextID()) {
         return this.doJob({
             action: 'importKey',
             keyID,
-            data: privateKey,
+            data,
         });
     }
     destroySession() {

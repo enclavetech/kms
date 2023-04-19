@@ -1,4 +1,3 @@
-import type { PrivateKey } from 'openpgp';
 import { DEFAULT_CONFIG } from '../../constants';
 import type {
   KeyManagerConfig,
@@ -69,14 +68,11 @@ export class KeyWorkerManager extends KeyManager {
     });
   }
 
-  public importKey(
-    privateKey: PrivateKey,
-    keyID: PrivateKeyID = this.getNextID()
-  ): Promise<KeyManagerImportKeyResult> {
+  public importKey(data: string, keyID: PrivateKeyID = this.getNextID()): Promise<KeyManagerImportKeyResult> {
     return this.doJob<'importKey', KeyManagerImportKeyRequest, KeyManagerImportKeyResult>({
       action: 'importKey',
       keyID,
-      data: privateKey,
+      data,
     });
   }
 

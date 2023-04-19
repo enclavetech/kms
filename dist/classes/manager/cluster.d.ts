@@ -1,4 +1,3 @@
-import type { PrivateKey } from 'openpgp';
 import type { KeyManagerConfig, KeyManagerDecryptResult, KeyManagerDestroySessionResult, KeyManagerEncryptResult, KeyManagerExportSessionResult, KeyManagerImportKeyResult, KeyManagerImportSessionResult } from '../../interfaces';
 import type { PrivateKeyID } from '../../types';
 import { KeyManager } from './manager';
@@ -8,7 +7,7 @@ export declare class KeyWorkerClusterManager extends KeyManager {
     private currentWorker;
     constructor(config?: KeyManagerConfig);
     private getNextWorker;
-    importKey(privateKey: PrivateKey, keyID?: PrivateKeyID): Promise<KeyManagerImportKeyResult>;
+    importKey(armoredKey: string, keyID?: PrivateKeyID): Promise<KeyManagerImportKeyResult>;
     destroySession(): Promise<KeyManagerDestroySessionResult>;
     exportSession(): Promise<KeyManagerExportSessionResult>;
     importSession(sessionPayload: string): Promise<KeyManagerImportSessionResult>;

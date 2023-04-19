@@ -1,4 +1,3 @@
-import type { PrivateKey } from 'openpgp';
 import { DEFAULT_CONFIG } from '../../constants';
 import type {
   KeyManagerConfig,
@@ -38,10 +37,10 @@ export class KeyWorkerClusterManager extends KeyManager {
   }
 
   public async importKey(
-    privateKey: PrivateKey,
+    armoredKey: string,
     keyID: PrivateKeyID = this.getNextID()
   ): Promise<KeyManagerImportKeyResult> {
-    return (await Promise.all(this.cluster.map((worker) => worker.importKey(privateKey, keyID))))[0];
+    return (await Promise.all(this.cluster.map((worker) => worker.importKey(armoredKey, keyID))))[0];
   }
 
   public async destroySession(): Promise<KeyManagerDestroySessionResult> {

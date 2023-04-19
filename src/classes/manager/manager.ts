@@ -1,4 +1,3 @@
-import { PrivateKey } from 'openpgp';
 import {
   KeyManagerConfig,
   KeyManagerDecryptResult,
@@ -20,7 +19,7 @@ export abstract class KeyManager {
   }
 
   public abstract importKey(
-    privateKey: PrivateKey,
+    armoredKey: string,
     privateKeyID?: string | undefined
   ): Promise<KeyManagerImportKeyResult>;
 
