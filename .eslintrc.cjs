@@ -1,8 +1,8 @@
 module.exports = {
   root: true,
+  plugins: ['@typescript-eslint'],
   parser: '@typescript-eslint/parser',
   extends: ['eslint:recommended', 'prettier'],
-  plugins: ['@typescript-eslint'],
   env: {
     browser: true,
     node: true,
@@ -10,15 +10,15 @@ module.exports = {
   overrides: [
     {
       files: ['*.ts'],
-      extends: ['plugin:@typescript-eslint/recommended'],
       parserOptions: {
         sourceType: 'module',
         project: 'tsconfig.json',
         tsconfigRootDir: __dirname,
       },
+      extends: ['plugin:@typescript-eslint/recommended'],
+      rules: {
+        '@typescript-eslint/switch-exhaustiveness-check': 'error',
+      },
     },
   ],
-  rules: {
-    '@typescript-eslint/switch-exhaustiveness-check': 'error',
-  },
 };
