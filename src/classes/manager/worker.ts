@@ -17,6 +17,7 @@ import type {
   KeyManagerImportSessionRequest,
   KeyManagerDestroySessionResult,
   KeyManagerDestroySessionRequest,
+  WorkerJob,
 } from '../../interfaces';
 import type { KeyManagerAction, KeyManagerCallback, PrivateKeyID } from '../../types';
 import { KeyManager } from './manager';
@@ -29,7 +30,6 @@ export class KeyWorkerManager extends KeyManager {
   private readonly pendingJobs = new Map<number, KeyManagerCallback<KeyManagerAction>>();
   private jobCounter = 0;
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   constructor(protected readonly config: KeyManagerConfig = DEFAULT_CONFIG) {
     super();
 
@@ -64,7 +64,7 @@ export class KeyWorkerManager extends KeyManager {
       this.pendingJobs.set(jobID, (result) => {
         result.ok ? resolve(result as Result) : reject(result as KeyManagerFailResult<Action>);
       });
-      this.worker.postMessage({ ...request, jobID });
+      this.worker.postMessage({ ...request, jobID } as WorkerJob<Action>);
     });
   }
 

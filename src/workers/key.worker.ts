@@ -26,7 +26,7 @@ import type {
 import type { KeyManagerAction, PrivateKeyID } from '../types';
 import type { IKeyIdMixin } from '../interfaces';
 
-const keyMap = new Map<PrivateKeyID, PrivateKey>();
+let keyMap = new Map<PrivateKeyID, PrivateKey>();
 
 self.onmessage = async (event: MessageEvent<WorkerJob<KeyManagerAction>>) => {
   const job = event.data;
@@ -37,7 +37,7 @@ self.onmessage = async (event: MessageEvent<WorkerJob<KeyManagerAction>>) => {
       return self.postMessage(await importKeyJob(job as WorkerImportKeyJob));
 
     case 'destroySession':
-      return self.postMessage(destroySessionJob(job as WorkerDestroySessionJob));
+      return self.postMessage(await destroySessionJob(job as WorkerDestroySessionJob));
 
     case 'exportSession':
       return self.postMessage(await exportSessionJob(job as WorkerExportSessionJob));
@@ -100,11 +100,16 @@ async function importKeyJob(job: WorkerImportKeyJob): Promise<WorkerImportKeyRes
   };
 }
 
-function destroySessionJob(job: WorkerDestroySessionJob): WorkerDestroySessionResponse {
+async function destroySessionJob(job: WorkerDestroySessionJob): Promise<WorkerDestroySessionResponse> {
   const { action, jobID } = job;
 
-  // TODO
-  throw createErrorResponse('Not implemented', job);
+  const sessionKeyDeletePromise = deleteSessionKey();
+
+  keyMap.clear();
+
+  keyMap = new Map<PrivateKeyID, PrivateKey>();
+
+  await sessionKeyDeletePromise;
 
   return {
     action,
@@ -263,6 +268,31 @@ function retrieveSessionKey(): Promise<string> {
 
       getRequest.onsuccess = () => {
         resolve((getRequest.result as { key: string; value: string }).value);
+      };
+    };
+  });
+}
+
+function deleteSessionKey(): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    const openRequest = indexedDB.open('enclave_km', 1);
+
+    openRequest.onerror = (errorEvent: Event) => {
+      reject((errorEvent.target as IDBOpenDBRequest).error);
+    };
+
+    openRequest.onsuccess = (event: Event) => {
+      const getRequest = (event.target as IDBOpenDBRequest).result
+        .transaction('kv', 'readwrite')
+        .objectStore('kv')
+        .delete('session_key');
+
+      getRequest.onerror = (errorEvent: Event) => {
+        reject((errorEvent.target as IDBRequest).error);
+      };
+
+      getRequest.onsuccess = () => {
+        resolve();
       };
     };
   });

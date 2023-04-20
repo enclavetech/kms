@@ -28,7 +28,7 @@ In code, you import decrypted keys into the key manager, which orchestrates the 
 | :white_check_mark: | Import keys                        |  `1.0.0`  |
 |  :yellow_circle:   | Encrypt/decrypt jobs               |  `1.0.0`  |
 | :white_check_mark: | Pooling (multiple workers/threads) |  `1.0.0`  |
-|  :yellow_circle:   | Session import/export              |  `1.0.0`  |
+|  :yellow_circle:   | Session import/export/destroy      |  `1.0.0`  |
 |   :construction:   | Custom defined ID generators       |           |
 
 ### Platforms
@@ -76,6 +76,12 @@ import { createKeyManager } from 'key-manager';
 
 const keyManager = createKeyManager();
 ```
+
+## Known Issues
+
+- In order to track callbacks, there is an auto-incrementing job counter - a simple JavaScript `number` - per worker. There is, theoretically, an upper limit to this, but it is very unlikely to be a problem for most applications. The callbacks are removed once resolved, so previous job IDs could be reused.
+
+- We are considering making the `destroySession` job more aggressive by replacing class instances/workers rather than just resetting them. This may, however, interfere with the callback system and create issues.
 
 ## Examples
 

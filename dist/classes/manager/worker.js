@@ -1,7 +1,6 @@
 import { DEFAULT_CONFIG } from '../../constants';
 import { KeyManager } from './manager';
 export class KeyWorkerManager extends KeyManager {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     constructor(config = DEFAULT_CONFIG) {
         super();
         this.config = config;

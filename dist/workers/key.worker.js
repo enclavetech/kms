@@ -1,5 +1,5 @@
 import { createMessage, decrypt, encrypt, generateKey, readMessage, readPrivateKey, } from 'openpgp';
-const keyMap = new Map();
+let keyMap = new Map();
 self.onmessage = async (event) => {
     const job = event.data;
     const action = job.action;
@@ -7,7 +7,7 @@ self.onmessage = async (event) => {
         case 'importKey':
             return self.postMessage(await importKeyJob(job));
         case 'destroySession':
-            return self.postMessage(destroySessionJob(job));
+            return self.postMessage(await destroySessionJob(job));
         case 'exportSession':
             return self.postMessage(await exportSessionJob(job));
         case 'importSession':
@@ -48,10 +48,12 @@ async function importKeyJob(job) {
         ok: true,
     };
 }
-function destroySessionJob(job) {
+async function destroySessionJob(job) {
     const { action, jobID } = job;
-    // TODO
-    throw createErrorResponse('Not implemented', job);
+    const sessionKeyDeletePromise = deleteSessionKey();
+    keyMap.clear();
+    keyMap = new Map();
+    await sessionKeyDeletePromise;
     return {
         action,
         jobID,
@@ -174,6 +176,26 @@ function retrieveSessionKey() {
             };
             getRequest.onsuccess = () => {
                 resolve(getRequest.result.value);
+            };
+        };
+    });
+}
+function deleteSessionKey() {
+    return new Promise((resolve, reject) => {
+        const openRequest = indexedDB.open('enclave_km', 1);
+        openRequest.onerror = (errorEvent) => {
+            reject(errorEvent.target.error);
+        };
+        openRequest.onsuccess = (event) => {
+            const getRequest = event.target.result
+                .transaction('kv', 'readwrite')
+                .objectStore('kv')
+                .delete('session_key');
+            getRequest.onerror = (errorEvent) => {
+                reject(errorEvent.target.error);
+            };
+            getRequest.onsuccess = () => {
+                resolve();
             };
         };
     });

@@ -1,4 +1,4 @@
-import type { KeyManagerAction } from '../../types';
+import type { KeyManagerAction, WorkerJobID } from '../../types';
 import type {
   KeyManagerDecryptResult,
   KeyManagerDestroySessionResult,
@@ -10,7 +10,7 @@ import type {
 } from '../results';
 
 export interface WorkerResponse<Action extends KeyManagerAction> extends KeyManagerResult<Action> {
-  jobID: number;
+  jobID: WorkerJobID;
 }
 
 export interface WorkerFailResponse<Action extends KeyManagerAction> extends WorkerResponse<Action> {
