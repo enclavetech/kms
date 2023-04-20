@@ -25,6 +25,7 @@ import type {
 } from '../interfaces';
 import type { KeyManagerAction, PrivateKeyID } from '../types';
 import type { IKeyIdMixin } from '../interfaces';
+import { kvStoreDelete, kvStoreGet, kvStoreSet } from '../utils/db';
 
 let keyMap = new Map<PrivateKeyID, PrivateKey>();
 
@@ -103,7 +104,7 @@ async function importKeyJob(job: WorkerImportKeyJob): Promise<WorkerImportKeyRes
 async function destroySessionJob(job: WorkerDestroySessionJob): Promise<WorkerDestroySessionResponse> {
   const { action, jobID } = job;
 
-  const sessionKeyDeletePromise = deleteSessionKey();
+  const sessionKeyDeletePromise = kvStoreDelete('session_key');
 
   keyMap.clear();
 
@@ -135,7 +136,7 @@ async function exportSessionJob(job: WorkerExportSessionJob): Promise<WorkerExpo
   // Generate a new key & save it
   const { privateKey } = await generateKey({ format: 'object', userIDs: {} });
   try {
-    await saveSessionKey(privateKey.armor());
+    await kvStoreSet('session_key', privateKey.armor());
   } catch (e) {
     throw createErrorResponse<'exportSession'>('Failed to save session key', job);
   }
@@ -156,7 +157,7 @@ async function importSessionJob(job: WorkerImportSessionJob): Promise<WorkerImpo
   let privateKey: PrivateKey;
 
   try {
-    privateKey = await retrieveSessionKey().then((armoredKey) => readPrivateKey({ armoredKey }));
+    privateKey = await kvStoreGet('session_key').then((armoredKey) => readPrivateKey({ armoredKey }));
   } catch (e) {
     throw createErrorResponse<'importSession'>('No key found for session', job);
   }
@@ -216,84 +217,4 @@ async function encryptJob(job: WorkerEncryptJob): Promise<WorkerEncryptResponse>
     keyID,
     ok: true,
   };
-}
-
-// TODO: move indexeddb operations to a utils file and optimise
-
-function saveSessionKey(value: string): Promise<void> {
-  return new Promise<void>((resolve, reject) => {
-    const openRequest = indexedDB.open('enclave_km', 1);
-
-    openRequest.onupgradeneeded = (event: IDBVersionChangeEvent) => {
-      (event.target as IDBOpenDBRequest).result.createObjectStore('kv', { keyPath: 'key' });
-    };
-
-    openRequest.onerror = (errorEvent: Event) => {
-      reject((errorEvent.target as IDBOpenDBRequest).error);
-    };
-
-    openRequest.onsuccess = (event: Event) => {
-      const putRequest = (event.target as IDBOpenDBRequest).result
-        .transaction('kv', 'readwrite')
-        .objectStore('kv')
-        .put({ key: 'session_key', value });
-
-      putRequest.onerror = (errorEvent: Event) => {
-        reject((errorEvent.target as IDBRequest).error);
-      };
-      putRequest.onsuccess = () => {
-        resolve();
-      };
-    };
-  });
-}
-
-function retrieveSessionKey(): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
-    const openRequest = indexedDB.open('enclave_km', 1);
-
-    openRequest.onerror = (errorEvent: Event) => {
-      reject((errorEvent.target as IDBOpenDBRequest).error);
-    };
-
-    openRequest.onsuccess = (event: Event) => {
-      const getRequest = (event.target as IDBOpenDBRequest).result
-        .transaction('kv', 'readwrite')
-        .objectStore('kv')
-        .get('session_key');
-
-      getRequest.onerror = (errorEvent: Event) => {
-        reject((errorEvent.target as IDBRequest).error);
-      };
-
-      getRequest.onsuccess = () => {
-        resolve((getRequest.result as { key: string; value: string }).value);
-      };
-    };
-  });
-}
-
-function deleteSessionKey(): Promise<void> {
-  return new Promise<void>((resolve, reject) => {
-    const openRequest = indexedDB.open('enclave_km', 1);
-
-    openRequest.onerror = (errorEvent: Event) => {
-      reject((errorEvent.target as IDBOpenDBRequest).error);
-    };
-
-    openRequest.onsuccess = (event: Event) => {
-      const getRequest = (event.target as IDBOpenDBRequest).result
-        .transaction('kv', 'readwrite')
-        .objectStore('kv')
-        .delete('session_key');
-
-      getRequest.onerror = (errorEvent: Event) => {
-        reject((errorEvent.target as IDBRequest).error);
-      };
-
-      getRequest.onsuccess = () => {
-        resolve();
-      };
-    };
-  });
 }

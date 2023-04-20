@@ -81,7 +81,7 @@ const keyManager = createKeyManager();
 
 - In order to track callbacks, there is an auto-incrementing job counter - a simple JavaScript `number` - per worker. There is, theoretically, an upper limit to this, but it is very unlikely to be a problem for most applications. The callbacks are removed once resolved, so previous job IDs could be reused.
 
-- We are considering making the `destroySession` job more aggressive by replacing class instances/workers rather than just resetting them. This may, however, interfere with the callback system and create issues.
+- We are considering making the `destroySession` job more aggressive by replacing class members rather than just resetting them. This may, however, interfere with the callback system and create issues.
 
 ## Examples
 
