@@ -28,32 +28,25 @@ In code, you import decrypted keys into the key manager, which orchestrates the 
 | :white_check_mark: | Import keys                        |  `1.0.0`  |
 |  :yellow_circle:   | Encrypt/decrypt jobs               |  `1.0.0`  |
 | :white_check_mark: | Pooling (multiple workers/threads) |  `1.0.0`  |
-|  :yellow_circle:   | Session import/export/destroy      |  `1.0.0`  |
+| :white_check_mark: | Session import/export/destroy      |  `1.0.0`  |
 |   :construction:   | Custom defined ID generators       |           |
 
-### Platforms
+### Platform Support
 
 |       Status       | Platform | Milestone |
 | :----------------: | :------- | :-------: |
 | :white_check_mark: | Browser  |  `1.0.0`  |
 |   :construction:   | Node.js  |           |
 
-### Frameworks
-
-|       Status       | Framework | Milestone |
-| :----------------: | :-------- | :-------: |
-| :white_check_mark: | Svelte    |  `1.0.0`  |
-|        :x:         | Others... |           |
-
 ## How to install?
 
 With NPM:
 
 ```sh
-npm i "enclavetech/key-manager#preview"
+npm i "enclavetech/key-manager#v1"
 ```
 
-This will install from the tip of the preview branch here on GitHub. This is recommended for now, however you could substitute `preview` for another branch name, like `main` or `v1`, if you wish.
+This will install from the tip of the `v1` branch here on GitHub. This is recommended for now, however you could substitute `v1` for another branch name, like `main` or `preview`, if you wish.
 
 Also, ensure the peer dependency `openpgp` is installed:
 
