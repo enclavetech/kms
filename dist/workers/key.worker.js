@@ -1,6 +1,6 @@
 import { createMessage, decrypt, encrypt, generateKey, readMessage, readPrivateKey, } from 'openpgp';
 import { kvStoreDelete, kvStoreGet, kvStoreSet } from '../utils/db';
-let keyMap = new Map();
+let keyMap = {};
 self.onmessage = async (event) => {
     const job = event.data;
     const action = job.action;
@@ -32,7 +32,7 @@ function createErrorResponse(error, job) {
 }
 function getPrivateKeyOrFail(job) {
     const { keyID } = job;
-    const privateKey = keyMap.get(keyID);
+    const privateKey = keyMap[keyID];
     if (!privateKey) {
         throw createErrorResponse(`Key '${keyID}' not found`, job);
     }
@@ -41,7 +41,7 @@ function getPrivateKeyOrFail(job) {
 async function importKeyJob(job) {
     const { action, data: armoredKey, jobID, keyID } = job;
     const key = await readPrivateKey({ armoredKey });
-    keyMap.set(keyID, key);
+    keyMap[keyID] = key;
     return {
         action,
         jobID,
@@ -52,8 +52,7 @@ async function importKeyJob(job) {
 async function destroySessionJob(job) {
     const { action, jobID } = job;
     const sessionKeyDeletePromise = kvStoreDelete('session_key');
-    keyMap.clear();
-    keyMap = new Map();
+    keyMap = {};
     await sessionKeyDeletePromise;
     return {
         action,
@@ -66,7 +65,7 @@ async function exportSessionJob(job) {
     const sessionExport = {
         keys: new Array(),
     };
-    for (const [id, key] of keyMap) {
+    for (const [id, key] of Object.entries(keyMap)) {
         sessionExport.keys.push({ id, armoredKey: key.armor() });
     }
     const text = JSON.stringify(sessionExport);
@@ -100,8 +99,7 @@ async function importSessionJob(job) {
     const decryptedMessage = await decrypt({ message, decryptionKeys: privateKey });
     const sessionData = JSON.parse(decryptedMessage.data);
     await Promise.all(sessionData.keys.map(async ({ id, armoredKey }) => {
-        const key = await readPrivateKey({ armoredKey });
-        keyMap.set(id, key);
+        keyMap[id] = await readPrivateKey({ armoredKey });
     }));
     return {
         action,

@@ -27,7 +27,7 @@ import type { KeyManagerAction, PrivateKeyID } from '../types';
 import type { IKeyIdMixin } from '../interfaces';
 import { kvStoreDelete, kvStoreGet, kvStoreSet } from '../utils/db';
 
-let keyMap = new Map<PrivateKeyID, PrivateKey>();
+let keyMap: Record<PrivateKeyID, PrivateKey> = {};
 
 self.onmessage = async (event: MessageEvent<WorkerJob<KeyManagerAction>>) => {
   const job = event.data;
@@ -77,7 +77,7 @@ function getPrivateKeyOrFail<Action extends KeyManagerAction>(
 ): PrivateKey {
   const { keyID } = job;
 
-  const privateKey = keyMap.get(keyID);
+  const privateKey = keyMap[keyID];
 
   if (!privateKey) {
     throw createErrorResponse(`Key '${keyID}' not found`, job);
@@ -91,7 +91,7 @@ async function importKeyJob(job: WorkerImportKeyJob): Promise<WorkerImportKeyRes
 
   const key = await readPrivateKey({ armoredKey });
 
-  keyMap.set(keyID, key);
+  keyMap[keyID] = key;
 
   return {
     action,
@@ -106,9 +106,7 @@ async function destroySessionJob(job: WorkerDestroySessionJob): Promise<WorkerDe
 
   const sessionKeyDeletePromise = kvStoreDelete('session_key');
 
-  keyMap.clear();
-
-  keyMap = new Map<PrivateKeyID, PrivateKey>();
+  keyMap = {};
 
   await sessionKeyDeletePromise;
 
@@ -126,7 +124,7 @@ async function exportSessionJob(job: WorkerExportSessionJob): Promise<WorkerExpo
     keys: new Array<{ id: PrivateKeyID; armoredKey: string }>(),
   };
 
-  for (const [id, key] of keyMap) {
+  for (const [id, key] of Object.entries(keyMap)) {
     sessionExport.keys.push({ id, armoredKey: key.armor() });
   }
 
@@ -170,8 +168,7 @@ async function importSessionJob(job: WorkerImportSessionJob): Promise<WorkerImpo
 
   await Promise.all(
     sessionData.keys.map(async ({ id, armoredKey }) => {
-      const key = await readPrivateKey({ armoredKey });
-      keyMap.set(id, key);
+      keyMap[id] = await readPrivateKey({ armoredKey });
     })
   );
 
