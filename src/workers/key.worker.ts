@@ -33,24 +33,29 @@ self.onmessage = async (event: MessageEvent<WorkerJob<KeyManagerAction>>) => {
   const job = event.data;
   const action = job.action;
 
-  switch (action) {
-    case 'importKey':
-      return self.postMessage(await importKeyJob(job as WorkerImportKeyJob));
+  try {
+    switch (action) {
+      case 'importKey':
+        return self.postMessage(await importKeyJob(job as WorkerImportKeyJob));
 
-    case 'destroySession':
-      return self.postMessage(await destroySessionJob(job as WorkerDestroySessionJob));
+      case 'destroySession':
+        return self.postMessage(await destroySessionJob(job as WorkerDestroySessionJob));
 
-    case 'exportSession':
-      return self.postMessage(await exportSessionJob(job as WorkerExportSessionJob));
+      case 'exportSession':
+        return self.postMessage(await exportSessionJob(job as WorkerExportSessionJob));
 
-    case 'importSession':
-      return self.postMessage(await importSessionJob(job as WorkerImportSessionJob));
+      case 'importSession':
+        return self.postMessage(await importSessionJob(job as WorkerImportSessionJob));
 
-    case 'decrypt':
-      return self.postMessage(await decryptJob(job as WorkerDecryptJob));
+      case 'decrypt':
+        return self.postMessage(await decryptJob(job as WorkerDecryptJob));
 
-    case 'encrypt':
-      return self.postMessage(await encryptJob(job as WorkerEncryptJob));
+      case 'encrypt':
+        return self.postMessage(await encryptJob(job as WorkerEncryptJob));
+    }
+  } catch (e) {
+    console.error(e);
+    throw createErrorResponse('Unexpected error', job);
   }
 };
 
@@ -136,7 +141,7 @@ async function exportSessionJob(job: WorkerExportSessionJob): Promise<WorkerExpo
   try {
     await kvStoreSet('session_key', privateKey.armor());
   } catch (e) {
-    throw createErrorResponse<'exportSession'>('Failed to save session key', job);
+    throw createErrorResponse('Failed to save session key', job);
   }
 
   const data = await encrypt({ message, encryptionKeys: privateKey });
@@ -157,14 +162,25 @@ async function importSessionJob(job: WorkerImportSessionJob): Promise<WorkerImpo
   try {
     privateKey = await kvStoreGet('session_key').then((armoredKey) => readPrivateKey({ armoredKey }));
   } catch (e) {
-    throw createErrorResponse<'importSession'>('No key found for session', job);
+    throw createErrorResponse('No key found for session', job);
   }
 
-  const message = await readMessage({ armoredMessage });
-  const decryptedMessage = await decrypt({ message, decryptionKeys: privateKey });
-  const sessionData: { keys: Array<{ id: PrivateKeyID; armoredKey: string }> } = JSON.parse(
-    decryptedMessage.data
-  );
+  let decryptedMessage;
+
+  try {
+    const message = await readMessage({ armoredMessage });
+    decryptedMessage = await decrypt({ message, decryptionKeys: privateKey });
+  } catch (e) {
+    throw createErrorResponse('Unable to read message', job);
+  }
+
+  let sessionData: { keys: Array<{ id: PrivateKeyID; armoredKey: string }> };
+
+  try {
+    sessionData = JSON.parse(decryptedMessage.data);
+  } catch (e) {
+    throw createErrorResponse('Unable to parse session data', job);
+  }
 
   await Promise.all(
     sessionData.keys.map(async ({ id, armoredKey }) => {
@@ -186,8 +202,15 @@ async function decryptJob(job: WorkerDecryptJob): Promise<WorkerDecryptResponse>
 
   const privateKey = getPrivateKeyOrFail(job);
 
-  const message = await createMessage({ text });
-  const decryptedMessage = await decrypt({ message, decryptionKeys: privateKey });
+  let decryptedMessage;
+
+  try {
+    const message = await createMessage({ text });
+    decryptedMessage = await decrypt({ message, decryptionKeys: privateKey });
+  } catch (e) {
+    throw createErrorResponse('Unable to read message', job);
+  }
+
   const data = decryptedMessage.data.toString();
 
   return {

@@ -4,19 +4,25 @@ let keyMap = {};
 self.onmessage = async (event) => {
     const job = event.data;
     const action = job.action;
-    switch (action) {
-        case 'importKey':
-            return self.postMessage(await importKeyJob(job));
-        case 'destroySession':
-            return self.postMessage(await destroySessionJob(job));
-        case 'exportSession':
-            return self.postMessage(await exportSessionJob(job));
-        case 'importSession':
-            return self.postMessage(await importSessionJob(job));
-        case 'decrypt':
-            return self.postMessage(await decryptJob(job));
-        case 'encrypt':
-            return self.postMessage(await encryptJob(job));
+    try {
+        switch (action) {
+            case 'importKey':
+                return self.postMessage(await importKeyJob(job));
+            case 'destroySession':
+                return self.postMessage(await destroySessionJob(job));
+            case 'exportSession':
+                return self.postMessage(await exportSessionJob(job));
+            case 'importSession':
+                return self.postMessage(await importSessionJob(job));
+            case 'decrypt':
+                return self.postMessage(await decryptJob(job));
+            case 'encrypt':
+                return self.postMessage(await encryptJob(job));
+        }
+    }
+    catch (e) {
+        console.error(e);
+        throw createErrorResponse('Unexpected error', job);
     }
 };
 function createErrorResponse(error, job) {
@@ -95,9 +101,21 @@ async function importSessionJob(job) {
     catch (e) {
         throw createErrorResponse('No key found for session', job);
     }
-    const message = await readMessage({ armoredMessage });
-    const decryptedMessage = await decrypt({ message, decryptionKeys: privateKey });
-    const sessionData = JSON.parse(decryptedMessage.data);
+    let decryptedMessage;
+    try {
+        const message = await readMessage({ armoredMessage });
+        decryptedMessage = await decrypt({ message, decryptionKeys: privateKey });
+    }
+    catch (e) {
+        throw createErrorResponse('Unable to read message', job);
+    }
+    let sessionData;
+    try {
+        sessionData = JSON.parse(decryptedMessage.data);
+    }
+    catch (e) {
+        throw createErrorResponse('Unable to parse session data', job);
+    }
     await Promise.all(sessionData.keys.map(async ({ id, armoredKey }) => {
         keyMap[id] = await readPrivateKey({ armoredKey });
     }));
@@ -111,8 +129,14 @@ async function importSessionJob(job) {
 async function decryptJob(job) {
     const { action, data: text, jobID, keyID } = job;
     const privateKey = getPrivateKeyOrFail(job);
-    const message = await createMessage({ text });
-    const decryptedMessage = await decrypt({ message, decryptionKeys: privateKey });
+    let decryptedMessage;
+    try {
+        const message = await createMessage({ text });
+        decryptedMessage = await decrypt({ message, decryptionKeys: privateKey });
+    }
+    catch (e) {
+        throw createErrorResponse('Unable to read message', job);
+    }
     const data = decryptedMessage.data.toString();
     return {
         action,
