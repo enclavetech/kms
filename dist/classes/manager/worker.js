@@ -58,14 +58,14 @@ export class KeyWorkerManager extends KeyManager {
             data,
         });
     }
-    decrypt(data, keyID) {
+    decrypt(keyID, data) {
         return this.doJob({
             action: 'decrypt',
             keyID,
             data,
         });
     }
-    encrypt(data, keyID) {
+    encrypt(keyID, data) {
         return this.doJob({
             action: 'encrypt',
             keyID,

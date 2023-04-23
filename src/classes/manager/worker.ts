@@ -95,7 +95,7 @@ export class KeyWorkerManager extends KeyManager {
     });
   }
 
-  public decrypt(data: string, keyID: PrivateKeyID): Promise<KeyManagerDecryptResult> {
+  public decrypt(keyID: PrivateKeyID, data: string): Promise<KeyManagerDecryptResult> {
     return this.doJob<'decrypt', KeyManagerDecryptRequest, KeyManagerDecryptResult>({
       action: 'decrypt',
       keyID,
@@ -103,7 +103,7 @@ export class KeyWorkerManager extends KeyManager {
     });
   }
 
-  public encrypt(data: string, keyID: PrivateKeyID): Promise<KeyManagerEncryptResult> {
+  public encrypt(keyID: PrivateKeyID, data: string): Promise<KeyManagerEncryptResult> {
     return this.doJob<'encrypt', KeyManagerEncryptRequest, KeyManagerEncryptResult>({
       action: 'encrypt',
       keyID,

@@ -21,7 +21,7 @@ export type KeyManagerImportKeyResult = KeyManagerSuccessResult<'importKey'> & I
 // Session I/O
 export type KeyManagerDestroySessionResult = KeyManagerSuccessResult<'destroySession'>;
 export type KeyManagerExportSessionResult = KeyManagerSuccessResult<'exportSession'> & IDataMixin<string>;
-export type KeyManagerImportSessionResult = KeyManagerSuccessResult<'importSession'>;
+export type KeyManagerImportSessionResult = KeyManagerSuccessResult<'importSession'> & IDataMixin<string[]>;
 
 // Encrypt/decrypt
 export type KeyManagerDecryptResult = KeyManagerSuccessResult<'decrypt'> & IDataMixin<string> & IKeyIdMixin;

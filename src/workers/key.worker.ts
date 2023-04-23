@@ -182,14 +182,18 @@ async function importSessionJob(job: WorkerImportSessionJob): Promise<WorkerImpo
     throw createErrorResponse('Unable to parse session data', job);
   }
 
+  const keyIDs = new Array<string>();
+
   await Promise.all(
     sessionData.keys.map(async ({ id, armoredKey }) => {
+      keyIDs.push(id);
       keyMap[id] = await readPrivateKey({ armoredKey });
     })
   );
 
   return {
     action,
+    data: keyIDs,
     jobID,
     ok: true,
   };
@@ -198,14 +202,14 @@ async function importSessionJob(job: WorkerImportSessionJob): Promise<WorkerImpo
 // TODO: importExportSessionJob
 
 async function decryptJob(job: WorkerDecryptJob): Promise<WorkerDecryptResponse> {
-  const { action, data: text, jobID, keyID } = job;
+  const { action, data: armoredMessage, jobID, keyID } = job;
 
   const privateKey = getPrivateKeyOrFail(job);
 
   let decryptedMessage;
 
   try {
-    const message = await createMessage({ text });
+    const message = await readMessage({ armoredMessage });
     decryptedMessage = await decrypt({ message, decryptionKeys: privateKey });
   } catch (e) {
     throw createErrorResponse('Unable to read message', job);

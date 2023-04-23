@@ -12,6 +12,6 @@ export declare class KeyWorkerManager extends KeyManager {
     destroySession(): Promise<KeyManagerDestroySessionResult>;
     exportSession(): Promise<KeyManagerExportSessionResult>;
     importSession(data: string): Promise<KeyManagerImportSessionResult>;
-    decrypt(data: string, keyID: PrivateKeyID): Promise<KeyManagerDecryptResult>;
-    encrypt(data: string, keyID: PrivateKeyID): Promise<KeyManagerEncryptResult>;
+    decrypt(keyID: PrivateKeyID, data: string): Promise<KeyManagerDecryptResult>;
+    encrypt(keyID: PrivateKeyID, data: string): Promise<KeyManagerEncryptResult>;
 }
