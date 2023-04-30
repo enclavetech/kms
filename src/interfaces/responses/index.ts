@@ -4,6 +4,8 @@ import type {
   KeyManagerDestroySessionResult,
   KeyManagerEncryptResult,
   KeyManagerExportSessionResult,
+  KeyManagerHybridDecryptResult,
+  KeyManagerHybridEncryptResult,
   KeyManagerImportKeyResult,
   KeyManagerImportSessionResult,
   KeyManagerResult,
@@ -36,3 +38,7 @@ export type WorkerImportSessionResponse = WorkerSuccessResponse<'importSession'>
 // Encrypt/decrypt
 export type WorkerDecryptResponse = WorkerSuccessResponse<'decrypt'> & KeyManagerDecryptResult;
 export type WorkerEncryptResponse = WorkerSuccessResponse<'encrypt'> & KeyManagerEncryptResult;
+export type WorkerHybridDecryptResponse = WorkerSuccessResponse<'hybridDecrypt'> &
+  KeyManagerHybridDecryptResult;
+export type WorkerHybridEncryptResponse = WorkerSuccessResponse<'hybridEncrypt'> &
+  KeyManagerHybridEncryptResult;

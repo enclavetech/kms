@@ -1,23 +1,28 @@
 import { DEFAULT_CONFIG } from '../../constants';
 import type {
+  IHybridJobData,
   KeyManagerConfig,
-  WorkerResponse,
-  KeyManagerRequest,
-  KeyManagerFailResult,
-  KeyManagerSuccessResult,
-  KeyManagerDecryptResult,
   KeyManagerDecryptRequest,
-  KeyManagerEncryptRequest,
-  KeyManagerImportKeyRequest,
-  KeyManagerEncryptResult,
-  KeyManagerImportKeyResult,
-  KeyManagerExportSessionResult,
-  KeyManagerImportSessionResult,
-  KeyManagerExportSessionRequest,
-  KeyManagerImportSessionRequest,
-  KeyManagerDestroySessionResult,
+  KeyManagerDecryptResult,
   KeyManagerDestroySessionRequest,
+  KeyManagerDestroySessionResult,
+  KeyManagerEncryptRequest,
+  KeyManagerEncryptResult,
+  KeyManagerExportSessionRequest,
+  KeyManagerExportSessionResult,
+  KeyManagerFailResult,
+  KeyManagerHybridDecryptRequest,
+  KeyManagerHybridDecryptResult,
+  KeyManagerHybridEncryptRequest,
+  KeyManagerHybridEncryptResult,
+  KeyManagerImportKeyRequest,
+  KeyManagerImportKeyResult,
+  KeyManagerImportSessionRequest,
+  KeyManagerImportSessionResult,
+  KeyManagerRequest,
+  KeyManagerSuccessResult,
   WorkerJob,
+  WorkerResponse,
 } from '../../interfaces';
 import type { KeyManagerAction, KeyManagerCallback, PrivateKeyID } from '../../types';
 import { KeyManager } from './manager';
@@ -106,6 +111,25 @@ export class KeyWorkerManager extends KeyManager {
   public encrypt(keyID: PrivateKeyID, data: string): Promise<KeyManagerEncryptResult> {
     return this.doJob<'encrypt', KeyManagerEncryptRequest, KeyManagerEncryptResult>({
       action: 'encrypt',
+      keyID,
+      data,
+    });
+  }
+
+  public hybridDecrypt(message: string, key: string, keyID: string): Promise<KeyManagerHybridDecryptResult> {
+    return this.doJob<'hybridDecrypt', KeyManagerHybridDecryptRequest, KeyManagerHybridDecryptResult>({
+      action: 'hybridDecrypt',
+      keyID,
+      data: {
+        key,
+        message,
+      },
+    });
+  }
+
+  public hybridEncrypt(data: string, keyID: string): Promise<KeyManagerHybridEncryptResult> {
+    return this.doJob<'hybridEncrypt', KeyManagerHybridEncryptRequest, KeyManagerHybridEncryptResult>({
+      action: 'hybridEncrypt',
       keyID,
       data,
     });

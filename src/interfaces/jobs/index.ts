@@ -5,6 +5,8 @@ import type {
   KeyManagerDestroySessionRequest,
   KeyManagerEncryptRequest,
   KeyManagerExportSessionRequest,
+  KeyManagerHybridDecryptRequest,
+  KeyManagerHybridEncryptRequest,
   KeyManagerImportKeyRequest,
   KeyManagerImportSessionRequest,
   KeyManagerRequest,
@@ -29,3 +31,5 @@ export type WorkerImportSessionJob = WorkerJob<'importSession'> & KeyManagerImpo
 // Encrypt/decrypt
 export type WorkerDecryptJob = WorkerJob<'decrypt'> & KeyManagerDecryptRequest;
 export type WorkerEncryptJob = WorkerJob<'encrypt'> & KeyManagerEncryptRequest;
+export type WorkerHybridDecryptJob = WorkerJob<'hybridDecrypt'> & KeyManagerHybridDecryptRequest;
+export type WorkerHybridEncryptJob = WorkerJob<'hybridEncrypt'> & KeyManagerHybridEncryptRequest;

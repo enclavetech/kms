@@ -1,10 +1,13 @@
 import { DEFAULT_CONFIG } from '../../constants';
 import type {
+  IHybridJobData,
   KeyManagerConfig,
   KeyManagerDecryptResult,
   KeyManagerDestroySessionResult,
   KeyManagerEncryptResult,
   KeyManagerExportSessionResult,
+  KeyManagerHybridDecryptResult,
+  KeyManagerHybridEncryptResult,
   KeyManagerImportKeyResult,
   KeyManagerImportSessionResult,
 } from '../../interfaces';
@@ -61,5 +64,17 @@ export class KeyWorkerClusterManager extends KeyManager {
 
   public encrypt(privateKeyID: PrivateKeyID, data: string): Promise<KeyManagerEncryptResult> {
     return this.getNextWorker().encrypt(privateKeyID, data);
+  }
+
+  public hybridDecrypt(
+    message: string,
+    messageKey: string,
+    privateKeyID: string
+  ): Promise<KeyManagerHybridDecryptResult> {
+    return this.getNextWorker().hybridDecrypt(message, messageKey, privateKeyID);
+  }
+
+  public hybridEncrypt(data: string, privateKeyID: string): Promise<KeyManagerHybridEncryptResult> {
+    return this.getNextWorker().hybridEncrypt(privateKeyID, data);
   }
 }

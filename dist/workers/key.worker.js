@@ -1,4 +1,4 @@
-import { createMessage, decrypt, encrypt, generateKey, readMessage, readPrivateKey, } from 'openpgp';
+import { createMessage, decrypt, decryptSessionKeys, encrypt, encryptSessionKey, enums, generateKey, generateSessionKey, readMessage, readPrivateKey, } from 'openpgp';
 import { kvStoreDelete, kvStoreGet, kvStoreSet } from '../utils/db';
 let keyMap = {};
 self.onmessage = async (event) => {
@@ -16,8 +16,12 @@ self.onmessage = async (event) => {
                 return self.postMessage(await importSessionJob(job));
             case 'decrypt':
                 return self.postMessage(await decryptJob(job));
+            case 'hybridDecrypt':
+                return self.postMessage(await hybridDecryptJob(job));
             case 'encrypt':
                 return self.postMessage(await encryptJob(job));
+            case 'hybridEncrypt':
+                return self.postMessage(await hybridEncryptJob(job));
         }
     }
     catch (e) {
@@ -131,6 +135,7 @@ async function importSessionJob(job) {
 // TODO: importExportSessionJob
 async function decryptJob(job) {
     const { action, data: armoredMessage, jobID, keyID } = job;
+    // TODO: use public key
     const privateKey = getPrivateKeyOrFail(job);
     let decryptedMessage;
     try {
@@ -157,6 +162,66 @@ async function encryptJob(job) {
     return {
         action,
         data,
+        jobID,
+        keyID,
+        ok: true,
+    };
+}
+async function hybridDecryptJob(job) {
+    const { action, jobID, keyID } = job;
+    const privateKey = getPrivateKeyOrFail(job);
+    const messageKeyPromise = readMessage({ armoredMessage: job.data.key })
+        .then((message) => decryptSessionKeys({
+        decryptionKeys: privateKey,
+        message,
+    }))
+        .then((sessionKeys) => sessionKeys[0])
+        .catch(() => {
+        throw createErrorResponse('Unable to decrypt message key', job);
+    });
+    const messagePromise = readMessage({ armoredMessage: job.data.message });
+    const [messageKey, message] = await Promise.all([messageKeyPromise, messagePromise]);
+    const decryptedMessage = await decrypt({
+        message,
+        sessionKeys: messageKey,
+    });
+    const data = decryptedMessage.data.toString();
+    return {
+        action,
+        data,
+        jobID,
+        keyID,
+        ok: true,
+    };
+}
+async function hybridEncryptJob(job) {
+    const { action, data: text, jobID, keyID } = job;
+    // TODO: use public key
+    const privateKey = getPrivateKeyOrFail(job);
+    const sessionKey = await generateSessionKey({
+        encryptionKeys: privateKey,
+        config: {
+            preferredSymmetricAlgorithm: enums.symmetric.aes256,
+        },
+    });
+    const encryptedMessagePromise = (async () => {
+        const message = await createMessage({ text });
+        return encrypt({ message, sessionKey });
+    })();
+    const encryptedKeyPromise = encryptSessionKey({
+        format: 'armored',
+        encryptionKeys: privateKey,
+        ...sessionKey,
+    }).catch(() => {
+        throw createErrorResponse('Unable to encrypt message key', job);
+    });
+    const [key, message] = await Promise.all([encryptedKeyPromise, encryptedMessagePromise]);
+    return {
+        action,
+        data: {
+            key,
+            message,
+        },
         jobID,
         keyID,
         ok: true,

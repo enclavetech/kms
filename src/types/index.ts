@@ -9,6 +9,8 @@ export type KeyManagerAction =
   | 'exportSession'
   | 'importSession'
   | 'decrypt'
-  | 'encrypt';
+  | 'hybridDecrypt'
+  | 'encrypt'
+  | 'hybridEncrypt';
 
 export type KeyManagerCallback<Action extends KeyManagerAction> = (result: KeyManagerResult<Action>) => void;

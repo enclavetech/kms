@@ -1,4 +1,5 @@
 import type { KeyManagerAction } from '../../types';
+import type { IHybridJobData } from '../hybrid-job-data.interface';
 import type { IDataMixin, IKeyIdMixin, IMaybeKeyIdMixin } from '../mixins';
 /**
  * Base interface for a KeyManager request.
@@ -14,3 +15,5 @@ export type KeyManagerExportSessionRequest = KeyManagerRequest<'exportSession'>;
 export type KeyManagerImportSessionRequest = KeyManagerRequest<'importSession'> & IDataMixin<string>;
 export type KeyManagerDecryptRequest = KeyManagerRequest<'decrypt'> & IDataMixin<string> & IKeyIdMixin;
 export type KeyManagerEncryptRequest = KeyManagerRequest<'encrypt'> & IDataMixin<string> & IKeyIdMixin;
+export type KeyManagerHybridDecryptRequest = KeyManagerRequest<'hybridDecrypt'> & IDataMixin<IHybridJobData> & IKeyIdMixin;
+export type KeyManagerHybridEncryptRequest = KeyManagerRequest<'hybridEncrypt'> & IDataMixin<string> & IKeyIdMixin;

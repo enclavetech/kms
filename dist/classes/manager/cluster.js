@@ -37,4 +37,10 @@ export class KeyWorkerClusterManager extends KeyManager {
     encrypt(privateKeyID, data) {
         return this.getNextWorker().encrypt(privateKeyID, data);
     }
+    hybridDecrypt(message, messageKey, privateKeyID) {
+        return this.getNextWorker().hybridDecrypt(message, messageKey, privateKeyID);
+    }
+    hybridEncrypt(data, privateKeyID) {
+        return this.getNextWorker().hybridEncrypt(privateKeyID, data);
+    }
 }

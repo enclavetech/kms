@@ -72,4 +72,21 @@ export class KeyWorkerManager extends KeyManager {
             data,
         });
     }
+    hybridDecrypt(message, key, keyID) {
+        return this.doJob({
+            action: 'hybridDecrypt',
+            keyID,
+            data: {
+                key,
+                message,
+            },
+        });
+    }
+    hybridEncrypt(data, keyID) {
+        return this.doJob({
+            action: 'hybridEncrypt',
+            keyID,
+            data,
+        });
+    }
 }

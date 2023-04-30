@@ -1,9 +1,12 @@
-import {
+import type {
+  IHybridJobData,
   KeyManagerConfig,
   KeyManagerDecryptResult,
   KeyManagerDestroySessionResult,
   KeyManagerEncryptResult,
   KeyManagerExportSessionResult,
+  KeyManagerHybridDecryptResult,
+  KeyManagerHybridEncryptResult,
   KeyManagerImportKeyResult,
   KeyManagerImportSessionResult,
 } from '../../interfaces';
@@ -29,4 +32,10 @@ export abstract class KeyManager {
 
   public abstract decrypt(privateKeyID: string, data: string): Promise<KeyManagerDecryptResult>;
   public abstract encrypt(privateKeyID: string, data: string): Promise<KeyManagerEncryptResult>;
+  public abstract hybridDecrypt(
+    message: string,
+    messageKey: string,
+    privateKeyID: string
+  ): Promise<KeyManagerHybridDecryptResult>;
+  public abstract hybridEncrypt(data: string, privateKeyID: string): Promise<KeyManagerHybridEncryptResult>;
 }

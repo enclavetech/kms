@@ -1,4 +1,4 @@
-import type { KeyManagerConfig, KeyManagerDecryptResult, KeyManagerEncryptResult, KeyManagerImportKeyResult, KeyManagerExportSessionResult, KeyManagerImportSessionResult, KeyManagerDestroySessionResult } from '../../interfaces';
+import type { KeyManagerConfig, KeyManagerDecryptResult, KeyManagerDestroySessionResult, KeyManagerEncryptResult, KeyManagerExportSessionResult, KeyManagerHybridDecryptResult, KeyManagerHybridEncryptResult, KeyManagerImportKeyResult, KeyManagerImportSessionResult } from '../../interfaces';
 import type { PrivateKeyID } from '../../types';
 import { KeyManager } from './manager';
 export declare class KeyWorkerManager extends KeyManager {
@@ -14,4 +14,6 @@ export declare class KeyWorkerManager extends KeyManager {
     importSession(data: string): Promise<KeyManagerImportSessionResult>;
     decrypt(keyID: PrivateKeyID, data: string): Promise<KeyManagerDecryptResult>;
     encrypt(keyID: PrivateKeyID, data: string): Promise<KeyManagerEncryptResult>;
+    hybridDecrypt(message: string, key: string, keyID: string): Promise<KeyManagerHybridDecryptResult>;
+    hybridEncrypt(data: string, keyID: string): Promise<KeyManagerHybridEncryptResult>;
 }

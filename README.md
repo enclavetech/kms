@@ -25,11 +25,13 @@ In code, you import decrypted keys into the key manager, which orchestrates the 
 
 |       Status       | Feature                            | Milestone |
 | :----------------: | :--------------------------------- | :-------: |
-| :white_check_mark: | Import keys                        |  `1.0.0`  |
-|  :yellow_circle:   | Encrypt/decrypt jobs               |  `1.0.0`  |
+| :white_check_mark: | Import private keys                |  `1.0.0`  |
+| :white_check_mark: | Encrypt/decrypt jobs               |  `1.0.0`  |
 | :white_check_mark: | Pooling (multiple workers/threads) |  `1.0.0`  |
 | :white_check_mark: | Session import/export/destroy      |  `1.0.0`  |
-|   :construction:   | Custom defined ID generators       |           |
+| :white_check_mark: | Hybrid encryption support          |  `1.0.0`  |
+|   :construction:   | Tests                              |  `1.0.0`  |
+|   :construction:   | Public key support                 |  `1.1.0`  |
 
 ### Platform Support
 
