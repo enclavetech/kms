@@ -2,5 +2,5 @@
 * text=auto
 
 # Exclude from language stats
-/dist        linguist-generated
-.eslintrc.*  linguist-detectable=false
+packages/*/dist linguist-generated=true
+.eslintrc.* linguist-detectable=false

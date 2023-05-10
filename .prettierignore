@@ -1,4 +1,7 @@
-.vscode
-/dist
+# Directories
+dist
 node_modules
+
+# Files
+LICENSE
 package-lock.json

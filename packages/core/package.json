@@ -1,0 +1,23 @@
+{
+  "name": "@enclavetech/kms-core",
+  "description": "Runtime key management for Enclave apps.",
+  "version": "1.0.0",
+  "license": "MIT",
+  "private": true,
+  "author": "Enclave Technology",
+  "repository": "github:enclavetech/kms",
+  "homepage": "https://github.com/enclavetech/kms#readme",
+  "keywords": [
+    "encryption",
+    "crypto"
+  ],
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.4"
+  }
+}

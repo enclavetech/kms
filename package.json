@@ -1,33 +1,33 @@
 {
-  "name": "key-manager",
-  "description": "Private key management for web applications.",
-  "version": "1.0.0-PREVIEW",
+  "name": "@enclavetech/kms",
+  "description": "Runtime key management for Enclave apps.",
+  "version": "1.0.0",
   "license": "MIT",
   "private": true,
   "author": "Enclave Technology",
-  "repository": "github:enclavetech/key-manager",
+  "repository": "github:enclavetech/kms",
   "homepage": "https://github.com/enclavetech/key-manager#readme",
   "keywords": [
     "encryption",
     "crypto"
   ],
-  "main": "dist/index.js",
   "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "lint": "prettier --plugin-search-dir . --check . && eslint .",
-    "prepare": "tsc",
-    "prettier": "prettier --plugin-search-dir . --write ."
-  },
-  "peerDependencies": {
-    "openpgp": "^5"
+    "build": "npm run build --workspaces --if-present",
+    "dev": "concurrently -k npm:dev:*",
+    "dev:core": "npm run dev --workspace ./packages/core",
+    "dev:openpgp": "npm run dev --workspace ./packages/openpgp",
+    "lint": "prettier --check . && eslint .",
+    "prettier": "prettier --write ."
   },
   "devDependencies": {
-    "@openpgp/web-stream-tools": "^0.0.13",
-    "@typescript-eslint/eslint-plugin": ">=5.59.1",
-    "@typescript-eslint/parser": ">=5.59.1",
-    "eslint": ">=8.39.0",
+    "@typescript-eslint/eslint-plugin": ">=5.59.5",
+    "@typescript-eslint/parser": ">=5.59.5",
+    "concurrently": "^8.0.1",
+    "eslint": ">=8.40.0",
     "eslint-config-prettier": ">=8.8.0",
     "prettier": ">=2.8.8",
     "typescript": "^5.0.4"
