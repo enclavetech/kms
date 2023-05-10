@@ -12,7 +12,9 @@
 
 This package deals with the handling of cryptographic keys in your frontend web app. It aims to do so in a convenient, secure and performant way, by exposing a simple, strongly typed API that does the heavy lifting.
 
-In addition, the core package has been designed to be extensible rather than being tied to a single encryption/signing library. See [Library Support](#library-support).
+In addition, the [core package](packages/core) has been designed to be extensible rather than being tied to a single encryption/signing library. See [Library Support](#library-support).
+
+The core package itself has [no direct dependencies](packages/core/package.json).
 
 ## How does it work?
 
@@ -72,6 +74,8 @@ npm i -D @openpgp/web-stream-tools
 
 ### Instantiation
 
+The recommended way to get started with no configuration is to instantiate `KmsCluster` from the library adapter package.
+
 ```js
 import { KmsCluster, KmsWorker } from '@enclavetech/kms-openpgp';
 
@@ -82,11 +86,15 @@ const kmsCluster = new KmsCluster();
 const kmsWorker = new KmsWorker();
 ```
 
-`KmsCluster` is an implementation that will orchestrate jobs across multiple worker threads (defaults to 4, as most consumer CPUs these days have at least 4 threads available.) If you only use a single worker thread in your app, you can instantiate a `KmsWorker` instead to save slightly on overhead. Under the hood, `KmsCluster` is managing multiple `KmsWorker` instances. Both, however, extend the same `KMS` abstract class.
+- **`KmsCluster`:** _(recommended)_ Orchestrates multiple `KmsWorker` instances (defaults to 4 in the browser as most consumer CPUs these days have at least 4 threads available.)
+
+- **`KmsWorker`:** Controls a single web worker. If you are only making light use of KMS and use a single worker thread in your app, you can instantiate `KmsWorker` (instead of `KmsCluster`) to save on overhead.
+
+Both `KmsCluster` and `KmsWorker` implement the `KMS` abstract class, which defines the public API.
 
 #### TypeScript
 
-If you are using TypeScript, use the abstract class `KMS` from the core package as the type:
+If you are using TypeScript, use `KMS` from the core package as the type:
 
 ```ts
 import type { KMS } from '@enclavetech/kms-core';
@@ -111,9 +119,9 @@ const kms = new KmsCluster(kmsConfig);
 
 ##### Config Options
 
-|   Property    |   type   | Description                                                              |
-| :-----------: | :------: | :----------------------------------------------------------------------- |
-| `clusterSize` | `number` | Number of worker threads to use. Only applies to clusters. Must be >= 1. |
+|   Property    |   Type   | Default | Description                                                                  |
+| :-----------: | :------: | :-----: | :--------------------------------------------------------------------------- |
+| `clusterSize` | `number` |   `4`   | Number of worker threads to use. Only applies to KMS Clusters. Must be >= 1. |
 
 See: [kms-config.ts](packages/core/src/interfaces/configs/kms-config.ts).
 
