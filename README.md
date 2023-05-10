@@ -62,6 +62,8 @@ Install `@enclavetech/kms-core`, `@enclavetech/kms-openpgp`, and its peer depend
 npm i https://gitpkg.now.sh/enclavetech/kms/packages/core https://gitpkg.now.sh/enclavetech/kms/packages/openpgp openpgp
 ```
 
+### TypeScript
+
 If you are using TypeScript, you may need to install `@openpgp/web-stream-tools` as a devDependency too.
 
 See: <https://github.com/openpgpjs/openpgpjs#typescript>.
