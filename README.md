@@ -72,8 +72,6 @@ npm i -D @openpgp/web-stream-tools
 
 ## Usage
 
-### Instantiation
-
 The recommended way to get started with no configuration is to instantiate `KmsCluster` from the library adapter package.
 
 ```js
@@ -92,7 +90,7 @@ const kmsWorker = new KmsWorker();
 
 Both `KmsCluster` and `KmsWorker` implement the `KMS` abstract class, which defines the public API.
 
-#### TypeScript
+### TypeScript
 
 If you are using TypeScript, use `KMS` from the core package as the type:
 
@@ -103,7 +101,7 @@ import { KmsCluster } from '@enclavetech/kms-openpgp';
 const kms: KMS = new KmsCluster();
 ```
 
-#### Config
+### Configuration
 
 The KMS instance can be configured by passing a [`KmsConfig`](packages/core/src/interfaces/configs/kms-config.ts) object during instantiation:
 
@@ -117,7 +115,7 @@ const kmsConfig = {
 const kms = new KmsCluster(kmsConfig);
 ```
 
-##### Config Options
+#### Options
 
 |   Property    |   Type   | Default | Description                                                                  |
 | :-----------: | :------: | :-----: | :--------------------------------------------------------------------------- |
