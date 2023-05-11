@@ -11,6 +11,7 @@ import type {
   KeyImportResult,
   SessionDestroyResult,
   SessionExportResult,
+  SessionImportExportResult,
   SessionImportResult,
 } from '../types/result';
 import { KMS } from './kms';
@@ -42,8 +43,8 @@ export abstract class KmsClusterCore<T extends KmsWorkerCore> extends KMS {
     ];
   }
 
-  public async importKey(keyImportRequest: KeyImportRequestPayloadData): Promise<KeyImportResult> {
-    return (await Promise.all(this.cluster.map((worker) => worker.importKey(keyImportRequest))))[0];
+  public async importKey(payload: KeyImportRequestPayloadData): Promise<KeyImportResult> {
+    return (await Promise.all(this.cluster.map((worker) => worker.importKey(payload))))[0];
   }
 
   public async destroySession(): Promise<SessionDestroyResult> {
@@ -54,27 +55,36 @@ export abstract class KmsClusterCore<T extends KmsWorkerCore> extends KMS {
     return this.getNextWorker().exportSession();
   }
 
-  public async importSession(sessionPayload: string): Promise<SessionImportResult> {
-    return (
-      await Promise.all(this.cluster.map((worker) => worker.importSession(sessionPayload)))
-    )[0];
+  public async importSession(payload: string): Promise<SessionImportResult> {
+    return (await Promise.all(this.cluster.map((worker) => worker.importSession(payload))))[0];
   }
 
-  public decrypt(decryptRequest: CryptOpPayloadData): Promise<DecryptResult> {
-    return this.getNextWorker().decrypt(decryptRequest);
+  public async importExportSession(payload: string): Promise<SessionImportExportResult> {
+    const nextWorker = this.getNextWorker();
+    const importResultPromise = nextWorker.importExportSession(payload);
+    console.log(
+      await Promise.all(
+        this.cluster.map((worker) =>
+          worker === nextWorker ? importResultPromise : worker.importSession(payload),
+        ),
+      ),
+    );
+    return await importResultPromise;
   }
 
-  public encrypt(encryptRequest: CryptOpPayloadData): Promise<EncryptResult> {
-    return this.getNextWorker().encrypt(encryptRequest);
+  public decrypt(payload: CryptOpPayloadData): Promise<DecryptResult> {
+    return this.getNextWorker().decrypt(payload);
   }
 
-  public hybridDecrypt(
-    hybridDecryptRequest: HybridDecryptRequestPayloadData,
-  ): Promise<HybridDecryptResult> {
-    return this.getNextWorker().hybridDecrypt(hybridDecryptRequest);
+  public encrypt(payload: CryptOpPayloadData): Promise<EncryptResult> {
+    return this.getNextWorker().encrypt(payload);
   }
 
-  public hybridEncrypt(hybridEncryptRequest: CryptOpPayloadData): Promise<HybridEncryptResult> {
-    return this.getNextWorker().hybridEncrypt(hybridEncryptRequest);
+  public hybridDecrypt(payload: HybridDecryptRequestPayloadData): Promise<HybridDecryptResult> {
+    return this.getNextWorker().hybridDecrypt(payload);
+  }
+
+  public hybridEncrypt(payload: CryptOpPayloadData): Promise<HybridEncryptResult> {
+    return this.getNextWorker().hybridEncrypt(payload);
   }
 }

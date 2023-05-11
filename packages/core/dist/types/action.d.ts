@@ -1,1 +1,1 @@
-export type KmsAction = 'importKey' | 'destroySession' | 'exportSession' | 'importSession' | 'decrypt' | 'hybridDecrypt' | 'encrypt' | 'hybridEncrypt';
+export type KmsAction = 'importKey' | 'destroySession' | 'exportSession' | 'importSession' | 'importExportSession' | 'decrypt' | 'hybridDecrypt' | 'encrypt' | 'hybridEncrypt';

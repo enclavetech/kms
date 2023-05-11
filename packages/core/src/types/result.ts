@@ -1,5 +1,6 @@
 import type { CryptOpPayloadData } from '../interfaces/payload-data/crypt-op';
 import type { HybridEncryptResultPayloadData } from '../interfaces/payload-data/hybrid-encrypt-result';
+import type { SessionImportExportResultPayloadData } from '../interfaces/payload-data/session-import-export-result';
 import type { KmsAction } from './action';
 import type { KmsPayload } from './payload';
 
@@ -14,6 +15,10 @@ export type KeyImportResult = KmsResult<'importKey', string>;
 export type SessionDestroyResult = KmsResult<'destroySession'>;
 export type SessionExportResult = KmsResult<'exportSession', string>;
 export type SessionImportResult = KmsResult<'importSession', string[]>;
+export type SessionImportExportResult = KmsResult<
+  'importExportSession',
+  SessionImportExportResultPayloadData
+>;
 
 export type DecryptResult = KmsResult<'decrypt', string>;
 export type EncryptResult = KmsResult<'encrypt', CryptOpPayloadData>;

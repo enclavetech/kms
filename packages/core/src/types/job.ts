@@ -14,6 +14,7 @@ export type KeyImportJob = KmsJob<'importKey', KeyImportRequestPayloadData>;
 export type SessionDestroyJob = KmsJob<'destroySession'>;
 export type SessionExportJob = KmsJob<'exportSession'>;
 export type SessionImportJob = KmsJob<'importSession', string>;
+export type SessionImportExportJob = KmsJob<'importExportSession', string>;
 
 export type DecryptJob = KmsJob<'decrypt', CryptOpPayloadData>;
 export type EncryptJob = KmsJob<'encrypt', CryptOpPayloadData>;

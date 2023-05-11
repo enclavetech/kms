@@ -14,6 +14,9 @@ export abstract class KMS {
   public abstract destroySession(): Promise<Result.SessionDestroyResult>;
   public abstract exportSession(): Promise<Result.SessionExportResult>;
   public abstract importSession(sessionPayload: string): Promise<Result.SessionImportResult>;
+  public abstract importExportSession(
+    sessionPayload: string,
+  ): Promise<Result.SessionImportExportResult>;
 
   public abstract decrypt(decryptRequest: CryptOpPayloadData): Promise<Result.DecryptResult>;
   public abstract encrypt(encryptRequest: CryptOpPayloadData): Promise<Result.EncryptResult>;

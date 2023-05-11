@@ -39,6 +39,9 @@ export class KmsWorkerCore extends KMS {
     importSession(payload) {
         return this.postJob('importSession', payload);
     }
+    importExportSession(payload) {
+        return this.postJob('importExportSession', payload);
+    }
     decrypt(payload) {
         return this.postJob('decrypt', payload);
     }

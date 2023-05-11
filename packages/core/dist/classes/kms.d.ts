@@ -9,6 +9,7 @@ export declare abstract class KMS {
     abstract destroySession(): Promise<Result.SessionDestroyResult>;
     abstract exportSession(): Promise<Result.SessionExportResult>;
     abstract importSession(sessionPayload: string): Promise<Result.SessionImportResult>;
+    abstract importExportSession(sessionPayload: string): Promise<Result.SessionImportExportResult>;
     abstract decrypt(decryptRequest: CryptOpPayloadData): Promise<Result.DecryptResult>;
     abstract encrypt(encryptRequest: CryptOpPayloadData): Promise<Result.EncryptResult>;
     abstract hybridDecrypt(hybridDecryptRequest: HybridDecryptRequestPayloadData): Promise<Result.HybridDecryptResult>;

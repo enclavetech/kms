@@ -13,6 +13,7 @@ import type {
   KmsResult,
   SessionDestroyResult,
   SessionExportResult,
+  SessionImportExportResult,
   SessionImportResult,
 } from '../types/result';
 import { KMS } from './kms';
@@ -68,6 +69,10 @@ export abstract class KmsWorkerCore extends KMS {
 
   public importSession(payload: string) {
     return this.postJob('importSession', payload) as Promise<SessionImportResult>;
+  }
+
+  public importExportSession(payload: string) {
+    return this.postJob('importExportSession', payload) as Promise<SessionImportExportResult>;
   }
 
   public decrypt(payload: CryptOpPayloadData) {

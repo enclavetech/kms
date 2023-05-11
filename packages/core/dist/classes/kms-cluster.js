@@ -18,8 +18,8 @@ export class KmsClusterCore extends KMS {
     getNextWorker() {
         return this.cluster[(this.currentWorker = ++this.currentWorker >= this.cluster.length ? 0 : this.currentWorker)];
     }
-    async importKey(keyImportRequest) {
-        return (await Promise.all(this.cluster.map((worker) => worker.importKey(keyImportRequest))))[0];
+    async importKey(payload) {
+        return (await Promise.all(this.cluster.map((worker) => worker.importKey(payload))))[0];
     }
     async destroySession() {
         return (await Promise.all(this.cluster.map((worker) => worker.destroySession())))[0];
@@ -27,19 +27,25 @@ export class KmsClusterCore extends KMS {
     exportSession() {
         return this.getNextWorker().exportSession();
     }
-    async importSession(sessionPayload) {
-        return (await Promise.all(this.cluster.map((worker) => worker.importSession(sessionPayload))))[0];
+    async importSession(payload) {
+        return (await Promise.all(this.cluster.map((worker) => worker.importSession(payload))))[0];
     }
-    decrypt(decryptRequest) {
-        return this.getNextWorker().decrypt(decryptRequest);
+    async importExportSession(payload) {
+        const nextWorker = this.getNextWorker();
+        const importResultPromise = nextWorker.importExportSession(payload);
+        console.log(await Promise.all(this.cluster.map((worker) => worker === nextWorker ? importResultPromise : worker.importSession(payload))));
+        return await importResultPromise;
     }
-    encrypt(encryptRequest) {
-        return this.getNextWorker().encrypt(encryptRequest);
+    decrypt(payload) {
+        return this.getNextWorker().decrypt(payload);
     }
-    hybridDecrypt(hybridDecryptRequest) {
-        return this.getNextWorker().hybridDecrypt(hybridDecryptRequest);
+    encrypt(payload) {
+        return this.getNextWorker().encrypt(payload);
     }
-    hybridEncrypt(hybridEncryptRequest) {
-        return this.getNextWorker().hybridEncrypt(hybridEncryptRequest);
+    hybridDecrypt(payload) {
+        return this.getNextWorker().hybridDecrypt(payload);
+    }
+    hybridEncrypt(payload) {
+        return this.getNextWorker().hybridEncrypt(payload);
     }
 }

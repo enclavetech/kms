@@ -11,6 +11,7 @@ export declare class Worker<PrivateKeyType extends object, SessionKeyType extend
     private destroySessionJob;
     private exportSessionJob;
     private importSessionJob;
+    private importExportSessionJob;
     private decryptJob;
     private encryptJob;
     private hybridDecryptJob;

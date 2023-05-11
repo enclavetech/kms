@@ -10,6 +10,7 @@ import type {
   SessionDestroyJob,
   SessionExportJob,
   SessionImportJob,
+  SessionImportExportJob,
 } from '../types/job';
 import type {
   DecryptResponse,
@@ -20,9 +21,12 @@ import type {
   KmsResponse,
   SessionDestroyResponse,
   SessionExportResponse,
+  SessionImportExportResponse,
   SessionImportResponse,
 } from '../types/response';
 import { kvStoreDelete, kvStoreGet, kvStoreSet } from '../utils/db';
+
+// TODO: break functions into individual files and try and find a DRYer way to wrap them
 
 export class Worker<PrivateKeyType extends object, SessionKeyType extends object> {
   private keyMap: Record<string, PrivateKeyType> = {};
@@ -44,6 +48,11 @@ export class Worker<PrivateKeyType extends object, SessionKeyType extends object
 
           case 'importSession':
             return self.postMessage(await this.importSessionJob(job as SessionImportJob));
+
+          case 'importExportSession':
+            return self.postMessage(
+              await this.importExportSessionJob(job as SessionImportExportJob),
+            );
 
           case 'decrypt':
             return self.postMessage(await this.decryptJob(job as DecryptJob));
@@ -222,6 +231,39 @@ export class Worker<PrivateKeyType extends object, SessionKeyType extends object
       jobID,
       ok,
       payload: keyIDs,
+    };
+  }
+
+  private async importExportSessionJob(
+    job: SessionImportExportJob,
+  ): Promise<SessionImportExportResponse> {
+    const { action, jobID, payload } = job;
+
+    const {
+      error,
+      ok,
+      payload: keyIDs,
+    } = await this.importSessionJob({
+      action: 'importSession',
+      jobID,
+      payload,
+    });
+
+    const { payload: sessionExportPayload } = await this.exportSessionJob({
+      action: 'exportSession',
+      jobID,
+      payload: undefined,
+    });
+
+    return {
+      action,
+      error,
+      jobID,
+      ok,
+      payload: {
+        keyIDs,
+        sessionExportPayload,
+      },
     };
   }
 

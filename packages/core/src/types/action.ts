@@ -3,6 +3,7 @@ export type KmsAction =
   | 'destroySession'
   | 'exportSession'
   | 'importSession'
+  | 'importExportSession'
   | 'decrypt'
   | 'hybridDecrypt'
   | 'encrypt'

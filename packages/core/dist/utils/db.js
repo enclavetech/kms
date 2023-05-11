@@ -1,3 +1,4 @@
+// TODO: @enclavetech/kv lib
 function kvStoreOpen() {
     return new Promise((resolve, reject) => {
         const openRequest = indexedDB.open('enclave_km', 1);

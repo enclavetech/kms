@@ -1,4 +1,5 @@
 import { kvStoreDelete, kvStoreGet, kvStoreSet } from '../utils/db';
+// TODO: break functions into individual files and try and find a DRYer way to wrap them
 export class Worker {
     constructor(libImpl) {
         this.libImpl = libImpl;
@@ -15,6 +16,8 @@ export class Worker {
                         return self.postMessage(await this.exportSessionJob(job));
                     case 'importSession':
                         return self.postMessage(await this.importSessionJob(job));
+                    case 'importExportSession':
+                        return self.postMessage(await this.importExportSessionJob(job));
                     case 'decrypt':
                         return self.postMessage(await this.decryptJob(job));
                     case 'encrypt':
@@ -163,6 +166,29 @@ export class Worker {
             jobID,
             ok,
             payload: keyIDs,
+        };
+    }
+    async importExportSessionJob(job) {
+        const { action, jobID, payload } = job;
+        const { error, ok, payload: keyIDs, } = await this.importSessionJob({
+            action: 'importSession',
+            jobID,
+            payload,
+        });
+        const { payload: sessionExportPayload } = await this.exportSessionJob({
+            action: 'exportSession',
+            jobID,
+            payload: undefined,
+        });
+        return {
+            action,
+            error,
+            jobID,
+            ok,
+            payload: {
+                keyIDs,
+                sessionExportPayload,
+            },
         };
     }
     async decryptJob(job) {
