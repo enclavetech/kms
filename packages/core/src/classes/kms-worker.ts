@@ -3,7 +3,6 @@ import type { HybridDecryptRequestPayloadData } from '../interfaces/payload-data
 import type { KeyImportRequestPayloadData } from '../interfaces/payload-data/key-import-request';
 import type { KmsAction } from '../types/action';
 import type { KmsCallback } from '../types/callback';
-import type { KmsPayload } from '../types/payload';
 import type { KmsResponse } from '../types/response';
 import type {
   DecryptResult,
@@ -42,73 +41,48 @@ export abstract class KmsWorkerCore extends KMS {
     delete this.pendingJobs[jobID];
   }
 
-  private postJob<Action extends KmsAction, Result extends KmsResult<Action, unknown>, Data = void>(
-    request: KmsPayload<Action, Data>,
-  ): Promise<Result> {
-    return new Promise<Result>((resolve, reject) => {
+  private postJob<A extends KmsAction>(
+    action: A,
+    payload?: unknown,
+  ): Promise<KmsResult<A, unknown>> {
+    return new Promise<KmsResult<A, unknown>>((resolve, reject) => {
       const jobID = this.jobCounter++;
       this.pendingJobs[jobID] = function (result) {
-        result.ok ? resolve(result as Result) : reject(result);
+        result.ok ? resolve(result as KmsResult<A, unknown>) : reject(result);
       };
-      this.worker.postMessage({ ...request, jobID });
+      this.worker.postMessage({ action, jobID, payload });
     });
   }
 
-  public importKey(keyImportRequest: KeyImportRequestPayloadData): Promise<KeyImportResult> {
-    return this.postJob<'importKey', KeyImportResult, KeyImportRequestPayloadData>({
-      action: 'importKey',
-      payload: keyImportRequest,
-    });
+  public importKey(payload: KeyImportRequestPayloadData) {
+    return this.postJob('importKey', payload) as Promise<KeyImportResult>;
   }
 
-  public destroySession(): Promise<SessionDestroyResult> {
-    return this.postJob<'destroySession', SessionDestroyResult>({
-      action: 'destroySession',
-      payload: undefined,
-    });
+  public destroySession() {
+    return this.postJob('destroySession') as Promise<SessionDestroyResult>;
   }
 
-  public exportSession(): Promise<SessionExportResult> {
-    return this.postJob<'exportSession', SessionExportResult>({
-      action: 'exportSession',
-      payload: undefined,
-    });
+  public exportSession() {
+    return this.postJob('exportSession') as Promise<SessionExportResult>;
   }
 
-  public importSession(payload: string): Promise<SessionImportResult> {
-    return this.postJob<'importSession', SessionImportResult, string>({
-      action: 'importSession',
-      payload,
-    });
+  public importSession(payload: string) {
+    return this.postJob('importSession', payload) as Promise<SessionImportResult>;
   }
 
-  public decrypt(decryptRequest: CryptOpPayloadData): Promise<DecryptResult> {
-    return this.postJob<'decrypt', DecryptResult, CryptOpPayloadData>({
-      action: 'decrypt',
-      payload: decryptRequest,
-    });
+  public decrypt(payload: CryptOpPayloadData) {
+    return this.postJob('decrypt', payload) as Promise<DecryptResult>;
   }
 
-  public encrypt(encryptRequest: CryptOpPayloadData): Promise<EncryptResult> {
-    return this.postJob<'encrypt', EncryptResult, CryptOpPayloadData>({
-      action: 'encrypt',
-      payload: encryptRequest,
-    });
+  public encrypt(payload: CryptOpPayloadData) {
+    return this.postJob('encrypt', payload) as Promise<EncryptResult>;
   }
 
-  public hybridDecrypt(
-    hybridDecryptRequest: HybridDecryptRequestPayloadData,
-  ): Promise<HybridDecryptResult> {
-    return this.postJob<'hybridDecrypt', HybridDecryptResult, HybridDecryptRequestPayloadData>({
-      action: 'hybridDecrypt',
-      payload: hybridDecryptRequest,
-    });
+  public hybridDecrypt(payload: HybridDecryptRequestPayloadData) {
+    return this.postJob('hybridDecrypt', payload) as Promise<HybridDecryptResult>;
   }
 
-  public hybridEncrypt(hybridEncryptRequest: CryptOpPayloadData): Promise<HybridEncryptResult> {
-    return this.postJob<'hybridEncrypt', HybridEncryptResult, CryptOpPayloadData>({
-      action: 'hybridEncrypt',
-      payload: hybridEncryptRequest,
-    });
+  public hybridEncrypt(payload: CryptOpPayloadData) {
+    return this.postJob('hybridEncrypt', payload) as Promise<HybridEncryptResult>;
   }
 }

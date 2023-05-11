@@ -18,61 +18,37 @@ export class KmsWorkerCore extends KMS {
         callback(result);
         delete this.pendingJobs[jobID];
     }
-    postJob(request) {
+    postJob(action, payload) {
         return new Promise((resolve, reject) => {
             const jobID = this.jobCounter++;
             this.pendingJobs[jobID] = function (result) {
                 result.ok ? resolve(result) : reject(result);
             };
-            this.worker.postMessage({ ...request, jobID });
+            this.worker.postMessage({ action, jobID, payload });
         });
     }
-    importKey(keyImportRequest) {
-        return this.postJob({
-            action: 'importKey',
-            payload: keyImportRequest,
-        });
+    importKey(payload) {
+        return this.postJob('importKey', payload);
     }
     destroySession() {
-        return this.postJob({
-            action: 'destroySession',
-            payload: undefined,
-        });
+        return this.postJob('destroySession');
     }
     exportSession() {
-        return this.postJob({
-            action: 'exportSession',
-            payload: undefined,
-        });
+        return this.postJob('exportSession');
     }
     importSession(payload) {
-        return this.postJob({
-            action: 'importSession',
-            payload,
-        });
+        return this.postJob('importSession', payload);
     }
-    decrypt(decryptRequest) {
-        return this.postJob({
-            action: 'decrypt',
-            payload: decryptRequest,
-        });
+    decrypt(payload) {
+        return this.postJob('decrypt', payload);
     }
-    encrypt(encryptRequest) {
-        return this.postJob({
-            action: 'encrypt',
-            payload: encryptRequest,
-        });
+    encrypt(payload) {
+        return this.postJob('encrypt', payload);
     }
-    hybridDecrypt(hybridDecryptRequest) {
-        return this.postJob({
-            action: 'hybridDecrypt',
-            payload: hybridDecryptRequest,
-        });
+    hybridDecrypt(payload) {
+        return this.postJob('hybridDecrypt', payload);
     }
-    hybridEncrypt(hybridEncryptRequest) {
-        return this.postJob({
-            action: 'hybridEncrypt',
-            payload: hybridEncryptRequest,
-        });
+    hybridEncrypt(payload) {
+        return this.postJob('hybridEncrypt', payload);
     }
 }

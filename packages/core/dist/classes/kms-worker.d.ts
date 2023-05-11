@@ -11,12 +11,12 @@ export declare abstract class KmsWorkerCore extends KMS {
     private jobCounter;
     protected onmessage(event: MessageEvent<KmsResponse<KmsAction, never>>): void;
     private postJob;
-    importKey(keyImportRequest: KeyImportRequestPayloadData): Promise<KeyImportResult>;
+    importKey(payload: KeyImportRequestPayloadData): Promise<KeyImportResult>;
     destroySession(): Promise<SessionDestroyResult>;
     exportSession(): Promise<SessionExportResult>;
     importSession(payload: string): Promise<SessionImportResult>;
-    decrypt(decryptRequest: CryptOpPayloadData): Promise<DecryptResult>;
-    encrypt(encryptRequest: CryptOpPayloadData): Promise<EncryptResult>;
-    hybridDecrypt(hybridDecryptRequest: HybridDecryptRequestPayloadData): Promise<HybridDecryptResult>;
-    hybridEncrypt(hybridEncryptRequest: CryptOpPayloadData): Promise<HybridEncryptResult>;
+    decrypt(payload: CryptOpPayloadData): Promise<DecryptResult>;
+    encrypt(payload: CryptOpPayloadData): Promise<EncryptResult>;
+    hybridDecrypt(payload: HybridDecryptRequestPayloadData): Promise<HybridDecryptResult>;
+    hybridEncrypt(payload: CryptOpPayloadData): Promise<HybridEncryptResult>;
 }
