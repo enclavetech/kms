@@ -62,7 +62,7 @@ Install `@enclavetech/kms-core`, `@enclavetech/kms-openpgp`, and its peer depend
 npm i https://gitpkg.now.sh/enclavetech/kms/packages/core https://gitpkg.now.sh/enclavetech/kms/packages/openpgp openpgp
 ```
 
-### TypeScript {#installation-typescript}
+### TypeScript
 
 If you are using TypeScript, you may need to install `@openpgp/web-stream-tools` as a devDependency too.
 
@@ -92,7 +92,7 @@ const kmsWorker = new KmsWorker();
 
 Both `KmsCluster` and `KmsWorker` implement the `KMS` abstract class, which defines the public API.
 
-### TypeScript {#usage-typescript}
+### TypeScript
 
 If you are using TypeScript, use `KMS` from the core package as the type:
 
