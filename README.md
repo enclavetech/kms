@@ -24,35 +24,35 @@ Under the hood, it uses web workers to isolate the keys and function executions 
 
 ### Features
 
-|       Status       | Feature                            |
-| :----------------: | :--------------------------------- |
-| :white_check_mark: | Import private keys                |
-|   :construction:   | Import public keys & key pairs     |
-|   :construction:   | Symmetric encrypt/decrypt          |
-| :white_check_mark: | Asymmetric encrypt/decrypt         |
-| :white_check_mark: | Hybrid encrypt/decrypt             |
-| :white_check_mark: | Session import/export/destroy      |
-| :white_check_mark: | Pooling (multiple workers/threads) |
-| :white_check_mark: | Bring your own crypto library      |
-|   :construction:   | Tests                              |
+|                 Status                 | Feature                            |
+| :------------------------------------: | :--------------------------------- |
+| [:white_check_mark:](## 'Implemented') | Import private keys                |
+|     [:construction:](## 'Planned')     | Import public keys & key pairs     |
+|     [:construction:](## 'Planned')     | Symmetric encrypt/decrypt          |
+| [:white_check_mark:](## 'Implemented') | Asymmetric encrypt/decrypt         |
+| [:white_check_mark:](## 'Implemented') | Hybrid encrypt/decrypt             |
+| [:white_check_mark:](## 'Implemented') | Session import/export/destroy      |
+| [:white_check_mark:](## 'Implemented') | Pooling (multiple workers/threads) |
+| [:white_check_mark:](## 'Implemented') | Bring your own crypto library      |
+|     [:construction:](## 'Planned')     | Tests                              |
 
 ### Platform Support
 
-|       Status       | Platform |
-| :----------------: | :------- |
-| :white_check_mark: | Browser  |
-|   :construction:   | Node.js  |
+|                Status                | Platform |
+| :----------------------------------: | :------- |
+| [:white_check_mark:](## 'Supported') | Browser  |
+|    [:construction:](## 'Planned')    | Node.js  |
 
 ### Library Support
 
-Enclave KMS has been designed in a generic way to enable its use with virtually any crypto system by creating an adapter. The following are officially supported or planned:
+Enclave KMS has been designed in a generic way to enable its use with virtually any crypto system simply by creating an adapter. The following are officially supported or planned:
 
 <!-- TODO: provide adapter docs -->
 
-|       Status       | Library                               | Package                                        |
-| :----------------: | :------------------------------------ | :--------------------------------------------- |
-| :white_check_mark: | [OpenPGP.js](https://openpgpjs.org)   | [`@enclavetech/kms-openpgp`](packages/openpgp) |
-|   :construction:   | [jose](https://github.com/panva/jose) |
+|                Status                | Library                               | Adapter Package                                |
+| :----------------------------------: | :------------------------------------ | :--------------------------------------------- |
+| [:white_check_mark:](## 'Supported') | [OpenPGP.js](https://openpgpjs.org)   | [`@enclavetech/kms-openpgp`](packages/openpgp) |
+|    [:construction:](## 'Planned')    | [jose](https://github.com/panva/jose) |
 
 ## Installation
 
@@ -62,7 +62,7 @@ Install `@enclavetech/kms-core`, `@enclavetech/kms-openpgp`, and its peer depend
 npm i https://gitpkg.now.sh/enclavetech/kms/packages/core https://gitpkg.now.sh/enclavetech/kms/packages/openpgp openpgp
 ```
 
-### TypeScript
+### TypeScript {#installation-typescript}
 
 If you are using TypeScript, you may need to install `@openpgp/web-stream-tools` as a devDependency too.
 
@@ -92,7 +92,7 @@ const kmsWorker = new KmsWorker();
 
 Both `KmsCluster` and `KmsWorker` implement the `KMS` abstract class, which defines the public API.
 
-### TypeScript
+### TypeScript {#usage-typescript}
 
 If you are using TypeScript, use `KMS` from the core package as the type:
 
