@@ -7,6 +7,6 @@ export class KmsWorker extends KmsWorkerCore {
     this.worker = new Worker(new URL('../workers/worker.js?worker', import.meta.url), {
       type: 'module',
     });
-    this.worker.onmessage = this.onmessage.bind(this);
+    this.worker.onmessage = this.handleCompletedJob.bind(this);
   }
 }

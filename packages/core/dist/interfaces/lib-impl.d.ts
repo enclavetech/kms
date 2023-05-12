@@ -1,4 +1,4 @@
-import type { MaybePromise } from '../types/maybe-promise';
+import type { MaybePromise } from '../types/maybe';
 export interface ILibImpl<PrivateKeyType extends object, SessionKeyType extends object> {
     generatePrivateKey(): MaybePromise<PrivateKeyType>;
     generateSessionKey(privateKey: PrivateKeyType): MaybePromise<SessionKeyType>;

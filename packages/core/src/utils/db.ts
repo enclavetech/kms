@@ -13,9 +13,7 @@ function kvStoreOpen(): Promise<IDBObjectStore> {
     };
 
     openRequest.onsuccess = (event: Event) => {
-      resolve(
-        (event.target as IDBOpenDBRequest).result.transaction('kv', 'readwrite').objectStore('kv'),
-      );
+      resolve((event.target as IDBOpenDBRequest).result.transaction('kv', 'readwrite').objectStore('kv'));
     };
   });
 }

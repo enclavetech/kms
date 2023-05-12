@@ -6,32 +6,11 @@ export class Worker {
         this.keyMap = {};
         self.onmessage = async (event) => {
             const job = event.data;
-            try {
-                switch (job.action) {
-                    case 'importKey':
-                        return self.postMessage(await this.importKeyJob(job));
-                    case 'destroySession':
-                        return self.postMessage(await this.destroySessionJob(job));
-                    case 'exportSession':
-                        return self.postMessage(await this.exportSessionJob(job));
-                    case 'importSession':
-                        return self.postMessage(await this.importSessionJob(job));
-                    case 'importExportSession':
-                        return self.postMessage(await this.importExportSessionJob(job));
-                    case 'decrypt':
-                        return self.postMessage(await this.decryptJob(job));
-                    case 'encrypt':
-                        return self.postMessage(await this.encryptJob(job));
-                    case 'hybridDecrypt':
-                        return self.postMessage(await this.hybridDecryptJob(job));
-                    case 'hybridEncrypt':
-                        return self.postMessage(await this.hybridEncryptJob(job));
-                }
-            }
-            catch (e) {
-                console.error(e);
-                throw this.errorResponse('Unexpected error', job);
-            }
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const handler = this[job.action];
+            if (!handler)
+                throw this.errorResponse('No such action', job);
+            return self.postMessage(await handler(job));
         };
     }
     errorResponse(error, job) {
@@ -53,23 +32,47 @@ export class Worker {
         }
         return privateKey;
     }
-    async importKeyJob(job) {
+    async asymmetricDecrypt(job) {
         const { action, jobID } = job;
-        const { key, keyID } = job.payload;
+        const { kmsKeyID, payload } = job.payload;
+        const privateKey = this.getPrivateKey(kmsKeyID, job);
+        let decryptedMessage;
         try {
-            this.keyMap[keyID] = await this.libImpl.parsePrivateKey(key);
+            decryptedMessage = await this.libImpl.decryptWithPrivateKey(payload, privateKey);
         }
         catch (e) {
-            throw this.errorResponse('Failed to parse private key', job);
+            throw this.errorResponse('Unable to decrypt message', job);
         }
         return {
             action,
             jobID,
             ok: true,
-            payload: keyID,
+            payload: { payload: decryptedMessage },
         };
     }
-    async destroySessionJob(job) {
+    async asymmetricEncrypt(job) {
+        const { action, jobID } = job;
+        const { kmsKeyID, payload } = job.payload;
+        // TODO: use public key
+        const privateKey = this.getPrivateKey(kmsKeyID, job);
+        let encryptedMessage;
+        try {
+            encryptedMessage = await this.libImpl.encryptWithPrivateKey(payload, privateKey);
+        }
+        catch (e) {
+            throw this.errorResponse('Unable to encrypt message', job);
+        }
+        return {
+            action,
+            jobID,
+            ok: true,
+            payload: {
+                kmsKeyID,
+                payload: encryptedMessage,
+            },
+        };
+    }
+    async destroySession(job) {
         const { action, jobID } = job;
         this.keyMap = {};
         await kvStoreDelete('session_key');
@@ -80,7 +83,7 @@ export class Worker {
             payload: undefined,
         };
     }
-    async exportSessionJob(job) {
+    async exportSession(job) {
         const { action, jobID } = job;
         const session = {
             keys: new Array(),
@@ -90,7 +93,7 @@ export class Worker {
         }
         const payload = JSON.stringify(session);
         let key;
-        let sessionEncrypted;
+        let sessionPayload;
         try {
             key = await this.libImpl.generatePrivateKey();
         }
@@ -98,7 +101,7 @@ export class Worker {
             throw this.errorResponse('Failed to generate key', job);
         }
         try {
-            sessionEncrypted = await this.libImpl.encryptWithPrivateKey(payload, key);
+            sessionPayload = await this.libImpl.encryptWithPrivateKey(payload, key);
         }
         catch (e) {
             throw this.errorResponse('Failed to encrypt payload', job);
@@ -113,12 +116,89 @@ export class Worker {
             action,
             jobID,
             ok: true,
-            payload: sessionEncrypted,
+            payload: { sessionPayload },
         };
     }
-    async importSessionJob(job) {
+    async hybridDecrypt(job) {
         const { action, jobID } = job;
-        const sessionEncrypted = job.payload;
+        const { kmsKeyID, payloadKey, payload } = job.payload;
+        const privateKey = this.getPrivateKey(kmsKeyID, job);
+        let sessionKey;
+        let decryptedMessage;
+        try {
+            sessionKey = await this.libImpl.decryptSessionKey(payloadKey, privateKey);
+        }
+        catch (e) {
+            throw this.errorResponse('Unable to decrypt session key', job);
+        }
+        try {
+            decryptedMessage = await this.libImpl.decryptWithSessionKey(payload, sessionKey);
+        }
+        catch (e) {
+            throw this.errorResponse('Unable to decrypt message', job);
+        }
+        return {
+            action,
+            jobID,
+            ok: true,
+            payload: { payload: decryptedMessage },
+        };
+    }
+    async hybridEncrypt(job) {
+        const { action, jobID } = job;
+        const { kmsKeyID, payload } = job.payload;
+        // TODO: use public key
+        const privateKey = this.getPrivateKey(kmsKeyID, job);
+        let sessionKey;
+        let encryptedMessage;
+        let encryptedSessionKey;
+        try {
+            sessionKey = await this.libImpl.generateSessionKey(privateKey);
+        }
+        catch (e) {
+            throw this.errorResponse('Unable to generate session key', job);
+        }
+        try {
+            encryptedMessage = await this.libImpl.encryptWithSessionKey(payload, sessionKey);
+        }
+        catch (e) {
+            throw this.errorResponse('Unable to encrypt message', job);
+        }
+        try {
+            encryptedSessionKey = await this.libImpl.encryptSessionKey(sessionKey, privateKey);
+        }
+        catch (e) {
+            throw this.errorResponse('Unable to encrypt session key', job);
+        }
+        return {
+            action,
+            jobID,
+            ok: true,
+            payload: {
+                payload: encryptedMessage,
+                payloadKey: encryptedSessionKey,
+            },
+        };
+    }
+    async importPrivateKey(job) {
+        const { action, jobID } = job;
+        const { privateKey: key, keyID } = job.payload;
+        try {
+            this.keyMap[keyID] = await this.libImpl.parsePrivateKey(key);
+        }
+        catch (e) {
+            throw this.errorResponse('Failed to parse private key', job);
+        }
+        return {
+            action,
+            jobID,
+            ok: true,
+            payload: { keyIDs: [keyID] },
+        };
+    }
+    async importSession(job) {
+        const { action, jobID } = job;
+        const sessionEncrypted = job.payload.sessionPayload;
         let keyEncoded;
         let key;
         let sessionDecrypted;
@@ -160,124 +240,39 @@ export class Worker {
                 ok = false;
             }
         }));
+        const { sessionPayload } = (await this.exportSession({
+            action: 'exportSession',
+            jobID,
+            payload: undefined,
+        })).payload;
         return {
             action,
             error: ok ? undefined : 'One or more keys could not be parsed',
             jobID,
             ok,
-            payload: keyIDs,
-        };
-    }
-    async importExportSessionJob(job) {
-        const { action, jobID, payload } = job;
-        const { error, ok, payload: keyIDs, } = await this.importSessionJob({
-            action: 'importSession',
-            jobID,
-            payload,
-        });
-        const { payload: sessionExportPayload } = await this.exportSessionJob({
-            action: 'exportSession',
-            jobID,
-            payload: undefined,
-        });
-        return {
-            action,
-            error,
-            jobID,
-            ok,
             payload: {
-                keyIDs,
-                sessionExportPayload,
+                importedKeyIDs: keyIDs,
+                // TODO: make optional
+                sessionPayload,
             },
         };
     }
-    async decryptJob(job) {
+    async reencryptSessionKey(job) {
         const { action, jobID } = job;
-        const { kmsKeyID, payload } = job.payload;
-        const privateKey = this.getPrivateKey(kmsKeyID, job);
-        let decryptedMessage;
-        try {
-            decryptedMessage = await this.libImpl.decryptWithPrivateKey(payload, privateKey);
-        }
-        catch (e) {
-            throw this.errorResponse('Unable to decrypt message', job);
-        }
-        return {
-            action,
-            jobID,
-            ok: true,
-            payload: decryptedMessage,
-        };
-    }
-    async encryptJob(job) {
-        const { action, jobID } = job;
-        const { kmsKeyID, payload } = job.payload;
+        const { decryptKeyID, encryptKeyID, sessionKey } = job.payload;
+        const decryptKey = this.getPrivateKey(decryptKeyID, job);
         // TODO: use public key
-        const privateKey = this.getPrivateKey(kmsKeyID, job);
-        let encryptedMessage;
+        const encryptKey = this.getPrivateKey(encryptKeyID, job);
+        let decryptedSessionKey;
+        let encryptedSessionKey;
         try {
-            encryptedMessage = await this.libImpl.encryptWithPrivateKey(payload, privateKey);
-        }
-        catch (e) {
-            throw this.errorResponse('Unable to encrypt message', job);
-        }
-        return {
-            action,
-            jobID,
-            ok: true,
-            payload: {
-                kmsKeyID,
-                payload: encryptedMessage,
-            },
-        };
-    }
-    async hybridDecryptJob(job) {
-        const { action, jobID } = job;
-        const { kmsKeyID, payloadKey, payload } = job.payload;
-        const privateKey = this.getPrivateKey(kmsKeyID, job);
-        let sessionKey;
-        let decryptedMessage;
-        try {
-            sessionKey = await this.libImpl.decryptSessionKey(payloadKey, privateKey);
+            decryptedSessionKey = await this.libImpl.decryptSessionKey(sessionKey, decryptKey);
         }
         catch (e) {
             throw this.errorResponse('Unable to decrypt session key', job);
         }
         try {
-            decryptedMessage = await this.libImpl.decryptWithSessionKey(payload, sessionKey);
-        }
-        catch (e) {
-            throw this.errorResponse('Unable to decrypt message', job);
-        }
-        return {
-            action,
-            jobID,
-            ok: true,
-            payload: decryptedMessage,
-        };
-    }
-    async hybridEncryptJob(job) {
-        const { action, jobID } = job;
-        const { kmsKeyID, payload } = job.payload;
-        // TODO: use public key
-        const privateKey = this.getPrivateKey(kmsKeyID, job);
-        let sessionKey;
-        let encryptedMessage;
-        let encryptedSessionKey;
-        try {
-            sessionKey = await this.libImpl.generateSessionKey(privateKey);
-        }
-        catch (e) {
-            throw this.errorResponse('Unable to generate session key', job);
-        }
-        try {
-            encryptedMessage = await this.libImpl.encryptWithSessionKey(payload, sessionKey);
-        }
-        catch (e) {
-            throw this.errorResponse('Unable to encrypt message', job);
-        }
-        try {
-            encryptedSessionKey = await this.libImpl.encryptSessionKey(sessionKey, privateKey);
+            encryptedSessionKey = await this.libImpl.encryptSessionKey(decryptedSessionKey, encryptKey);
         }
         catch (e) {
             throw this.errorResponse('Unable to encrypt session key', job);
@@ -287,8 +282,8 @@ export class Worker {
             jobID,
             ok: true,
             payload: {
-                payload: encryptedMessage,
-                payloadKey: encryptedSessionKey,
+                kmsKeyID: encryptKeyID,
+                payload: encryptedSessionKey,
             },
         };
     }

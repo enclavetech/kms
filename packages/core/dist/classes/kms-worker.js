@@ -5,14 +5,12 @@ export class KmsWorkerCore extends KMS {
         this.pendingJobs = {};
         this.jobCounter = 0;
     }
-    onmessage(event) {
-        const response = event.data;
-        const { jobID, ...result } = response;
+    handleCompletedJob(event) {
+        const { jobID, ...result } = event.data;
         const callback = this.pendingJobs[jobID];
         if (!callback) {
-            const { ok } = response;
             return console.warn(`Enclave KMS: Job [${jobID}]: finished with status: ${JSON.stringify({
-                ok,
+                ok: event.data.ok,
             })} but no callback found.`);
         }
         callback(result);
@@ -22,13 +20,16 @@ export class KmsWorkerCore extends KMS {
         return new Promise((resolve, reject) => {
             const jobID = this.jobCounter++;
             this.pendingJobs[jobID] = function (result) {
-                result.ok ? resolve(result) : reject(result);
+                result.ok ? resolve(result.payload) : reject(result.error);
             };
             this.worker.postMessage({ action, jobID, payload });
         });
     }
-    importKey(payload) {
-        return this.postJob('importKey', payload);
+    asymmetricDecrypt(request) {
+        return this.postJob('asymmetricDecrypt', request);
+    }
+    asymmetricEncrypt(request) {
+        return this.postJob('asymmetricEncrypt', request);
     }
     destroySession() {
         return this.postJob('destroySession');
@@ -36,22 +37,19 @@ export class KmsWorkerCore extends KMS {
     exportSession() {
         return this.postJob('exportSession');
     }
-    importSession(payload) {
-        return this.postJob('importSession', payload);
+    hybridDecrypt(request) {
+        return this.postJob('hybridDecrypt', request);
     }
-    importExportSession(payload) {
-        return this.postJob('importExportSession', payload);
+    hybridEncrypt(request) {
+        return this.postJob('hybridEncrypt', request);
     }
-    decrypt(payload) {
-        return this.postJob('decrypt', payload);
+    importPrivateKey(request) {
+        return this.postJob('importPrivateKey', request);
     }
-    encrypt(payload) {
-        return this.postJob('encrypt', payload);
+    importSession(request) {
+        return this.postJob('importSession', request);
     }
-    hybridDecrypt(payload) {
-        return this.postJob('hybridDecrypt', payload);
-    }
-    hybridEncrypt(payload) {
-        return this.postJob('hybridEncrypt', payload);
+    reencryptSessionKey(request) {
+        return this.postJob('reencryptSessionKey', request);
     }
 }

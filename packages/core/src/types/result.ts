@@ -1,27 +1,8 @@
-import type { CryptOpPayloadData } from '../interfaces/payload-data/crypt-op';
-import type { HybridEncryptResultPayloadData } from '../interfaces/payload-data/hybrid-encrypt-result';
-import type { SessionImportExportResultPayloadData } from '../interfaces/payload-data/session-import-export-result';
-import type { KmsAction } from './action';
-import type { KmsPayload } from './payload';
+import type { Action } from './action';
+import type { PayloadBase } from '../interfaces/payload-base';
 
-/** Returned to the user when their promise resolves. */
-export type KmsResult<A extends KmsAction, T = void> = KmsPayload<A, T> & {
+/** Used internally for communication from workers. */
+export type Result<A extends Action, T = void> = PayloadBase<A, T> & {
   error?: string;
   ok: boolean;
 };
-
-export type KeyImportResult = KmsResult<'importKey', string>;
-
-export type SessionDestroyResult = KmsResult<'destroySession'>;
-export type SessionExportResult = KmsResult<'exportSession', string>;
-export type SessionImportResult = KmsResult<'importSession', string[]>;
-export type SessionImportExportResult = KmsResult<
-  'importExportSession',
-  SessionImportExportResultPayloadData
->;
-
-export type DecryptResult = KmsResult<'decrypt', string>;
-export type EncryptResult = KmsResult<'encrypt', CryptOpPayloadData>;
-
-export type HybridDecryptResult = KmsResult<'hybridDecrypt', string>;
-export type HybridEncryptResult = KmsResult<'hybridEncrypt', HybridEncryptResultPayloadData>;
