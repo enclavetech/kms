@@ -240,11 +240,6 @@ export class Worker {
                 ok = false;
             }
         }));
-        const { sessionPayload } = (await this.exportSession({
-            action: 'exportSession',
-            jobID,
-            payload: undefined,
-        })).payload;
         return {
             action,
             error: ok ? undefined : 'One or more keys could not be parsed',
@@ -252,8 +247,6 @@ export class Worker {
             ok,
             payload: {
                 importedKeyIDs: keyIDs,
-                // TODO: make optional
-                sessionPayload,
             },
         };
     }

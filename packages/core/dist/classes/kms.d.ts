@@ -17,12 +17,7 @@ export declare abstract class KMS {
     abstract hybridEncrypt(request: Payload.CryptPayload): Promise<Payload.HybridEncryptResult>;
     /** Import a private key into the KMS. */
     abstract importPrivateKey(request: Payload.ImportPrivateKeyRequest): Promise<Payload.ImportPrivateKeyResult>;
-    /**
-     * Import a previously exported KMS session.
-     * The session key will immediately be invalidated, so the session is re-exported.
-     * @todo Make re-exporting optional.
-     * @todo Make invalidating existing session optional.
-     */
+    /** Import a previously exported KMS session. */
     abstract importSession(request: Payload.ImportSessionRequest): Promise<Payload.ImportSessionResult>;
     /** Re-encrypt an encrypted session key with another key pair. */
     abstract reencryptSessionKey(request: Payload.ReencryptSessionKeyRequest): Promise<Payload.CryptPayload>;

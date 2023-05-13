@@ -255,7 +255,6 @@ export class Worker<PrivateKeyType extends object, SessionKeyType extends object
     job: Job<'importSession', Payload.ImportSessionRequest>,
   ): Promise<CompletedJob<'importSession', Payload.ImportSessionResult>> {
     const { action, jobID } = job;
-
     const sessionEncrypted = job.payload.sessionPayload;
 
     let keyEncoded: string;
@@ -304,14 +303,6 @@ export class Worker<PrivateKeyType extends object, SessionKeyType extends object
       }),
     );
 
-    const { sessionPayload } = (
-      await this.exportSession({
-        action: 'exportSession',
-        jobID,
-        payload: undefined,
-      })
-    ).payload;
-
     return {
       action,
       error: ok ? undefined : 'One or more keys could not be parsed',
@@ -319,9 +310,6 @@ export class Worker<PrivateKeyType extends object, SessionKeyType extends object
       ok,
       payload: {
         importedKeyIDs: keyIDs,
-
-        // TODO: make optional
-        sessionPayload,
       },
     };
   }

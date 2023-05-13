@@ -34,39 +34,45 @@ export abstract class KmsWorkerCore extends KMS {
     });
   }
 
-  public asymmetricDecrypt(request: Payload.CryptPayload): Promise<Payload.DecryptResult> {
+  asymmetricDecrypt(request: Payload.CryptPayload): Promise<Payload.DecryptResult> {
     return this.postJob('asymmetricDecrypt', request) as Promise<Payload.DecryptResult>;
   }
 
-  public asymmetricEncrypt(request: Payload.CryptPayload): Promise<Payload.CryptPayload> {
+  asymmetricEncrypt(request: Payload.CryptPayload): Promise<Payload.CryptPayload> {
     return this.postJob('asymmetricEncrypt', request) as Promise<Payload.CryptPayload>;
   }
 
-  public destroySession(): Promise<void> {
+  destroySession(): Promise<void> {
     return this.postJob('destroySession') as Promise<void>;
   }
 
-  public exportSession(): Promise<Payload.ExportSessionResult> {
+  exportSession(): Promise<Payload.ExportSessionResult> {
     return this.postJob('exportSession') as Promise<Payload.ExportSessionResult>;
   }
 
-  public hybridDecrypt(request: Payload.HybridDecryptRequest): Promise<Payload.DecryptResult> {
+  hybridDecrypt(request: Payload.HybridDecryptRequest): Promise<Payload.DecryptResult> {
     return this.postJob('hybridDecrypt', request) as Promise<Payload.DecryptResult>;
   }
 
-  public hybridEncrypt(request: Payload.CryptPayload): Promise<Payload.HybridEncryptResult> {
+  hybridEncrypt(request: Payload.CryptPayload): Promise<Payload.HybridEncryptResult> {
     return this.postJob('hybridEncrypt', request) as Promise<Payload.HybridEncryptResult>;
   }
 
-  public importPrivateKey(request: Payload.ImportPrivateKeyRequest): Promise<Payload.ImportPrivateKeyResult> {
+  importPrivateKey(request: Payload.ImportPrivateKeyRequest): Promise<Payload.ImportPrivateKeyResult> {
     return this.postJob('importPrivateKey', request) as Promise<Payload.ImportPrivateKeyResult>;
   }
 
-  public importSession(request: Payload.ImportSessionRequest): Promise<Payload.ImportSessionResult> {
-    return this.postJob('importSession', request) as Promise<Payload.ImportSessionResult>;
+  async importSession(request: Payload.ImportSessionRequest): Promise<Payload.ImportSessionResult> {
+    const importResult = (await this.postJob('importSession', request)) as Payload.ImportSessionResult;
+
+    if (request.reexport) {
+      return Object.assign(importResult, (await this.postJob('exportSession')) as Payload.ExportSessionResult);
+    }
+
+    return importResult;
   }
 
-  public reencryptSessionKey(request: Payload.ReencryptSessionKeyRequest): Promise<Payload.CryptPayload> {
+  reencryptSessionKey(request: Payload.ReencryptSessionKeyRequest): Promise<Payload.CryptPayload> {
     return this.postJob('reencryptSessionKey', request) as Promise<Payload.CryptPayload>;
   }
 }
