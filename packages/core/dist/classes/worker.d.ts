@@ -4,8 +4,8 @@ export declare class Worker<PrivateKeyType extends object, SessionKeyType extend
     private readonly libImpl;
     private keyMap;
     constructor(libImpl: ILibImpl<PrivateKeyType, SessionKeyType>);
-    protected errorResponse<A extends Action>(error: string, job: Job<A, unknown>): void;
-    protected getPrivateKey(keyID: string, job: Job<Action, unknown>): PrivateKeyType;
+    protected errorResponse<A extends Action>(error: string, job: Job<A>): void;
+    protected getPrivateKey(keyID: string, job: Job<Action>): PrivateKeyType;
     private asymmetricDecrypt;
     private asymmetricEncrypt;
     private destroySession;

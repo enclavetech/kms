@@ -1,5 +1,5 @@
+import type { FailedJob } from '../interfaces/failed-job';
 import type { ILibImpl } from '../interfaces/lib-impl';
-import type * as Payload from '../interfaces/payloads';
 import type { Action, CompletedJob, Job } from '../types';
 import { kvStoreDelete, kvStoreGet, kvStoreSet } from '../utils/db';
 
@@ -9,7 +9,7 @@ export class Worker<PrivateKeyType extends object, SessionKeyType extends object
   private keyMap: Record<string, PrivateKeyType> = {};
 
   constructor(private readonly libImpl: ILibImpl<PrivateKeyType, SessionKeyType>) {
-    self.onmessage = async (event: MessageEvent<Job<Action, never>>) => {
+    self.onmessage = async (event: MessageEvent<Job<Action>>) => {
       const job = event.data;
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -21,15 +21,14 @@ export class Worker<PrivateKeyType extends object, SessionKeyType extends object
     };
   }
 
-  protected errorResponse<A extends Action>(error: string, job: Job<A, unknown>) {
+  protected errorResponse<A extends Action>(error: string, job: Job<A>) {
     const { action, jobID } = job;
 
-    const response: CompletedJob<A, undefined> = {
+    const response: FailedJob<A> = {
       action,
       error,
       jobID,
       ok: false,
-      payload: undefined,
     };
 
     self.postMessage(response);
@@ -37,7 +36,7 @@ export class Worker<PrivateKeyType extends object, SessionKeyType extends object
     throw `Key Manager: ${action} job failed: ${error}.`;
   }
 
-  protected getPrivateKey(keyID: string, job: Job<Action, unknown>) {
+  protected getPrivateKey(keyID: string, job: Job<Action>) {
     const privateKey = this.keyMap[keyID];
 
     if (!privateKey) {
@@ -47,9 +46,7 @@ export class Worker<PrivateKeyType extends object, SessionKeyType extends object
     return privateKey;
   }
 
-  private async asymmetricDecrypt(
-    job: Job<'asymmetricDecrypt', Payload.CryptPayload>,
-  ): Promise<CompletedJob<'asymmetricDecrypt', Payload.DecryptResult>> {
+  private async asymmetricDecrypt(job: Job<'asymmetricDecrypt'>): Promise<CompletedJob<'asymmetricDecrypt'>> {
     const { action, jobID } = job;
     const { kmsKeyID, payload } = job.payload;
 
@@ -71,9 +68,7 @@ export class Worker<PrivateKeyType extends object, SessionKeyType extends object
     };
   }
 
-  private async asymmetricEncrypt(
-    job: Job<'asymmetricEncrypt', Payload.CryptPayload>,
-  ): Promise<CompletedJob<'asymmetricEncrypt', Payload.CryptPayload>> {
+  private async asymmetricEncrypt(job: Job<'asymmetricEncrypt'>): Promise<CompletedJob<'asymmetricEncrypt'>> {
     const { action, jobID } = job;
     const { kmsKeyID, payload } = job.payload;
 
@@ -99,7 +94,7 @@ export class Worker<PrivateKeyType extends object, SessionKeyType extends object
     };
   }
 
-  private async destroySession(job: Job<'destroySession', undefined>): Promise<CompletedJob<'destroySession'>> {
+  private async destroySession(job: Job<'destroySession'>): Promise<CompletedJob<'destroySession'>> {
     const { action, jobID } = job;
 
     this.keyMap = {};
@@ -114,9 +109,7 @@ export class Worker<PrivateKeyType extends object, SessionKeyType extends object
     };
   }
 
-  private async exportSession(
-    job: Job<'exportSession', undefined>,
-  ): Promise<CompletedJob<'exportSession', Payload.ExportSessionResult>> {
+  private async exportSession(job: Job<'exportSession'>): Promise<CompletedJob<'exportSession'>> {
     const { action, jobID } = job;
 
     const session = {
@@ -158,9 +151,7 @@ export class Worker<PrivateKeyType extends object, SessionKeyType extends object
     };
   }
 
-  private async hybridDecrypt(
-    job: Job<'hybridDecrypt', Payload.HybridDecryptRequest>,
-  ): Promise<CompletedJob<'hybridDecrypt', Payload.DecryptResult>> {
+  private async hybridDecrypt(job: Job<'hybridDecrypt'>): Promise<CompletedJob<'hybridDecrypt'>> {
     const { action, jobID } = job;
     const { kmsKeyID, payloadKey, payload } = job.payload;
 
@@ -189,9 +180,7 @@ export class Worker<PrivateKeyType extends object, SessionKeyType extends object
     };
   }
 
-  private async hybridEncrypt(
-    job: Job<'hybridEncrypt', Payload.CryptPayload>,
-  ): Promise<CompletedJob<'hybridEncrypt', Payload.HybridEncryptResult>> {
+  private async hybridEncrypt(job: Job<'hybridEncrypt'>): Promise<CompletedJob<'hybridEncrypt'>> {
     const { action, jobID } = job;
     const { kmsKeyID, payload } = job.payload;
 
@@ -231,9 +220,7 @@ export class Worker<PrivateKeyType extends object, SessionKeyType extends object
     };
   }
 
-  private async importPrivateKey(
-    job: Job<'importPrivateKey', Payload.ImportPrivateKeyRequest>,
-  ): Promise<CompletedJob<'importPrivateKey', Payload.ImportPrivateKeyResult>> {
+  private async importPrivateKey(job: Job<'importPrivateKey'>): Promise<CompletedJob<'importPrivateKey'>> {
     const { action, jobID } = job;
     const { privateKey: key, keyID } = job.payload;
 
@@ -251,9 +238,7 @@ export class Worker<PrivateKeyType extends object, SessionKeyType extends object
     };
   }
 
-  private async importSession(
-    job: Job<'importSession', Payload.ImportSessionRequest<boolean>>,
-  ): Promise<CompletedJob<'importSession', Payload.ImportSessionResult<false>>> {
+  private async importSession(job: Job<'importSession'>): Promise<CompletedJob<'importSession'>> {
     const { action, jobID } = job;
     const sessionEncrypted = job.payload.sessionPayload;
 
@@ -315,9 +300,7 @@ export class Worker<PrivateKeyType extends object, SessionKeyType extends object
     };
   }
 
-  private async reencryptSessionKey(
-    job: Job<'reencryptSessionKey', Payload.ReencryptSessionKeyRequest>,
-  ): Promise<CompletedJob<'reencryptSessionKey', Payload.CryptPayload>> {
+  private async reencryptSessionKey(job: Job<'reencryptSessionKey'>): Promise<CompletedJob<'reencryptSessionKey'>> {
     const { action, jobID } = job;
     const { decryptKeyID, encryptKeyID, sessionKey } = job.payload;
 

@@ -20,7 +20,6 @@ export class Worker {
             error,
             jobID,
             ok: false,
-            payload: undefined,
         };
         self.postMessage(response);
         throw `Key Manager: ${action} job failed: ${error}.`;

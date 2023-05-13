@@ -5,7 +5,7 @@ export declare abstract class KmsWorkerCore extends KMS {
     protected abstract readonly worker: Worker;
     private readonly pendingJobs;
     private jobCounter;
-    protected handleCompletedJob(event: MessageEvent<CompletedJob<Action, never>>): void;
+    protected handleCompletedJob(event: MessageEvent<CompletedJob<Action>>): void;
     private postJob;
     asymmetricDecrypt(request: Payload.CryptPayload): Promise<Payload.DecryptResult>;
     asymmetricEncrypt(request: Payload.CryptPayload): Promise<Payload.CryptPayload>;

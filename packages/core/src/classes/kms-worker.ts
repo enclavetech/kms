@@ -4,10 +4,10 @@ import { KMS } from './kms';
 
 export abstract class KmsWorkerCore extends KMS {
   protected abstract readonly worker: Worker;
-  private readonly pendingJobs: Record<number, (result: Result<Action, unknown>) => void> = {};
+  private readonly pendingJobs: Record<number, (result: Result<Action>) => void> = {};
   private jobCounter = 0;
 
-  protected handleCompletedJob(event: MessageEvent<CompletedJob<Action, never>>) {
+  protected handleCompletedJob(event: MessageEvent<CompletedJob<Action>>) {
     const { jobID, ...result } = event.data;
 
     const callback = this.pendingJobs[jobID];
