@@ -7,7 +7,7 @@ export class Worker {
         self.onmessage = async (event) => {
             const job = event.data;
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const handler = this[job.action];
+            const handler = this[job.action].bind(this);
             if (!handler)
                 throw this.errorResponse('No such action', job);
             return self.postMessage(await handler(job));
@@ -247,6 +247,7 @@ export class Worker {
             ok,
             payload: {
                 importedKeyIDs: keyIDs,
+                reexported: false,
             },
         };
     }

@@ -48,10 +48,13 @@ export class KmsWorkerCore extends KMS {
     }
     async importSession(request) {
         const importResult = (await this.postJob('importSession', request));
-        if (request.reexport) {
-            return Object.assign(importResult, (await this.postJob('exportSession')));
-        }
-        return importResult;
+        return (request.reexport
+            ? {
+                ...importResult,
+                reexported: true,
+                ...(await this.postJob('exportSession')),
+            }
+            : importResult);
     }
     reencryptSessionKey(request) {
         return this.postJob('reencryptSessionKey', request);

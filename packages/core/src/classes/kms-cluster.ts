@@ -56,7 +56,9 @@ export abstract class KmsClusterCore<T extends KmsWorkerCore> extends KMS {
     return (await Promise.all(this.cluster.map((worker) => worker.importPrivateKey(request))))[0];
   }
 
-  public async importSession(request: Payload.ImportSessionRequest): Promise<Payload.ImportSessionResult> {
+  public async importSession<T extends boolean>(
+    request: Payload.ImportSessionRequest<T>,
+  ): Promise<Payload.ImportSessionResult<T>> {
     return (await Promise.all(this.cluster.map((worker) => worker.importSession(request))))[0];
   }
 

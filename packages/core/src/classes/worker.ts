@@ -13,7 +13,7 @@ export class Worker<PrivateKeyType extends object, SessionKeyType extends object
       const job = event.data;
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const handler: (job?: any) => Promise<unknown> = this[job.action];
+      const handler: (job?: any) => Promise<unknown> = this[job.action].bind(this);
 
       if (!handler) throw this.errorResponse('No such action', job);
 
@@ -252,8 +252,8 @@ export class Worker<PrivateKeyType extends object, SessionKeyType extends object
   }
 
   private async importSession(
-    job: Job<'importSession', Payload.ImportSessionRequest>,
-  ): Promise<CompletedJob<'importSession', Payload.ImportSessionResult>> {
+    job: Job<'importSession', Payload.ImportSessionRequest<boolean>>,
+  ): Promise<CompletedJob<'importSession', Payload.ImportSessionResult<false>>> {
     const { action, jobID } = job;
     const sessionEncrypted = job.payload.sessionPayload;
 
@@ -310,6 +310,7 @@ export class Worker<PrivateKeyType extends object, SessionKeyType extends object
       ok,
       payload: {
         importedKeyIDs: keyIDs,
+        reexported: false,
       },
     };
   }

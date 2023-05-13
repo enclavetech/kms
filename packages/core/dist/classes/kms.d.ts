@@ -18,7 +18,7 @@ export declare abstract class KMS {
     /** Import a private key into the KMS. */
     abstract importPrivateKey(request: Payload.ImportPrivateKeyRequest): Promise<Payload.ImportPrivateKeyResult>;
     /** Import a previously exported KMS session. */
-    abstract importSession(request: Payload.ImportSessionRequest): Promise<Payload.ImportSessionResult>;
+    abstract importSession<T extends boolean>(request: Payload.ImportSessionRequest<T>): Promise<Payload.ImportSessionResult<T>>;
     /** Re-encrypt an encrypted session key with another key pair. */
     abstract reencryptSessionKey(request: Payload.ReencryptSessionKeyRequest): Promise<Payload.CryptPayload>;
 }

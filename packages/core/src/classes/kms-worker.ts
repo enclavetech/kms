@@ -62,14 +62,20 @@ export abstract class KmsWorkerCore extends KMS {
     return this.postJob('importPrivateKey', request) as Promise<Payload.ImportPrivateKeyResult>;
   }
 
-  async importSession(request: Payload.ImportSessionRequest): Promise<Payload.ImportSessionResult> {
-    const importResult = (await this.postJob('importSession', request)) as Payload.ImportSessionResult;
+  async importSession<T extends boolean>(
+    request: Payload.ImportSessionRequest<T>,
+  ): Promise<Payload.ImportSessionResult<T>> {
+    const importResult = (await this.postJob('importSession', request)) as Payload.ImportSessionResult<false>;
 
-    if (request.reexport) {
-      return Object.assign(importResult, (await this.postJob('exportSession')) as Payload.ExportSessionResult);
-    }
-
-    return importResult;
+    return (
+      request.reexport
+        ? {
+            ...importResult,
+            reexported: true,
+            ...((await this.postJob('exportSession')) as Payload.ExportSessionResult),
+          }
+        : importResult
+    ) as Payload.ImportSessionResult<T>;
   }
 
   reencryptSessionKey(request: Payload.ReencryptSessionKeyRequest): Promise<Payload.CryptPayload> {
