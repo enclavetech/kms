@@ -1,6 +1,7 @@
 import { DEFAULT_CONFIG } from '../constants/default-config';
 import { KMS } from './kms';
 import { KmsWorkerCore } from './kms-worker';
+// TODO: return result for all workers rather than just one
 export class KmsClusterCore extends KMS {
     constructor(config = DEFAULT_CONFIG) {
         super();
@@ -36,8 +37,8 @@ export class KmsClusterCore extends KMS {
     hybridEncrypt(request) {
         return this.getNextWorker().hybridEncrypt(request);
     }
-    async importPrivateKey(request) {
-        return (await Promise.all(this.cluster.map((worker) => worker.importPrivateKey(request))))[0];
+    async importPrivateKeys(...request) {
+        return (await Promise.all(this.cluster.map((worker) => worker.importPrivateKeys(...request))))[0];
     }
     async importSession(request) {
         return (await Promise.all(this.cluster.map((worker) => worker.importSession(request))))[0];

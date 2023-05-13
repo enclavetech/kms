@@ -25,8 +25,11 @@ export abstract class KMS {
   /** Encrypt a payload with an asymmetrically encrypted session key. */
   abstract hybridEncrypt(request: Payload.CryptPayload): Promise<Payload.HybridEncryptResult>;
 
-  /** Import a private key into the KMS. */
-  abstract importPrivateKey(request: Payload.ImportPrivateKeyRequest): Promise<Payload.ImportPrivateKeyResult>;
+  /**
+   * Import private keys into the KMS.
+   * @param requests One or more import private key requests.
+   */
+  abstract importPrivateKeys(...requests: Payload.ImportPrivateKeyRequest[]): Promise<Payload.ImportPrivateKeyResult[]>;
 
   /** Import a previously exported KMS session. */
   abstract importSession<T extends boolean>(

@@ -13,7 +13,7 @@ export declare abstract class KmsWorkerCore extends KMS {
     exportSession(): Promise<Payload.ExportSessionResult>;
     hybridDecrypt(request: Payload.HybridDecryptRequest): Promise<Payload.DecryptResult>;
     hybridEncrypt(request: Payload.CryptPayload): Promise<Payload.HybridEncryptResult>;
-    importPrivateKey(request: Payload.ImportPrivateKeyRequest): Promise<Payload.ImportPrivateKeyResult>;
+    importPrivateKeys(...requests: Payload.ImportPrivateKeyRequest[]): Promise<Payload.ImportPrivateKeyResult[]>;
     importSession<T extends boolean>(request: Payload.ImportSessionRequest<T>): Promise<Payload.ImportSessionResult<T>>;
     reencryptSessionKey(request: Payload.ReencryptSessionKeyRequest): Promise<Payload.CryptPayload>;
 }

@@ -4,6 +4,8 @@ import type * as Payload from '../interfaces/payloads';
 import { KMS } from './kms';
 import { KmsWorkerCore } from './kms-worker';
 
+// TODO: return result for all workers rather than just one
+
 export abstract class KmsClusterCore<T extends KmsWorkerCore> extends KMS {
   protected abstract createWorker(config: KmsConfig): T;
 
@@ -52,8 +54,10 @@ export abstract class KmsClusterCore<T extends KmsWorkerCore> extends KMS {
     return this.getNextWorker().hybridEncrypt(request);
   }
 
-  public async importPrivateKey(request: Payload.ImportPrivateKeyRequest): Promise<Payload.ImportPrivateKeyResult> {
-    return (await Promise.all(this.cluster.map((worker) => worker.importPrivateKey(request))))[0];
+  public async importPrivateKeys(
+    ...request: Payload.ImportPrivateKeyRequest[]
+  ): Promise<Payload.ImportPrivateKeyResult[]> {
+    return (await Promise.all(this.cluster.map((worker) => worker.importPrivateKeys(...request))))[0];
   }
 
   public async importSession<T extends boolean>(

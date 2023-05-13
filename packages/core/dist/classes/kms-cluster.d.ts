@@ -15,7 +15,7 @@ export declare abstract class KmsClusterCore<T extends KmsWorkerCore> extends KM
     exportSession(): Promise<Payload.ExportSessionResult>;
     hybridDecrypt(request: Payload.HybridDecryptRequest): Promise<Payload.DecryptResult>;
     hybridEncrypt(request: Payload.CryptPayload): Promise<Payload.HybridEncryptResult>;
-    importPrivateKey(request: Payload.ImportPrivateKeyRequest): Promise<Payload.ImportPrivateKeyResult>;
+    importPrivateKeys(...request: Payload.ImportPrivateKeyRequest[]): Promise<Payload.ImportPrivateKeyResult[]>;
     importSession<T extends boolean>(request: Payload.ImportSessionRequest<T>): Promise<Payload.ImportSessionResult<T>>;
     reencryptSessionKey(request: Payload.ReencryptSessionKeyRequest): Promise<Payload.CryptPayload>;
 }
