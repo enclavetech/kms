@@ -1,5 +1,6 @@
-import type * as Payload from '../interfaces/payloads';
+import type * as Payloads from '../interfaces/payloads';
 import type { Action, CompletedJob, Result } from '../types';
+import type { Request } from '../types/request';
 import { KMS } from './kms';
 
 export abstract class KmsWorkerCore extends KMS {
@@ -24,63 +25,61 @@ export abstract class KmsWorkerCore extends KMS {
     delete this.pendingJobs[jobID];
   }
 
-  private postJob<A extends Action>(action: A, payload?: unknown): Promise<unknown> {
-    return new Promise<unknown>((resolve, reject) => {
+  private postJob<A extends Action>(payload: Request<A>): Promise<Result<A>> {
+    return new Promise<Result<A>>((resolve, reject) => {
       const jobID = this.jobCounter++;
       this.pendingJobs[jobID] = function (result) {
-        result.ok ? resolve(result.payload) : reject(result.error);
+        result.ok ? resolve(result as Result<A>) : reject(result);
       };
-      this.worker.postMessage({ action, jobID, payload });
+      this.worker.postMessage({ jobID, ...payload });
     });
   }
 
-  asymmetricDecrypt(request: Payload.CryptPayload): Promise<Payload.DecryptResult> {
-    return this.postJob('asymmetricDecrypt', request) as Promise<Payload.DecryptResult>;
+  async asymmetricDecrypt(payload: Payloads.CryptPayload): Promise<Payloads.DecryptResult> {
+    return (await this.postJob({ action: 'asymmetricDecrypt', payload })).payload;
   }
 
-  asymmetricEncrypt(request: Payload.CryptPayload): Promise<Payload.CryptPayload> {
-    return this.postJob('asymmetricEncrypt', request) as Promise<Payload.CryptPayload>;
+  async asymmetricEncrypt(payload: Payloads.CryptPayload): Promise<Payloads.CryptPayload> {
+    return (await this.postJob({ action: 'asymmetricEncrypt', payload })).payload;
   }
 
-  destroySession(): Promise<void> {
-    return this.postJob('destroySession') as Promise<void>;
+  async destroySession(): Promise<void> {
+    await this.postJob({ action: 'destroySession' });
   }
 
-  exportSession(): Promise<Payload.ExportSessionResult> {
-    return this.postJob('exportSession') as Promise<Payload.ExportSessionResult>;
+  async exportSession(): Promise<Payloads.ExportSessionResult> {
+    return (await this.postJob({ action: 'exportSession' })).payload;
   }
 
-  hybridDecrypt(request: Payload.HybridDecryptRequest): Promise<Payload.DecryptResult> {
-    return this.postJob('hybridDecrypt', request) as Promise<Payload.DecryptResult>;
+  async hybridDecrypt(payload: Payloads.HybridDecryptRequest): Promise<Payloads.DecryptResult> {
+    return (await this.postJob({ action: 'hybridDecrypt', payload })).payload;
   }
 
-  hybridEncrypt(request: Payload.CryptPayload): Promise<Payload.HybridEncryptResult> {
-    return this.postJob('hybridEncrypt', request) as Promise<Payload.HybridEncryptResult>;
+  async hybridEncrypt(payload: Payloads.CryptPayload): Promise<Payloads.HybridEncryptResult> {
+    return (await this.postJob({ action: 'hybridEncrypt', payload })).payload;
   }
 
-  importPrivateKeys(...requests: Payload.ImportPrivateKeyRequest[]): Promise<Payload.ImportPrivateKeyResult[]> {
+  importPrivateKeys(...payloads: Payloads.ImportPrivateKeyRequest[]): Promise<Payloads.ImportPrivateKeyResult[]> {
     return Promise.all(
-      requests.map((request) => this.postJob('importPrivateKey', request) as Promise<Payload.ImportPrivateKeyResult>),
+      payloads.map(async (payload) => (await this.postJob({ action: 'importPrivateKey', payload })).payload),
     );
   }
 
   async importSession<T extends boolean>(
-    request: Payload.ImportSessionRequest<T>,
-  ): Promise<Payload.ImportSessionResult<T>> {
-    const importResult = (await this.postJob('importSession', request)) as Payload.ImportSessionResult<false>;
+    payload: Payloads.ImportSessionRequest<T>,
+  ): Promise<Payloads.ImportSessionResult<T>> {
+    const importResult = await this.postJob({ action: 'importSession', payload });
 
-    return (
-      request.reexport
-        ? {
-            ...importResult,
-            reexported: true,
-            ...((await this.postJob('exportSession')) as Payload.ExportSessionResult),
-          }
-        : importResult
-    ) as Payload.ImportSessionResult<T>;
+    return (payload.reexport
+      ? {
+          ...importResult,
+          reexported: true,
+          ...(await this.postJob({ action: 'exportSession' })).payload,
+        }
+      : importResult) as unknown as Payloads.ImportSessionResult<T>;
   }
 
-  reencryptSessionKey(request: Payload.ReencryptSessionKeyRequest): Promise<Payload.CryptPayload> {
-    return this.postJob('reencryptSessionKey', request) as Promise<Payload.CryptPayload>;
+  async reencryptSessionKey(payload: Payloads.ReencryptSessionKeyRequest): Promise<Payloads.CryptPayload> {
+    return (await this.postJob({ action: 'reencryptSessionKey', payload })).payload;
   }
 }

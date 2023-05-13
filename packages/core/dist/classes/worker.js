@@ -79,7 +79,6 @@ export class Worker {
             action,
             jobID,
             ok: true,
-            payload: undefined,
         };
     }
     async exportSession(job) {

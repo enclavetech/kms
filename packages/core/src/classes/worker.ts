@@ -1,6 +1,5 @@
-import type { FailedJob } from '../interfaces/failed-job';
 import type { ILibImpl } from '../interfaces/lib-impl';
-import type { Action, CompletedJob, Job } from '../types';
+import type { Action, CompletedJob, FailedJob, Job } from '../types';
 import { kvStoreDelete, kvStoreGet, kvStoreSet } from '../utils/db';
 
 // TODO: break functions into individual files and try and find a DRYer way to wrap them
@@ -105,7 +104,6 @@ export class Worker<PrivateKeyType extends object, SessionKeyType extends object
       action,
       jobID,
       ok: true,
-      payload: undefined,
     };
   }
 

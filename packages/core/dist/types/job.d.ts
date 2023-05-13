@@ -1,6 +1,5 @@
+import type { JobMetadataMixin } from '../interfaces/mixins/job-metadata.mixin';
 import type { Action } from './action';
-import type { PayloadBase } from '../interfaces/payload-base';
-import type { RequestPayload } from './request-payload';
-import type { JobMetadata } from '../interfaces/job-metadata';
+import type { Request } from './request';
 /** Used internally for communication to workers. */
-export type Job<A extends Action> = PayloadBase<A, unknown> & RequestPayload & JobMetadata;
+export type Job<A extends Action> = Request<A> & JobMetadataMixin;

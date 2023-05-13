@@ -16,47 +16,47 @@ export class KmsWorkerCore extends KMS {
         callback(result);
         delete this.pendingJobs[jobID];
     }
-    postJob(action, payload) {
+    postJob(payload) {
         return new Promise((resolve, reject) => {
             const jobID = this.jobCounter++;
             this.pendingJobs[jobID] = function (result) {
-                result.ok ? resolve(result.payload) : reject(result.error);
+                result.ok ? resolve(result) : reject(result);
             };
-            this.worker.postMessage({ action, jobID, payload });
+            this.worker.postMessage({ jobID, ...payload });
         });
     }
-    asymmetricDecrypt(request) {
-        return this.postJob('asymmetricDecrypt', request);
+    async asymmetricDecrypt(payload) {
+        return (await this.postJob({ action: 'asymmetricDecrypt', payload })).payload;
     }
-    asymmetricEncrypt(request) {
-        return this.postJob('asymmetricEncrypt', request);
+    async asymmetricEncrypt(payload) {
+        return (await this.postJob({ action: 'asymmetricEncrypt', payload })).payload;
     }
-    destroySession() {
-        return this.postJob('destroySession');
+    async destroySession() {
+        await this.postJob({ action: 'destroySession' });
     }
-    exportSession() {
-        return this.postJob('exportSession');
+    async exportSession() {
+        return (await this.postJob({ action: 'exportSession' })).payload;
     }
-    hybridDecrypt(request) {
-        return this.postJob('hybridDecrypt', request);
+    async hybridDecrypt(payload) {
+        return (await this.postJob({ action: 'hybridDecrypt', payload })).payload;
     }
-    hybridEncrypt(request) {
-        return this.postJob('hybridEncrypt', request);
+    async hybridEncrypt(payload) {
+        return (await this.postJob({ action: 'hybridEncrypt', payload })).payload;
     }
-    importPrivateKeys(...requests) {
-        return Promise.all(requests.map((request) => this.postJob('importPrivateKey', request)));
+    importPrivateKeys(...payloads) {
+        return Promise.all(payloads.map(async (payload) => (await this.postJob({ action: 'importPrivateKey', payload })).payload));
     }
-    async importSession(request) {
-        const importResult = (await this.postJob('importSession', request));
-        return (request.reexport
+    async importSession(payload) {
+        const importResult = await this.postJob({ action: 'importSession', payload });
+        return (payload.reexport
             ? {
                 ...importResult,
                 reexported: true,
-                ...(await this.postJob('exportSession')),
+                ...(await this.postJob({ action: 'exportSession' })).payload,
             }
             : importResult);
     }
-    reencryptSessionKey(request) {
-        return this.postJob('reencryptSessionKey', request);
+    async reencryptSessionKey(payload) {
+        return (await this.postJob({ action: 'reencryptSessionKey', payload })).payload;
     }
 }

@@ -1,4 +1,4 @@
-import type * as Payload from '../interfaces/payloads';
+import type * as Payloads from '../interfaces/payloads';
 import type { Action, CompletedJob } from '../types';
 import { KMS } from './kms';
 export declare abstract class KmsWorkerCore extends KMS {
@@ -7,13 +7,13 @@ export declare abstract class KmsWorkerCore extends KMS {
     private jobCounter;
     protected handleCompletedJob(event: MessageEvent<CompletedJob<Action>>): void;
     private postJob;
-    asymmetricDecrypt(request: Payload.CryptPayload): Promise<Payload.DecryptResult>;
-    asymmetricEncrypt(request: Payload.CryptPayload): Promise<Payload.CryptPayload>;
+    asymmetricDecrypt(payload: Payloads.CryptPayload): Promise<Payloads.DecryptResult>;
+    asymmetricEncrypt(payload: Payloads.CryptPayload): Promise<Payloads.CryptPayload>;
     destroySession(): Promise<void>;
-    exportSession(): Promise<Payload.ExportSessionResult>;
-    hybridDecrypt(request: Payload.HybridDecryptRequest): Promise<Payload.DecryptResult>;
-    hybridEncrypt(request: Payload.CryptPayload): Promise<Payload.HybridEncryptResult>;
-    importPrivateKeys(...requests: Payload.ImportPrivateKeyRequest[]): Promise<Payload.ImportPrivateKeyResult[]>;
-    importSession<T extends boolean>(request: Payload.ImportSessionRequest<T>): Promise<Payload.ImportSessionResult<T>>;
-    reencryptSessionKey(request: Payload.ReencryptSessionKeyRequest): Promise<Payload.CryptPayload>;
+    exportSession(): Promise<Payloads.ExportSessionResult>;
+    hybridDecrypt(payload: Payloads.HybridDecryptRequest): Promise<Payloads.DecryptResult>;
+    hybridEncrypt(payload: Payloads.CryptPayload): Promise<Payloads.HybridEncryptResult>;
+    importPrivateKeys(...payloads: Payloads.ImportPrivateKeyRequest[]): Promise<Payloads.ImportPrivateKeyResult[]>;
+    importSession<T extends boolean>(payload: Payloads.ImportSessionRequest<T>): Promise<Payloads.ImportSessionResult<T>>;
+    reencryptSessionKey(payload: Payloads.ReencryptSessionKeyRequest): Promise<Payloads.CryptPayload>;
 }

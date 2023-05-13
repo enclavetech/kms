@@ -1,4 +1,5 @@
-import type * as Payload from '../interfaces/payloads';
-import type { PayloadBase } from '../interfaces/payload-base';
+import type * as Payloads from '../interfaces/payloads';
+import type { ActionMixin } from '../interfaces/mixins/action.mixin';
+import type { Payload } from './payload';
 /**  Discriminated union that defines the request payloads for each action. */
-export type ResultPayload = PayloadBase<'asymmetricDecrypt' | 'hybridDecrypt', Payload.DecryptResult> | PayloadBase<'asymmetricEncrypt' | 'reencryptSessionKey', Payload.CryptPayload> | PayloadBase<'destroySession'> | PayloadBase<'exportSession', Payload.ExportSessionResult> | PayloadBase<'hybridEncrypt', Payload.HybridEncryptResult> | PayloadBase<'importPrivateKey', Payload.ImportPrivateKeyResult> | PayloadBase<'importSession', Payload.ImportSessionResult<boolean>> | PayloadBase<'reencryptSessionKey', Payload.ReencryptSessionKeyRequest>;
+export type ResultPayload = Payload<'asymmetricDecrypt' | 'hybridDecrypt', Payloads.DecryptResult> | Payload<'asymmetricEncrypt' | 'reencryptSessionKey', Payloads.CryptPayload> | ActionMixin<'destroySession'> | Payload<'exportSession', Payloads.ExportSessionResult> | Payload<'hybridEncrypt', Payloads.HybridEncryptResult> | Payload<'importPrivateKey', Payloads.ImportPrivateKeyResult> | Payload<'importSession', Payloads.ImportSessionResult<boolean>>;
