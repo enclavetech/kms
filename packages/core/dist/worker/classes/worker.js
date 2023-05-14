@@ -19,7 +19,6 @@ export class Worker {
         this.asymmetricEncrypt = (job) => this.wrap(async () => {
             const { action, jobID } = job;
             const { kmsKeyID, payload } = job.payload;
-            // TODO: use public key
             const publicKey = this.getPublicKey(kmsKeyID, job);
             const encryptedMessage = await this.libImpl.encryptWithPublicKey(payload, publicKey);
             return {
@@ -168,6 +167,26 @@ export class Worker {
                     kmsKeyID: encryptKeyID,
                     payload: encryptedSessionKey,
                 },
+            };
+        }, job);
+        this.symmetricDecrypt = (job) => this.wrap(async () => {
+            const { action, jobID } = job;
+            const { payload, passphrase } = job.payload;
+            return {
+                action,
+                jobID,
+                ok: true,
+                payload: { payload: await this.libImpl.symmetricDecrypt(payload, passphrase) },
+            };
+        }, job);
+        this.symmetricEncrypt = (job) => this.wrap(async () => {
+            const { action, jobID } = job;
+            const { payload, passphrase } = job.payload;
+            return {
+                action,
+                jobID,
+                ok: true,
+                payload: { payload: await this.libImpl.symmetricEncrypt(payload, passphrase) },
             };
         }, job);
         this.libImpl = new WrappedLibImpl(libImpl);

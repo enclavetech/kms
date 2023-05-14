@@ -50,4 +50,10 @@ export class KmsClusterCore {
     reencryptSessionKey(request) {
         return this.getNextWorker().reencryptSessionKey(request);
     }
+    symmetricDecrypt(request) {
+        return this.getNextWorker().symmetricDecrypt(request);
+    }
+    symmetricEncrypt(request) {
+        return this.getNextWorker().symmetricEncrypt(request);
+    }
 }

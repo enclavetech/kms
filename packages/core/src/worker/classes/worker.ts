@@ -93,7 +93,6 @@ export class Worker<PrivateKeyType extends object, PublicKeyType extends object,
       const { action, jobID } = job;
       const { kmsKeyID, payload } = job.payload;
 
-      // TODO: use public key
       const publicKey = this.getPublicKey(kmsKeyID, job);
 
       const encryptedMessage = await this.libImpl.encryptWithPublicKey(payload, publicKey);
@@ -288,6 +287,32 @@ export class Worker<PrivateKeyType extends object, PublicKeyType extends object,
           kmsKeyID: encryptKeyID,
           payload: encryptedSessionKey,
         },
+      };
+    }, job);
+
+  private symmetricDecrypt = (job: Job<'symmetricDecrypt'>): Promise<CompletedJob<'symmetricDecrypt'>> =>
+    this.wrap(async () => {
+      const { action, jobID } = job;
+      const { payload, passphrase } = job.payload;
+
+      return {
+        action,
+        jobID,
+        ok: true,
+        payload: { payload: await this.libImpl.symmetricDecrypt(payload, passphrase) },
+      };
+    }, job);
+
+  private symmetricEncrypt = (job: Job<'symmetricEncrypt'>): Promise<CompletedJob<'symmetricEncrypt'>> =>
+    this.wrap(async () => {
+      const { action, jobID } = job;
+      const { payload, passphrase } = job.payload;
+
+      return {
+        action,
+        jobID,
+        ok: true,
+        payload: { payload: await this.libImpl.symmetricEncrypt(payload, passphrase) },
       };
     }, job);
 }

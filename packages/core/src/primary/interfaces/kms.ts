@@ -5,10 +5,10 @@ import type * as Payloads from '../../shared/interfaces/payloads';
 /** Defines the Enclave KMS public API. */
 export interface KMS {
   /** Decrypt a payload with a private key. */
-  asymmetricDecrypt(request: Payloads.CryptPayload): Promise<Payloads.DecryptResult>;
+  asymmetricDecrypt(request: Payloads.AsymmetricCryptPayload): Promise<Payloads.CryptResult>;
 
   /** Encrypt a payload with a public key or key pair. */
-  asymmetricEncrypt(request: Payloads.CryptPayload): Promise<Payloads.CryptPayload>;
+  asymmetricEncrypt(request: Payloads.AsymmetricCryptPayload): Promise<Payloads.AsymmetricCryptPayload>;
 
   /** Clear the KMS & destroy the active session. */
   destroySession(): Promise<void>;
@@ -17,10 +17,10 @@ export interface KMS {
   exportSession(): Promise<Payloads.ExportSessionResult>;
 
   /** Decrypt a payload with an asymetrically encrypted session key. */
-  hybridDecrypt(request: Payloads.HybridDecryptRequest): Promise<Payloads.DecryptResult>;
+  hybridDecrypt(request: Payloads.HybridDecryptRequest): Promise<Payloads.CryptResult>;
 
   /** Encrypt a payload with an asymmetrically encrypted session key. */
-  hybridEncrypt(request: Payloads.CryptPayload): Promise<Payloads.HybridEncryptResult>;
+  hybridEncrypt(request: Payloads.AsymmetricCryptPayload): Promise<Payloads.HybridEncryptResult>;
 
   /**
    * Import keys into the KMS.
@@ -32,5 +32,11 @@ export interface KMS {
   importSession<T extends boolean>(request: Payloads.ImportSessionRequest<T>): Promise<Payloads.ImportSessionResult<T>>;
 
   /** Re-encrypt an encrypted session key with another key pair. */
-  reencryptSessionKey(request: Payloads.ReencryptSessionKeyRequest): Promise<Payloads.CryptPayload>;
+  reencryptSessionKey(request: Payloads.ReencryptSessionKeyRequest): Promise<Payloads.AsymmetricCryptPayload>;
+
+  /** Decrypt a payload with a passphrase. */
+  symmetricDecrypt(request: Payloads.SymmetricCryptPayload): Promise<Payloads.CryptResult>;
+
+  /** Encrypt a payload with a passphrase. */
+  symmetricEncrypt(request: Payloads.SymmetricCryptPayload): Promise<Payloads.CryptResult>;
 }

@@ -1,4 +1,4 @@
-export interface CryptPayload {
+export interface AsymmetricCryptPayload {
     kmsKeyID: string;
     payload: string;
 }

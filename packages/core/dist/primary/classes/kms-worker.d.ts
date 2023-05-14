@@ -7,13 +7,15 @@ export declare abstract class KmsWorkerCore implements KMS {
     private jobCounter;
     protected handleCompletedJob(event: MessageEvent<CompletedJob<Action>>): void;
     private postJob;
-    asymmetricDecrypt(payload: Payloads.CryptPayload): Promise<Payloads.DecryptResult>;
-    asymmetricEncrypt(payload: Payloads.CryptPayload): Promise<Payloads.CryptPayload>;
+    asymmetricDecrypt(payload: Payloads.AsymmetricCryptPayload): Promise<Payloads.CryptResult>;
+    asymmetricEncrypt(payload: Payloads.AsymmetricCryptPayload): Promise<Payloads.AsymmetricCryptPayload>;
     destroySession(): Promise<void>;
     exportSession(): Promise<Payloads.ExportSessionResult>;
-    hybridDecrypt(payload: Payloads.HybridDecryptRequest): Promise<Payloads.DecryptResult>;
-    hybridEncrypt(payload: Payloads.CryptPayload): Promise<Payloads.HybridEncryptResult>;
+    hybridDecrypt(payload: Payloads.HybridDecryptRequest): Promise<Payloads.CryptResult>;
+    hybridEncrypt(payload: Payloads.AsymmetricCryptPayload): Promise<Payloads.HybridEncryptResult>;
     importKeys(...payloads: Payloads.ImportKeyRequest[]): Promise<Payloads.ImportKeysResult[]>;
     importSession<T extends boolean>(payload: Payloads.ImportSessionRequest<T>): Promise<Payloads.ImportSessionResult<T>>;
-    reencryptSessionKey(payload: Payloads.ReencryptSessionKeyRequest): Promise<Payloads.CryptPayload>;
+    reencryptSessionKey(payload: Payloads.ReencryptSessionKeyRequest): Promise<Payloads.AsymmetricCryptPayload>;
+    symmetricDecrypt(payload: Payloads.SymmetricCryptPayload): Promise<Payloads.CryptResult>;
+    symmetricEncrypt(payload: Payloads.SymmetricCryptPayload): Promise<Payloads.CryptResult>;
 }

@@ -57,4 +57,10 @@ export class KmsWorkerCore {
     async reencryptSessionKey(payload) {
         return (await this.postJob({ action: 'reencryptSessionKey', payload })).payload;
     }
+    async symmetricDecrypt(payload) {
+        return (await this.postJob({ action: 'symmetricDecrypt', payload })).payload;
+    }
+    async symmetricEncrypt(payload) {
+        return (await this.postJob({ action: 'symmetricEncrypt', payload })).payload;
+    }
 }

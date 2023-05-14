@@ -4,9 +4,10 @@ import type { Payload } from './payload';
 
 /**  Discriminated union that defines the request payloads for each action. */
 export type RequestPayload =
-  | Payload<'asymmetricDecrypt' | 'asymmetricEncrypt' | 'hybridEncrypt', Payloads.CryptPayload>
+  | Payload<'asymmetricDecrypt' | 'asymmetricEncrypt' | 'hybridEncrypt', Payloads.AsymmetricCryptPayload>
   | ActionMixin<'destroySession' | 'exportSession'>
   | Payload<'hybridDecrypt', Payloads.HybridDecryptRequest>
   | Payload<'importKeyPair', Payloads.ImportKeyRequest>
   | Payload<'importSession', Payloads.ImportSessionRequest<boolean>>
-  | Payload<'reencryptSessionKey', Payloads.ReencryptSessionKeyRequest>;
+  | Payload<'reencryptSessionKey', Payloads.ReencryptSessionKeyRequest>
+  | Payload<'symmetricDecrypt' | 'symmetricEncrypt', Payloads.SymmetricCryptPayload>;

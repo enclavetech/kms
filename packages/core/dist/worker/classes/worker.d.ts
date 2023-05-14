@@ -23,4 +23,6 @@ export declare class Worker<PrivateKeyType extends object, PublicKeyType extends
     private importKeyPair;
     private importSession;
     private reencryptSessionKey;
+    private symmetricDecrypt;
+    private symmetricEncrypt;
 }

@@ -1,5 +1,5 @@
-export * from './crypt-op';
-export * from './decrypt.result';
+export * from './asymmetric-crypt-payload';
+export * from './crypt.result';
 export * from './export-session.result';
 export * from './hybrid-decrypt.request';
 export * from './hybrid-encrypt.result';
@@ -8,3 +8,4 @@ export * from './import-keys.result';
 export * from './import-session.request';
 export * from './import-session.result';
 export * from './reencrypt-session-key.request';
+export * from './symmetric-crypt-payload';

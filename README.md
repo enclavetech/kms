@@ -27,7 +27,7 @@ Under the hood, it uses web workers to isolate the keys and function executions 
 |                 Status                 | Feature                            |
 | :------------------------------------: | :--------------------------------- |
 | [:white_check_mark:](## 'Implemented') | Import keys                        |
-|    [:yellow_circle:](## 'Planned')     | Symmetric encrypt/decrypt          |
+| [:white_check_mark:](## 'Implemented') | Symmetric encrypt/decrypt          |
 | [:white_check_mark:](## 'Implemented') | Asymmetric encrypt/decrypt         |
 | [:white_check_mark:](## 'Implemented') | Hybrid encrypt/decrypt             |
 |     [:construction:](## 'Planned')     | Signing/verifying                  |

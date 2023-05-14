@@ -34,11 +34,11 @@ export abstract class KmsWorkerCore implements KMS {
     });
   }
 
-  async asymmetricDecrypt(payload: Payloads.CryptPayload): Promise<Payloads.DecryptResult> {
+  async asymmetricDecrypt(payload: Payloads.AsymmetricCryptPayload): Promise<Payloads.CryptResult> {
     return (await this.postJob({ action: 'asymmetricDecrypt', payload })).payload;
   }
 
-  async asymmetricEncrypt(payload: Payloads.CryptPayload): Promise<Payloads.CryptPayload> {
+  async asymmetricEncrypt(payload: Payloads.AsymmetricCryptPayload): Promise<Payloads.AsymmetricCryptPayload> {
     return (await this.postJob({ action: 'asymmetricEncrypt', payload })).payload;
   }
 
@@ -50,11 +50,11 @@ export abstract class KmsWorkerCore implements KMS {
     return (await this.postJob({ action: 'exportSession' })).payload;
   }
 
-  async hybridDecrypt(payload: Payloads.HybridDecryptRequest): Promise<Payloads.DecryptResult> {
+  async hybridDecrypt(payload: Payloads.HybridDecryptRequest): Promise<Payloads.CryptResult> {
     return (await this.postJob({ action: 'hybridDecrypt', payload })).payload;
   }
 
-  async hybridEncrypt(payload: Payloads.CryptPayload): Promise<Payloads.HybridEncryptResult> {
+  async hybridEncrypt(payload: Payloads.AsymmetricCryptPayload): Promise<Payloads.HybridEncryptResult> {
     return (await this.postJob({ action: 'hybridEncrypt', payload })).payload;
   }
 
@@ -80,7 +80,15 @@ export abstract class KmsWorkerCore implements KMS {
     ) as Payloads.ImportSessionResult<T>;
   }
 
-  async reencryptSessionKey(payload: Payloads.ReencryptSessionKeyRequest): Promise<Payloads.CryptPayload> {
+  async reencryptSessionKey(payload: Payloads.ReencryptSessionKeyRequest): Promise<Payloads.AsymmetricCryptPayload> {
     return (await this.postJob({ action: 'reencryptSessionKey', payload })).payload;
+  }
+
+  async symmetricDecrypt(payload: Payloads.SymmetricCryptPayload): Promise<Payloads.CryptResult> {
+    return (await this.postJob({ action: 'symmetricDecrypt', payload })).payload;
+  }
+
+  async symmetricEncrypt(payload: Payloads.SymmetricCryptPayload): Promise<Payloads.CryptResult> {
+    return (await this.postJob({ action: 'symmetricEncrypt', payload })).payload;
   }
 }

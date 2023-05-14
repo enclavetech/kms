@@ -27,35 +27,35 @@ export abstract class KmsClusterCore<T extends KmsWorkerCore> implements KMS {
     return this.cluster[(this.currentWorker = ++this.currentWorker >= this.cluster.length ? 0 : this.currentWorker)];
   }
 
-  public asymmetricDecrypt(request: Payloads.CryptPayload): Promise<Payloads.DecryptResult> {
+  asymmetricDecrypt(request: Payloads.AsymmetricCryptPayload): Promise<Payloads.CryptResult> {
     return this.getNextWorker().asymmetricDecrypt(request);
   }
 
-  public asymmetricEncrypt(request: Payloads.CryptPayload): Promise<Payloads.CryptPayload> {
+  asymmetricEncrypt(request: Payloads.AsymmetricCryptPayload): Promise<Payloads.AsymmetricCryptPayload> {
     return this.getNextWorker().asymmetricEncrypt(request);
   }
 
-  public async destroySession(): Promise<void> {
+  async destroySession(): Promise<void> {
     return (await Promise.all(this.cluster.map((worker) => worker.destroySession())))[0];
   }
 
-  public exportSession(): Promise<Payloads.ExportSessionResult> {
+  exportSession(): Promise<Payloads.ExportSessionResult> {
     return this.getNextWorker().exportSession();
   }
 
-  public hybridDecrypt(request: Payloads.HybridDecryptRequest): Promise<Payloads.DecryptResult> {
+  hybridDecrypt(request: Payloads.HybridDecryptRequest): Promise<Payloads.CryptResult> {
     return this.getNextWorker().hybridDecrypt(request);
   }
 
-  public hybridEncrypt(request: Payloads.CryptPayload): Promise<Payloads.HybridEncryptResult> {
+  hybridEncrypt(request: Payloads.AsymmetricCryptPayload): Promise<Payloads.HybridEncryptResult> {
     return this.getNextWorker().hybridEncrypt(request);
   }
 
-  public async importKeys(...request: Payloads.ImportKeyRequest[]): Promise<Payloads.ImportKeysResult[]> {
+  async importKeys(...request: Payloads.ImportKeyRequest[]): Promise<Payloads.ImportKeysResult[]> {
     return (await Promise.all(this.cluster.map((worker) => worker.importKeys(...request))))[0];
   }
 
-  public async importSession<T extends boolean>(
+  async importSession<T extends boolean>(
     request: Payloads.ImportSessionRequest<T>,
   ): Promise<Payloads.ImportSessionResult<T>> {
     const [importSessionResult] = await Promise.all(
@@ -73,7 +73,15 @@ export abstract class KmsClusterCore<T extends KmsWorkerCore> implements KMS {
     ) as Payloads.ImportSessionResult<T>;
   }
 
-  public reencryptSessionKey(request: Payloads.ReencryptSessionKeyRequest): Promise<Payloads.CryptPayload> {
+  reencryptSessionKey(request: Payloads.ReencryptSessionKeyRequest): Promise<Payloads.AsymmetricCryptPayload> {
     return this.getNextWorker().reencryptSessionKey(request);
+  }
+
+  symmetricDecrypt(request: Payloads.SymmetricCryptPayload): Promise<Payloads.CryptResult> {
+    return this.getNextWorker().symmetricDecrypt(request);
+  }
+
+  symmetricEncrypt(request: Payloads.SymmetricCryptPayload): Promise<Payloads.CryptResult> {
+    return this.getNextWorker().symmetricEncrypt(request);
   }
 }
