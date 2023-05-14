@@ -1,12 +1,12 @@
 {
   "name": "@enclavetech/kms",
-  "description": "Runtime key management for Enclave apps.",
+  "description": "Runtime key management system for Enclave apps.",
   "version": "1.0.0",
   "license": "MIT",
   "private": true,
   "author": "Enclave Technology",
   "repository": "github:enclavetech/kms",
-  "homepage": "https://github.com/enclavetech/key-manager#readme",
+  "homepage": "https://github.com/enclavetech/kms#readme",
   "keywords": [
     "encryption",
     "crypto"
@@ -21,7 +21,8 @@
     "dev": "concurrently -k npm:dev:*",
     "dev:core": "npm run dev --workspace ./packages/core",
     "dev:openpgp": "npm run dev --workspace ./packages/adapters/openpgp",
-    "line-count": "find -type f -name *.ts -exec cat {} \\; | wc -l",
+    "lc": "echo Enclave KMS: $(find -type f -name *.ts -exec cat {} \\; | wc -l) lines",
+    "line-count": "echo Enclave KMS: $(find -type f -name *.ts -exec cat {} \\; | wc -l) lines",
     "lint": "prettier --check . && eslint .",
     "prettier": "prettier --write ."
   },

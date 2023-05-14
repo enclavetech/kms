@@ -2,7 +2,7 @@
 
 # [Enclave KMS](https://github.com/enclavetech/kms)
 
-[![Build Status](https://github.com/enclavetech/key-manager/actions/workflows/build.yml/badge.svg)](https://github.com/enclavetech/key-manager/actions/workflows/build.yml) [![Known Vulnerabilities](https://snyk.io/test/github/enclavetech/key-manager/badge.svg)](https://snyk.io/test/github/enclavetech/key-manager) [![License](https://img.shields.io/github/license/enclavetech/key-manager)](LICENSE) <!-- TODO: uncomment once dist dirs no longer in repo [![Lines of code](https://img.shields.io/tokei/lines/github/enclavetech/key-manager)](https://github.com/enclavetech/kms) -->
+[![Build Status](https://github.com/enclavetech/kms/actions/workflows/build.yml/badge.svg)](https://github.com/enclavetech/kms/actions/workflows/build.yml) [![Known Vulnerabilities](https://snyk.io/test/github/enclavetech/kms/badge.svg)](https://snyk.io/test/github/enclavetech/kms) [![License](https://img.shields.io/github/license/enclavetech/kms)](LICENSE)
 
 </div>
 
