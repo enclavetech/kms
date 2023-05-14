@@ -1,5 +1,5 @@
 import type * as Payloads from '../../shared/interfaces/payloads';
-import type { KmsConfig } from '../interfaces/configs/kms-config';
+import type { KmsConfig } from '../interfaces/kms-config';
 
 // TODO: group methods into namespaces
 
@@ -26,12 +26,10 @@ export abstract class KMS {
   abstract hybridEncrypt(request: Payloads.CryptPayload): Promise<Payloads.HybridEncryptResult>;
 
   /**
-   * Import private keys into the KMS.
-   * @param requests One or more import private key requests.
+   * Import keys into the KMS.
+   * @param requests One or more keys to import.
    */
-  abstract importPrivateKeys(
-    ...requests: Payloads.ImportPrivateKeyRequest[]
-  ): Promise<Payloads.ImportPrivateKeyResult[]>;
+  abstract importKeys(...requests: Payloads.ImportKeyRequest[]): Promise<Payloads.ImportKeysResult[]>;
 
   /** Import a previously exported KMS session. */
   abstract importSession<T extends boolean>(

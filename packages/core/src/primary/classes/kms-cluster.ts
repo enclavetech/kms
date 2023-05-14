@@ -1,6 +1,6 @@
 import type * as Payloads from '../../shared/interfaces/payloads';
 import { DEFAULT_CONFIG } from '../constants/default-config';
-import type { KmsConfig } from '../interfaces/configs/kms-config';
+import type { KmsConfig } from '../interfaces/kms-config';
 import { KMS } from './kms';
 import { KmsWorkerCore } from './kms-worker';
 
@@ -54,10 +54,8 @@ export abstract class KmsClusterCore<T extends KmsWorkerCore> extends KMS {
     return this.getNextWorker().hybridEncrypt(request);
   }
 
-  public async importPrivateKeys(
-    ...request: Payloads.ImportPrivateKeyRequest[]
-  ): Promise<Payloads.ImportPrivateKeyResult[]> {
-    return (await Promise.all(this.cluster.map((worker) => worker.importPrivateKeys(...request))))[0];
+  public async importKeys(...request: Payloads.ImportKeyRequest[]): Promise<Payloads.ImportKeysResult[]> {
+    return (await Promise.all(this.cluster.map((worker) => worker.importKeys(...request))))[0];
   }
 
   public async importSession<T extends boolean>(

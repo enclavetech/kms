@@ -1,8 +1,8 @@
 import type { ILibImpl } from '../interfaces';
-export declare class Worker<PrivateKeyType extends object, SessionKeyType extends object> {
+export declare class Worker<PrivateKeyType extends object, PublicKeyType extends object, SessionKeyType extends object> {
     private readonly libImpl;
-    private keyMap;
-    constructor(libImpl: ILibImpl<PrivateKeyType, SessionKeyType>);
+    private keyPairMap;
+    constructor(libImpl: ILibImpl<PrivateKeyType, PublicKeyType, SessionKeyType>);
     /**
      * Ensures an error response message is sent on exception.
      * @param fn The function to wrap.
@@ -11,14 +11,16 @@ export declare class Worker<PrivateKeyType extends object, SessionKeyType extend
      */
     private wrap;
     private errorResponse;
+    private getKeyPair;
     private getPrivateKey;
+    private getPublicKey;
     private asymmetricDecrypt;
     private asymmetricEncrypt;
     private destroySession;
     private exportSession;
     private hybridDecrypt;
     private hybridEncrypt;
-    private importPrivateKey;
+    private importKeyPair;
     private importSession;
     private reencryptSessionKey;
 }

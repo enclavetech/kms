@@ -1,5 +1,6 @@
 import {
   type PrivateKey,
+  type PublicKey,
   type SessionKey,
   createMessage,
   decrypt,
@@ -10,34 +11,15 @@ import {
   readMessage,
   readPrivateKey,
   encryptSessionKey,
+  readKey,
 } from 'openpgp';
 
 import type { ILibImpl } from '@enclavetech/kms-core';
 
-export class PGPLibImpl implements ILibImpl<PrivateKey, SessionKey> {
-  stringifyPrivateKey(key: PrivateKey): string {
-    return key.armor();
-  }
-
-  async parsePrivateKey(armoredKey: string): Promise<PrivateKey> {
-    return await readPrivateKey({ armoredKey });
-  }
-
+export class PGPLibImpl implements ILibImpl<PrivateKey, PublicKey, SessionKey> {
   async decryptSessionKey(armoredMessage: string, decryptionKeys: PrivateKey): Promise<SessionKey> {
     const message = await readMessage({ armoredMessage });
     return (await decryptSessionKeys({ message, decryptionKeys }))[0];
-  }
-
-  async encryptSessionKey(sessionKey: SessionKey, encryptionKeys: PrivateKey): Promise<string> {
-    return await encryptSessionKey({ format: 'armored', encryptionKeys, ...sessionKey });
-  }
-
-  async generatePrivateKey(): Promise<PrivateKey> {
-    return (await generateKey({ format: 'object', userIDs: {} })).privateKey;
-  }
-
-  async generateSessionKey(encryptionKeys: PrivateKey): Promise<SessionKey> {
-    return await generateSessionKey({ encryptionKeys });
   }
 
   async decryptWithPrivateKey(armoredMessage: string, decryptionKeys: PrivateKey): Promise<string> {
@@ -50,7 +32,17 @@ export class PGPLibImpl implements ILibImpl<PrivateKey, SessionKey> {
     return (await decrypt({ message, sessionKeys })).data;
   }
 
+  encryptSessionKey(sessionKey: SessionKey, encryptionKeys: PrivateKey): Promise<string> {
+    return encryptSessionKey({ format: 'armored', encryptionKeys, ...sessionKey });
+  }
+
+  /** @deprecated */
   async encryptWithPrivateKey(text: string, encryptionKeys: PrivateKey): Promise<string> {
+    const message = await createMessage({ text });
+    return await encrypt({ message, encryptionKeys });
+  }
+
+  async encryptWithPublicKey(text: string, encryptionKeys: PublicKey): Promise<string> {
     const message = await createMessage({ text });
     return await encrypt({ message, encryptionKeys });
   }
@@ -58,5 +50,39 @@ export class PGPLibImpl implements ILibImpl<PrivateKey, SessionKey> {
   async encryptWithSessionKey(text: string, sessionKey: SessionKey): Promise<string> {
     const message = await createMessage({ text });
     return await encrypt({ message, sessionKey });
+  }
+
+  async generatePrivateKey(): Promise<PrivateKey> {
+    return (await generateKey({ format: 'object', userIDs: {} })).privateKey;
+  }
+
+  generateSessionKey(encryptionKeys: PublicKey): Promise<SessionKey> {
+    return generateSessionKey({ encryptionKeys });
+  }
+
+  parsePrivateKey(armoredKey: string): Promise<PrivateKey> {
+    return readPrivateKey({ armoredKey });
+  }
+
+  parsePublicKey(armoredKey: string): Promise<PublicKey> {
+    return readKey({ armoredKey });
+  }
+
+  stringifyPrivateKey(key: PrivateKey): string {
+    return key.armor();
+  }
+
+  stringifyPublicKey(key: PublicKey): string {
+    return key.armor();
+  }
+
+  async symmetricDecrypt(armoredMessage: string, passwords: string): Promise<string> {
+    const message = await readMessage({ armoredMessage });
+    return (await decrypt({ message, passwords })).data;
+  }
+
+  async symmetricEncrypt(text: string, passwords: string): Promise<string> {
+    const message = await createMessage({ text });
+    return await encrypt({ message, passwords });
   }
 }

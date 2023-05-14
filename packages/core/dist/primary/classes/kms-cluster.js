@@ -37,8 +37,8 @@ export class KmsClusterCore extends KMS {
     hybridEncrypt(request) {
         return this.getNextWorker().hybridEncrypt(request);
     }
-    async importPrivateKeys(...request) {
-        return (await Promise.all(this.cluster.map((worker) => worker.importPrivateKeys(...request))))[0];
+    async importKeys(...request) {
+        return (await Promise.all(this.cluster.map((worker) => worker.importKeys(...request))))[0];
     }
     async importSession(request) {
         const [importSessionResult] = await Promise.all(this.cluster.map((worker) => worker.importSession({ ...request, reexport: false })));

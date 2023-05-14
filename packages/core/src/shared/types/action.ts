@@ -5,6 +5,6 @@ export type Action =
   | 'exportSession'
   | 'hybridDecrypt'
   | 'hybridEncrypt'
-  | 'importPrivateKey'
+  | 'importKeyPair'
   | 'importSession'
   | 'reencryptSessionKey';

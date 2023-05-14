@@ -9,5 +9,5 @@ export type ResultPayload =
   | ActionMixin<'destroySession'>
   | Payload<'exportSession', Payloads.ExportSessionResult>
   | Payload<'hybridEncrypt', Payloads.HybridEncryptResult>
-  | Payload<'importPrivateKey', Payloads.ImportPrivateKeyResult>
+  | Payload<'importKeyPair', Payloads.ImportKeysResult>
   | Payload<'importSession', Payloads.ImportSessionResult<boolean>>;

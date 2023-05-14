@@ -43,8 +43,8 @@ export class KmsWorkerCore extends KMS {
     async hybridEncrypt(payload) {
         return (await this.postJob({ action: 'hybridEncrypt', payload })).payload;
     }
-    importPrivateKeys(...payloads) {
-        return Promise.all(payloads.map(async (payload) => (await this.postJob({ action: 'importPrivateKey', payload })).payload));
+    importKeys(...payloads) {
+        return Promise.all(payloads.map(async (payload) => (await this.postJob({ action: 'importKeyPair', payload })).payload));
     }
     async importSession(payload) {
         const importResult = (await this.postJob({ action: 'importSession', payload })).payload;

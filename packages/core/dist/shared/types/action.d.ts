@@ -1,1 +1,1 @@
-export type Action = 'asymmetricDecrypt' | 'asymmetricEncrypt' | 'destroySession' | 'exportSession' | 'hybridDecrypt' | 'hybridEncrypt' | 'importPrivateKey' | 'importSession' | 'reencryptSessionKey';
+export type Action = 'asymmetricDecrypt' | 'asymmetricEncrypt' | 'destroySession' | 'exportSession' | 'hybridDecrypt' | 'hybridEncrypt' | 'importKeyPair' | 'importSession' | 'reencryptSessionKey';

@@ -1,4 +1,5 @@
 export interface SessionKey {
   id: string;
-  key: string;
+  privateKey?: string;
+  publicKey: string;
 }

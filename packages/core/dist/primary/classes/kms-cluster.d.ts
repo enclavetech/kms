@@ -1,5 +1,5 @@
 import type * as Payloads from '../../shared/interfaces/payloads';
-import type { KmsConfig } from '../interfaces/configs/kms-config';
+import type { KmsConfig } from '../interfaces/kms-config';
 import { KMS } from './kms';
 import { KmsWorkerCore } from './kms-worker';
 export declare abstract class KmsClusterCore<T extends KmsWorkerCore> extends KMS {
@@ -15,7 +15,7 @@ export declare abstract class KmsClusterCore<T extends KmsWorkerCore> extends KM
     exportSession(): Promise<Payloads.ExportSessionResult>;
     hybridDecrypt(request: Payloads.HybridDecryptRequest): Promise<Payloads.DecryptResult>;
     hybridEncrypt(request: Payloads.CryptPayload): Promise<Payloads.HybridEncryptResult>;
-    importPrivateKeys(...request: Payloads.ImportPrivateKeyRequest[]): Promise<Payloads.ImportPrivateKeyResult[]>;
+    importKeys(...request: Payloads.ImportKeyRequest[]): Promise<Payloads.ImportKeysResult[]>;
     importSession<T extends boolean>(request: Payloads.ImportSessionRequest<T>): Promise<Payloads.ImportSessionResult<T>>;
     reencryptSessionKey(request: Payloads.ReencryptSessionKeyRequest): Promise<Payloads.CryptPayload>;
 }

@@ -1,4 +1,4 @@
-import type { KmsConfig } from '../interfaces/configs/kms-config';
+import type { KmsConfig } from '../interfaces/kms-config';
 
 /**
  * Default KMS config values.

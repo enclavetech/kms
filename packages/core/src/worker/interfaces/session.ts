@@ -1,5 +1,5 @@
-import type { SessionKey } from './session-key';
+import type { SessionKey } from './session-key-pair';
 
 export interface Session {
-  keys: Array<SessionKey>;
+  keys: SessionKey[];
 }

@@ -1,13 +1,19 @@
 import type { MaybePromise } from '../../shared/types/maybe';
-export interface ILibImpl<PrivateKeyType extends object, SessionKeyType extends object> {
+export interface ILibImpl<PrivateKeyType extends object, PublicKeyType extends object, SessionKeyType extends object> {
     generatePrivateKey(): MaybePromise<PrivateKeyType>;
-    generateSessionKey(privateKey: PrivateKeyType): MaybePromise<SessionKeyType>;
+    generateSessionKey(publicKey: PublicKeyType): MaybePromise<SessionKeyType>;
     parsePrivateKey(key: string): MaybePromise<PrivateKeyType>;
+    parsePublicKey(key: string): MaybePromise<PublicKeyType>;
     stringifyPrivateKey(key: PrivateKeyType): MaybePromise<string>;
+    stringifyPublicKey(key: PublicKeyType): MaybePromise<string>;
     decryptSessionKey(sessionKey: string, privateKey: PrivateKeyType): MaybePromise<SessionKeyType>;
-    encryptSessionKey(sessionKey: SessionKeyType, privateKey: PrivateKeyType): MaybePromise<string>;
+    encryptSessionKey(sessionKey: SessionKeyType, publicKey: PublicKeyType): MaybePromise<string>;
     decryptWithPrivateKey(payload: string, key: PrivateKeyType): MaybePromise<string>;
     decryptWithSessionKey(payload: string, key: SessionKeyType): MaybePromise<string>;
+    /** @deprecated */
     encryptWithPrivateKey(payload: string, key: PrivateKeyType): MaybePromise<string>;
+    encryptWithPublicKey(payload: string, key: PublicKeyType): MaybePromise<string>;
     encryptWithSessionKey(payload: string, key: SessionKeyType): MaybePromise<string>;
+    symmetricDecrypt(payload: string, passphrase: string): MaybePromise<string>;
+    symmetricEncrypt(payload: string, passphrase: string): MaybePromise<string>;
 }
