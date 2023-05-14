@@ -1,7 +1,5 @@
-import { KMS } from './kms';
-export class KmsWorkerCore extends KMS {
+export class KmsWorkerCore {
     constructor() {
-        super(...arguments);
         this.pendingJobs = {};
         this.jobCounter = 0;
     }

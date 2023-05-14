@@ -1,20 +1,17 @@
 import type * as Payloads from '../../shared/interfaces/payloads';
 import { DEFAULT_CONFIG } from '../constants/default-config';
-import type { KmsConfig } from '../interfaces/kms-config';
-import { KMS } from './kms';
+import type { KMS, KmsConfig } from '../interfaces';
 import { KmsWorkerCore } from './kms-worker';
 
-// TODO: return result for all workers rather than just one
+// TODO: return results for all workers rather than just one
 
-export abstract class KmsClusterCore<T extends KmsWorkerCore> extends KMS {
-  protected abstract createWorker(config: KmsConfig): T;
+export abstract class KmsClusterCore<T extends KmsWorkerCore> implements KMS {
+  protected abstract createWorker(): T;
 
   private readonly cluster = new Array<T>();
   private currentWorker = 0;
 
-  constructor(protected readonly config: KmsConfig = DEFAULT_CONFIG) {
-    super();
-
+  constructor(config: KmsConfig = DEFAULT_CONFIG) {
     const clusterSize = config.clusterSize ?? DEFAULT_CONFIG.clusterSize;
 
     if (!clusterSize || clusterSize <= 0) {
@@ -22,7 +19,7 @@ export abstract class KmsClusterCore<T extends KmsWorkerCore> extends KMS {
     }
 
     for (let i = 0; i < clusterSize; i++) {
-      this.cluster.push(this.createWorker(config));
+      this.cluster.push(this.createWorker());
     }
   }
 

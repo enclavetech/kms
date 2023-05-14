@@ -1,8 +1,8 @@
-import { KmsWorkerCore, type KmsConfig, DEFAULT_CONFIG } from '@enclavetech/kms-core';
+import { KmsWorkerCore } from '@enclavetech/kms-core';
 
 export class KmsWorker extends KmsWorkerCore {
   protected worker: Worker;
-  constructor(protected readonly config: KmsConfig = DEFAULT_CONFIG) {
+  constructor() {
     super();
     this.worker = new Worker(new URL('../workers/worker.js?worker', import.meta.url), {
       type: 'module',

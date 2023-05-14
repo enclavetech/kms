@@ -1,7 +1,7 @@
 import type * as Payloads from '../../shared/interfaces/payloads';
 import type { Action, CompletedJob } from '../../shared/types';
-import { KMS } from './kms';
-export declare abstract class KmsWorkerCore extends KMS {
+import type { KMS } from '../interfaces/kms';
+export declare abstract class KmsWorkerCore implements KMS {
     protected abstract readonly worker: Worker;
     private readonly pendingJobs;
     private jobCounter;

@@ -20,6 +20,7 @@
     "dev": "concurrently -k npm:dev:*",
     "dev:core": "npm run dev --workspace ./packages/core",
     "dev:openpgp": "npm run dev --workspace ./packages/openpgp",
+    "line-count": "find -type f -name *.ts -exec cat {} \\; | wc -l",
     "lint": "prettier --check . && eslint .",
     "prettier": "prettier --write ."
   },

@@ -1,11 +1,8 @@
 import { DEFAULT_CONFIG } from '../constants/default-config';
-import { KMS } from './kms';
 import { KmsWorkerCore } from './kms-worker';
-// TODO: return result for all workers rather than just one
-export class KmsClusterCore extends KMS {
+// TODO: return results for all workers rather than just one
+export class KmsClusterCore {
     constructor(config = DEFAULT_CONFIG) {
-        super();
-        this.config = config;
         this.cluster = new Array();
         this.currentWorker = 0;
         const clusterSize = config.clusterSize ?? DEFAULT_CONFIG.clusterSize;
@@ -13,7 +10,7 @@ export class KmsClusterCore extends KMS {
             throw 'Enclave KMS: Invalid clusterSize.';
         }
         for (let i = 0; i < clusterSize; i++) {
-            this.cluster.push(this.createWorker(config));
+            this.cluster.push(this.createWorker());
         }
     }
     getNextWorker() {

@@ -1,10 +1,8 @@
 import type * as Payloads from '../../shared/interfaces/payloads';
-import type { KmsConfig } from '../interfaces/kms-config';
-import { KMS } from './kms';
+import type { KMS, KmsConfig } from '../interfaces';
 import { KmsWorkerCore } from './kms-worker';
-export declare abstract class KmsClusterCore<T extends KmsWorkerCore> extends KMS {
-    protected readonly config: KmsConfig;
-    protected abstract createWorker(config: KmsConfig): T;
+export declare abstract class KmsClusterCore<T extends KmsWorkerCore> implements KMS {
+    protected abstract createWorker(): T;
     private readonly cluster;
     private currentWorker;
     constructor(config?: KmsConfig);
