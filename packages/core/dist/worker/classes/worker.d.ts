@@ -11,9 +11,6 @@ export declare class Worker<PrivateKeyType extends object, PublicKeyType extends
      */
     private wrap;
     private errorResponse;
-    private getKeyPair;
-    private getPrivateKey;
-    private getPublicKey;
     private asymmetricDecrypt;
     private asymmetricEncrypt;
     private destroySession;

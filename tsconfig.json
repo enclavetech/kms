@@ -9,5 +9,5 @@
     "strictPropertyInitialization": true,
     "target": "ES2018"
   },
-  "include": ["packages/*/src"]
+  "include": ["packages/**/src"]
 }

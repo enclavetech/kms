@@ -2,11 +2,12 @@ import { EnclaveKmsActionError, EnclaveKmsError } from '../../shared';
 import type { Action, CompletedJob, FailedJob, Job } from '../../shared/types';
 import type { ILibImpl, KeyPair, Session, SessionKey } from '../interfaces';
 import { kvStoreDelete, kvStoreGet, kvStoreSet } from '../utils/db';
+import { KeyPairMap } from './key-pair-map';
 import { WrappedLibImpl } from './wrapped-lib-impl';
 
 export class Worker<PrivateKeyType extends object, PublicKeyType extends object, SessionKeyType extends object> {
   private readonly libImpl: WrappedLibImpl<PrivateKeyType, PublicKeyType, SessionKeyType>;
-  private keyPairMap: Record<string, KeyPair<PrivateKeyType, PublicKeyType>> = {}; // TODO: `KeyPairMap` class
+  private keyPairMap = new KeyPairMap<PrivateKeyType, PublicKeyType>();
 
   constructor(libImpl: ILibImpl<PrivateKeyType, PublicKeyType, SessionKeyType>) {
     this.libImpl = new WrappedLibImpl(libImpl);
@@ -52,31 +53,12 @@ export class Worker<PrivateKeyType extends object, PublicKeyType extends object,
     self.postMessage(response);
   }
 
-  private getKeyPair(keyID: string, job: Job<Action>): KeyPair<PrivateKeyType, PublicKeyType> {
-    const keyPair = this.keyPairMap[keyID];
-    if (!keyPair) throw new EnclaveKmsActionError(job.action, `Key pair with ID ${keyID} not found`);
-    return keyPair;
-  }
-
-  private getPrivateKey(keyID: string, job: Job<Action>): PrivateKeyType {
-    const { privateKey } = this.getKeyPair(keyID, job);
-
-    if (!privateKey)
-      throw new EnclaveKmsActionError(job.action, `We do not have the private key for key pair ID ${keyID}`);
-
-    return privateKey;
-  }
-
-  private getPublicKey(keyID: string, job: Job<Action>): PublicKeyType {
-    return this.getKeyPair(keyID, job).publicKey;
-  }
-
   private asymmetricDecrypt = (job: Job<'asymmetricDecrypt'>): Promise<CompletedJob<'asymmetricDecrypt'>> =>
     this.wrap(async () => {
       const { action, jobID } = job;
       const { kmsKeyID, payload } = job.payload;
 
-      const privateKey = this.getPrivateKey(kmsKeyID, job);
+      const privateKey = this.keyPairMap.getPrivateKey(kmsKeyID, job);
 
       const decryptedMessage = await this.libImpl.decryptWithPrivateKey(payload, privateKey);
 
@@ -93,7 +75,7 @@ export class Worker<PrivateKeyType extends object, PublicKeyType extends object,
       const { action, jobID } = job;
       const { kmsKeyID, payload } = job.payload;
 
-      const publicKey = this.getPublicKey(kmsKeyID, job);
+      const publicKey = this.keyPairMap.getPublicKey(kmsKeyID, job);
 
       const encryptedMessage = await this.libImpl.encryptWithPublicKey(payload, publicKey);
 
@@ -111,13 +93,8 @@ export class Worker<PrivateKeyType extends object, PublicKeyType extends object,
   private destroySession = (job: Job<'destroySession'>): Promise<CompletedJob<'destroySession'>> =>
     this.wrap(async () => {
       const { action, jobID } = job;
-
-      // clear all keys from memory
-      this.keyPairMap = {};
-
-      // clear stored session key
+      this.keyPairMap.clear();
       await kvStoreDelete('session_key');
-
       return { action, jobID, ok: true };
     }, job);
 
@@ -129,7 +106,7 @@ export class Worker<PrivateKeyType extends object, PublicKeyType extends object,
         keys: new Array<SessionKey>(),
       };
 
-      for (const [id, keyPair] of Object.entries(this.keyPairMap)) {
+      for (const [id, keyPair] of this.keyPairMap) {
         const sessionKeyPair: SessionKey = {
           id,
           publicKey: await this.libImpl.stringifyPublicKey(keyPair.publicKey),
@@ -162,7 +139,7 @@ export class Worker<PrivateKeyType extends object, PublicKeyType extends object,
       const { action, jobID } = job;
       const { kmsKeyID, payloadKey, payload } = job.payload;
 
-      const privateKey = this.getPrivateKey(kmsKeyID, job);
+      const privateKey = this.keyPairMap.getPrivateKey(kmsKeyID, job);
 
       const sessionKey = await this.libImpl.decryptSessionKey(payloadKey, privateKey);
 
@@ -181,13 +158,13 @@ export class Worker<PrivateKeyType extends object, PublicKeyType extends object,
       const { action, jobID } = job;
       const { kmsKeyID, payload } = job.payload;
 
-      const publicKey = this.getPublicKey(kmsKeyID, job);
+      const publicKey = this.keyPairMap.getPublicKey(kmsKeyID, job);
 
       const sessionKey = await this.libImpl.generateSessionKey(publicKey);
 
       const [encryptedMessage, encryptedSessionKey] = await Promise.all([
         this.libImpl.encryptWithSessionKey(payload, sessionKey),
-        this.libImpl.encryptSessionKey(sessionKey, await this.getPublicKey(kmsKeyID, job)),
+        this.libImpl.encryptSessionKey(sessionKey, publicKey),
       ]);
 
       return {
@@ -214,7 +191,7 @@ export class Worker<PrivateKeyType extends object, PublicKeyType extends object,
 
       if (privateKey) keyPair.privateKey = await this.libImpl.parsePrivateKey(privateKey);
 
-      this.keyPairMap[keyID] = keyPair;
+      this.keyPairMap.set(keyID, keyPair);
 
       return {
         action,
@@ -273,8 +250,8 @@ export class Worker<PrivateKeyType extends object, PublicKeyType extends object,
       const { action, jobID } = job;
       const { decryptKeyID, encryptKeyID, sessionKey } = job.payload;
 
-      const decryptKey = this.getPrivateKey(decryptKeyID, job);
-      const encryptKey = this.getPublicKey(encryptKeyID, job);
+      const decryptKey = this.keyPairMap.getPrivateKey(decryptKeyID, job);
+      const encryptKey = this.keyPairMap.getPublicKey(encryptKeyID, job);
 
       const decryptedSessionKey = await this.libImpl.decryptSessionKey(sessionKey, decryptKey);
       const encryptedSessionKey = await this.libImpl.encryptSessionKey(decryptedSessionKey, encryptKey);
