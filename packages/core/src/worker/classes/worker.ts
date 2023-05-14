@@ -1,10 +1,8 @@
 import { EnclaveKmsActionError, EnclaveKmsError } from '../../shared';
 import type { Action, CompletedJob, FailedJob, Job } from '../../shared/types';
-import type { ILibImpl } from '../interfaces/lib-impl';
+import type { ILibImpl, Session, SessionKey } from '../interfaces';
 import { kvStoreDelete, kvStoreGet, kvStoreSet } from '../utils/db';
 import { WrappedLibImpl } from './wrapped-lib-impl';
-
-// TODO: break functions into individual files and try and find a DRYer way to wrap them
 
 export class Worker<PrivateKeyType extends object, SessionKeyType extends object> {
   private readonly libImpl: WrappedLibImpl<PrivateKeyType, SessionKeyType>;
@@ -119,9 +117,8 @@ export class Worker<PrivateKeyType extends object, SessionKeyType extends object
     this.wrap(async () => {
       const { action, jobID } = job;
 
-      const session = {
-        // TODO: interface
-        keys: new Array<{ id: string; key: string }>(),
+      const session: Session = {
+        keys: new Array<SessionKey>(),
       };
 
       for (const [id, key] of Object.entries(this.keyMap)) {
@@ -136,7 +133,7 @@ export class Worker<PrivateKeyType extends object, SessionKeyType extends object
         this.libImpl.encryptWithPrivateKey(payload, key),
 
         // Store the session key
-        kvStoreSet('session_key', await this.wrap(() => this.libImpl.stringifyPrivateKey(key), job)),
+        kvStoreSet('session_key', await this.libImpl.stringifyPrivateKey(key)),
       ]);
 
       return {
@@ -224,10 +221,7 @@ export class Worker<PrivateKeyType extends object, SessionKeyType extends object
 
       const sessionDecrypted = await this.libImpl.decryptWithPrivateKey(sessionEncrypted, key);
 
-      const session: {
-        // TODO: interface
-        keys: Array<{ id: string; key: string }>;
-      } = (() => {
+      const session: Session = (() => {
         try {
           return JSON.parse(sessionDecrypted);
         } catch (e) {

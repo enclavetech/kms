@@ -1,7 +1,6 @@
 import { EnclaveKmsActionError, EnclaveKmsError } from '../../shared';
 import { kvStoreDelete, kvStoreGet, kvStoreSet } from '../utils/db';
 import { WrappedLibImpl } from './wrapped-lib-impl';
-// TODO: break functions into individual files and try and find a DRYer way to wrap them
 export class Worker {
     constructor(libImpl) {
         this.keyMap = {};
@@ -44,7 +43,6 @@ export class Worker {
         this.exportSession = (job) => this.wrap(async () => {
             const { action, jobID } = job;
             const session = {
-                // TODO: interface
                 keys: new Array(),
             };
             for (const [id, key] of Object.entries(this.keyMap)) {
@@ -55,7 +53,7 @@ export class Worker {
             const [sessionPayload] = await Promise.all([
                 this.libImpl.encryptWithPrivateKey(payload, key),
                 // Store the session key
-                kvStoreSet('session_key', await this.wrap(() => this.libImpl.stringifyPrivateKey(key), job)),
+                kvStoreSet('session_key', await this.libImpl.stringifyPrivateKey(key)),
             ]);
             return {
                 action,

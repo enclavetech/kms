@@ -1,4 +1,4 @@
-import type { ILibImpl } from '../interfaces/lib-impl';
+import type { ILibImpl } from '../interfaces';
 export declare class Worker<PrivateKeyType extends object, SessionKeyType extends object> {
     private readonly libImpl;
     private keyMap;
