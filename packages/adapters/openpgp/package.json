@@ -24,7 +24,6 @@
     "openpgp": "^5.0.0"
   },
   "devDependencies": {
-    "@enclavetech/kms-core": "file:../core",
     "@openpgp/web-stream-tools": "^0.0.13",
     "typescript": "^5.0.4"
   }
