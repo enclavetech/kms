@@ -49,9 +49,9 @@ Enclave KMS has been designed in a generic way to enable its use with virtually 
 
 <!-- TODO: provide adapter docs -->
 
-|                Status                | Library                               | Adapter Package                                |
-| :----------------------------------: | :------------------------------------ | :--------------------------------------------- |
-| [:white_check_mark:](## 'Supported') | [OpenPGP.js](https://openpgpjs.org)   | [`@enclavetech/kms-openpgp`](packages/openpgp) |
+|                Status                | Library                               | Adapter Package                                         |
+| :----------------------------------: | :------------------------------------ | :------------------------------------------------------ |
+| [:white_check_mark:](## 'Supported') | [OpenPGP.js](https://openpgpjs.org)   | [`@enclavetech/kms-openpgp`](packages/adapters/openpgp) |
 |    [:construction:](## 'Planned')    | [jose](https://github.com/panva/jose) |
 
 ## Installation
@@ -59,7 +59,7 @@ Enclave KMS has been designed in a generic way to enable its use with virtually 
 Install `@enclavetech/kms-core`, `@enclavetech/kms-openpgp`, and its peer dependency `openpgp`:
 
 ```sh
-npm i https://gitpkg.now.sh/enclavetech/kms/packages/core https://gitpkg.now.sh/enclavetech/kms/packages/openpgp openpgp
+npm i https://gitpkg.now.sh/enclavetech/kms/packages/core https://gitpkg.now.sh/enclavetech/kms/packages/adapters/openpgp openpgp
 ```
 
 ### TypeScript
@@ -90,11 +90,11 @@ const kmsWorker = new KmsWorker();
 
 - **`KmsWorker`:** Controls a single web worker. If you are only making light use of KMS and use a single worker thread in your app, you can instantiate `KmsWorker` (instead of `KmsCluster`) to save on overhead.
 
-Both `KmsCluster` and `KmsWorker` implement the `KMS` interface, which defines the public API.
+Both `KmsCluster` and `KmsWorker` implement the `IKMS` interface, which defines the public API.
 
 ### TypeScript
 
-If you are using TypeScript, use `KMS` from the core package as the type:
+If you are using TypeScript, use `IKMS` from the core package as the type:
 
 ```ts
 import type { IKMS } from '@enclavetech/kms-core';
@@ -105,7 +105,7 @@ const kms: IKMS = new KmsCluster();
 
 ### Configuration
 
-The KMS instance can be configured by passing a [`KmsConfig`](packages/core/src/interfaces/configs/kms-config.ts) object during instantiation:
+The KMS instance can be configured by passing a [`KmsConfig`](packages/core/src/primary/shared/interfaces/kms-config.interface.ts) object during instantiation:
 
 ```js
 import { KmsCluster } from '@enclavetech/kms-openpgp';
@@ -123,7 +123,7 @@ const kms = new KmsCluster(kmsConfig);
 | :-----------: | :------: | :-----: | :--------------------------------------------------------------------------- |
 | `clusterSize` | `number` |   `4`   | Number of worker threads to use. Only applies to KMS Clusters. Must be >= 1. |
 
-See: [kms-config.ts](packages/core/src/interfaces/configs/kms-config.ts).
+See: [kms-config.ts](packages/core/src/primary/shared/interfaces/kms-config.interface.ts).
 
 ## API Reference
 
