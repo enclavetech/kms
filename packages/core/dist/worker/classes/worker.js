@@ -2,6 +2,7 @@ import { EnclaveKmsActionError, EnclaveKmsError } from '../../shared';
 import { kvStoreDelete, kvStoreGet, kvStoreSet } from '../utils/db';
 import { KeyPairMap } from './key-pair-map';
 import { WrappedLibImpl } from './wrapped-lib-impl';
+// TODO: group methods into namespaces
 export class Worker {
     constructor(libImpl) {
         this.keyPairMap = new KeyPairMap();

@@ -90,17 +90,17 @@ const kmsWorker = new KmsWorker();
 
 - **`KmsWorker`:** Controls a single web worker. If you are only making light use of KMS and use a single worker thread in your app, you can instantiate `KmsWorker` (instead of `KmsCluster`) to save on overhead.
 
-Both `KmsCluster` and `KmsWorker` implement the `KMS` abstract class, which defines the public API.
+Both `KmsCluster` and `KmsWorker` implement the `KMS` interface, which defines the public API.
 
 ### TypeScript
 
 If you are using TypeScript, use `KMS` from the core package as the type:
 
 ```ts
-import type { KMS } from '@enclavetech/kms-core';
+import type { IKMS } from '@enclavetech/kms-core';
 import { KmsCluster } from '@enclavetech/kms-openpgp';
 
-const kms: KMS = new KmsCluster();
+const kms: IKMS = new KmsCluster();
 ```
 
 ### Configuration

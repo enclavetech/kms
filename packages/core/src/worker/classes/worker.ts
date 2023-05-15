@@ -5,6 +5,8 @@ import { kvStoreDelete, kvStoreGet, kvStoreSet } from '../utils/db';
 import { KeyPairMap } from './key-pair-map';
 import { WrappedLibImpl } from './wrapped-lib-impl';
 
+// TODO: group methods into namespaces
+
 export class Worker<PrivateKeyType extends object, PublicKeyType extends object, SessionKeyType extends object> {
   private readonly libImpl: WrappedLibImpl<PrivateKeyType, PublicKeyType, SessionKeyType>;
   private keyPairMap = new KeyPairMap<PrivateKeyType, PublicKeyType>();
