@@ -1,6 +1,5 @@
 import { DEFAULT_CONFIG } from '../constants/default-config';
 import { ManagedWorker } from './managed-worker';
-import { AsymmetricNS, HybridNS, KeysNS, SessionNS, SymmetricNS } from './namespaces';
 export class KMS {
     constructor(workerConstructor, config) {
         this.currentWorker = 0;
@@ -10,17 +9,21 @@ export class KMS {
         this.postJobAll = (async (request) => {
             return Promise.all(this.cluster.map((managedWorker) => managedWorker.postJob(request)));
         }).bind(this);
-        // TODO: tree shakability - user able to inject only ones they need
-        this.asymmetric = new AsymmetricNS(this.postJobSingle, this.postJobAll);
-        this.hybrid = new HybridNS(this.postJobSingle, this.postJobAll);
-        this.keys = new KeysNS(this.postJobSingle, this.postJobAll);
-        this.session = new SessionNS(this.postJobSingle, this.postJobAll);
-        this.symmetric = new SymmetricNS(this.postJobSingle, this.postJobAll);
         const clusterSize = config?.clusterSize ?? DEFAULT_CONFIG.clusterSize;
         if (!clusterSize || clusterSize <= 0) {
             // TODO: custom error class
             throw 'Enclave KMS: Invalid clusterSize.';
         }
         this.cluster = Array.from({ length: clusterSize }, () => new ManagedWorker(workerConstructor()));
+        if (config?.asymmetric)
+            this.asymmetric = new config.asymmetric(this.postJobSingle, this.postJobAll);
+        if (config?.hybrid)
+            this.hybrid = new config.hybrid(this.postJobSingle, this.postJobAll);
+        if (config?.keys)
+            this.keys = new config.keys(this.postJobSingle, this.postJobAll);
+        if (config?.session)
+            this.session = new config.session(this.postJobSingle, this.postJobAll);
+        if (config?.symmetric)
+            this.symmetric = new config.symmetric(this.postJobSingle, this.postJobAll);
     }
 }
