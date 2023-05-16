@@ -7,6 +7,7 @@ export type Action =
   | 'hybridEncrypt'
   | 'importKeyPair'
   | 'importSession'
+  // TODO: rename to `hybridShareKey`
   | 'reencryptSessionKey'
   | 'symmetricDecrypt'
   | 'symmetricEncrypt';

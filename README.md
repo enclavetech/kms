@@ -74,56 +74,27 @@ npm i -D @openpgp/web-stream-tools
 
 ## Usage
 
-The recommended way to get started with no configuration is to instantiate `KmsCluster` from the library adapter package.
+To get started, instantiate `KMS` from the library adapter package.
 
 ```js
-import { KmsCluster, KmsWorker } from '@enclavetech/kms-openpgp';
+import { KMS } from '@enclavetech/kms-openpgp';
 
-// multiple worker threads
-const kmsCluster = new KmsCluster();
-
-// or one worker thread only
-const kmsWorker = new KmsWorker();
-```
-
-- **`KmsCluster`:** _(recommended)_ Orchestrates multiple `KmsWorker` instances (defaults to 4 in the browser as most consumer CPUs these days have at least 4 threads available.)
-
-- **`KmsWorker`:** Controls a single web worker. If you are only making light use of KMS and use a single worker thread in your app, you can instantiate `KmsWorker` (instead of `KmsCluster`) to save on overhead.
-
-Both `KmsCluster` and `KmsWorker` implement the `IKMS` interface, which defines the public API.
-
-### TypeScript
-
-If you are using TypeScript, use `IKMS` from the core package as the type:
-
-```ts
-import type { IKMS } from '@enclavetech/kms-core';
-import { KmsCluster } from '@enclavetech/kms-openpgp';
-
-const kms: IKMS = new KmsCluster();
+const kms = new KMS();
 ```
 
 ### Configuration
 
-The KMS instance can be configured by passing a [`KmsConfig`](packages/core/src/primary/shared/interfaces/kms-config.interface.ts) object during instantiation:
+The KMS instance can be configured by passing a [`KmsConfig`](packages/core/src/primary/interfaces/kms-config.ts) object during instantiation:
 
 ```js
-import { KmsCluster } from '@enclavetech/kms-openpgp';
+import { KMS } from '@enclavetech/kms-openpgp';
 
-const kmsConfig = {
+const config = {
   clusterSize: 2,
 };
 
-const kms = new KmsCluster(kmsConfig);
+const kms = new KMS(config);
 ```
-
-#### Options
-
-|   Property    |   Type   | Default | Description                                                                  |
-| :-----------: | :------: | :-----: | :--------------------------------------------------------------------------- |
-| `clusterSize` | `number` |   `4`   | Number of worker threads to use. Only applies to KMS Clusters. Must be >= 1. |
-
-See: [kms-config.ts](packages/core/src/primary/shared/interfaces/kms-config.interface.ts).
 
 ## API Reference
 

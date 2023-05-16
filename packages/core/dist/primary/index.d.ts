@@ -1,3 +1,4 @@
-export * from './cluster';
-export * from './shared';
-export * from './worker';
+export * from './classes/kms';
+export * from './classes/namespaces';
+export * from './constants/default-config';
+export * from './interfaces/kms-config';
