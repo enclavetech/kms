@@ -2,7 +2,7 @@ import { EnclaveKmsActionError } from '../../shared/errors/enclave-kms-action.er
 import type { Action, Job } from '../../shared/types';
 import type { KeyPair } from '../interfaces/key-pair';
 
-export class KeyPairMap<PrivateKeyType extends object, PublicKeyType extends object>
+export class KeyPairMap<PrivateKeyType, PublicKeyType>
   implements Iterable<[string, KeyPair<PrivateKeyType, PublicKeyType>]>
 {
   private keyPairMap: Record<string, KeyPair<PrivateKeyType, PublicKeyType>> = {};

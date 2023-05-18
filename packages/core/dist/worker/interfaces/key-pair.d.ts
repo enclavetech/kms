@@ -1,4 +1,4 @@
-export interface KeyPair<PrivateKeyType extends object, PublicKeyType extends object> {
+export interface KeyPair<PrivateKeyType, PublicKeyType> {
     privateKey?: PrivateKeyType;
     publicKey: PublicKeyType;
 }

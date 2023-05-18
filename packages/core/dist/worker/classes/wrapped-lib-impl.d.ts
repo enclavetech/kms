@@ -1,5 +1,5 @@
 import type { ILibImpl } from '../interfaces/lib-impl';
-export declare class WrappedLibImpl<PrivateKeyType extends object, PublicKeyType extends object, SessionKeyType extends object> implements ILibImpl<PrivateKeyType, PublicKeyType, SessionKeyType> {
+export declare class WrappedLibImpl<PrivateKeyType, PublicKeyType, SessionKeyType> implements ILibImpl<PrivateKeyType, PublicKeyType, SessionKeyType> {
     private readonly libImpl;
     constructor(libImpl: ILibImpl<PrivateKeyType, PublicKeyType, SessionKeyType>);
     /** Ensures a promise is always the return value and handles errors. */

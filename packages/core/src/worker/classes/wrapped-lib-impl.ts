@@ -1,7 +1,7 @@
 import type { ILibImpl } from '../interfaces/lib-impl';
 import { AdapterError } from '../errors/adapter-error';
 
-export class WrappedLibImpl<PrivateKeyType extends object, PublicKeyType extends object, SessionKeyType extends object>
+export class WrappedLibImpl<PrivateKeyType, PublicKeyType, SessionKeyType>
   implements ILibImpl<PrivateKeyType, PublicKeyType, SessionKeyType>
 {
   constructor(private readonly libImpl: ILibImpl<PrivateKeyType, PublicKeyType, SessionKeyType>) {}
