@@ -74,27 +74,46 @@ npm i -D @openpgp/web-stream-tools
 
 ## Usage
 
-To get started, instantiate `KMS` from the library adapter package.
+1. Create a new file which will be used as the entry point for your web worker(s):
 
-```js
-import { KMS } from '@enclavetech/kms-openpgp';
+   ```js
+   // worker.js
 
-const kms = new KMS();
-```
+   import { Worker } from '@enclavetech/kms-core';
+   import { PGPLibImpl } from '@enclavetech/kms-openpgp';
 
-### Configuration
+   // Instantiate library adapter
+   const adapter = new PGPLibImpl();
 
-The KMS instance can be configured by passing a [`KmsConfig`](packages/core/src/primary/interfaces/kms-config.ts) object during instantiation:
+   // Instantiate the worker logic and pass in the library adapter
+   new Worker(adapter);
+   ```
 
-```js
-import { KMS } from '@enclavetech/kms-openpgp';
+2. In your application code, configure a new KMS service:
 
-const config = {
-  clusterSize: 2,
-};
+   ```js
+   import { KMS, AsymmetricNS, HybridNS, KeysNS, SessionNS, SymmetricNS } from '@enclavetech/kms-core';
 
-const kms = new KMS(config);
-```
+   // Define a function for creating the worker
+   function createKmsWorker() {
+     // Depending on your app's build system, you may need to change these params
+     return new Worker(new URL('./worker.js?worker', import.meta.url), { type: 'module' });
+   }
+
+   const config = {
+     clusterSize: 2,
+     // Provide the namespace constructors you need
+     // (this enables tree shakable code)
+     asymmetric: AsymmetricNS,
+     hybrid: HybridNS,
+     keys: KeysNS,
+     session: SessionNS,
+     symmetric: SymmetricNS,
+   };
+
+   // Instantiate a KMS service
+   const kms = new KMS(createKmsWorker, config);
+   ```
 
 ## API Reference
 
