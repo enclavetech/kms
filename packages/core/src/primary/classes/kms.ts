@@ -3,7 +3,7 @@ import { DEFAULT_CONFIG } from '../constants/default-config';
 import type { KmsConfig } from '../interfaces/kms-config';
 import { ManagedWorker } from './managed-worker';
 
-export abstract class KMS {
+export class KMS {
   private readonly cluster: ManagedWorker[];
 
   private currentWorker = 0;

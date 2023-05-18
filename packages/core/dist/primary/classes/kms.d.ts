@@ -1,5 +1,5 @@
 import type { KmsConfig } from '../interfaces/kms-config';
-export declare abstract class KMS {
+export declare class KMS {
     private readonly cluster;
     private currentWorker;
     readonly asymmetric: import("./namespaces").AsymmetricNS | undefined;
