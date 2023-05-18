@@ -80,10 +80,10 @@ npm i -D @openpgp/web-stream-tools
    // worker.js
 
    import { Worker } from '@enclavetech/kms-core';
-   import { PGPLibImpl } from '@enclavetech/kms-openpgp';
+   import Adapter from '@enclavetech/kms-openpgp';
 
    // Instantiate library adapter
-   const adapter = new PGPLibImpl();
+   const adapter = new Adapter();
 
    // Instantiate the worker logic and pass in the library adapter
    new Worker(adapter);

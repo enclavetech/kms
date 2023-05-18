@@ -2,7 +2,7 @@ import type { MaybePromise } from '../../shared/types/maybe';
 
 // Allow library to define options objects
 
-export interface ILibImpl<PrivateKeyType, PublicKeyType, SessionKeyType> {
+export interface IAdapter<PrivateKeyType, PublicKeyType, SessionKeyType> {
   generatePrivateKey(): MaybePromise<PrivateKeyType>;
   generateSessionKey(publicKey: PublicKeyType): MaybePromise<SessionKeyType>;
 

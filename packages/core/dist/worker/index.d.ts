@@ -1,2 +1,2 @@
 export * from './classes/worker';
-export * from './interfaces/lib-impl';
+export * from './interfaces/adapter';

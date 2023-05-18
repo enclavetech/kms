@@ -1,5 +1,5 @@
 import { AdapterError } from '../errors/adapter-error';
-export class WrappedLibImpl {
+export class WrappedAdapter {
     constructor(libImpl) {
         this.libImpl = libImpl;
     }

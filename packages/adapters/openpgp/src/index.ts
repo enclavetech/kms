@@ -1,3 +1,4 @@
+import type { IAdapter } from '@enclavetech/kms-core';
 import {
   type PrivateKey,
   type PublicKey,
@@ -14,9 +15,7 @@ import {
   readKey,
 } from 'openpgp';
 
-import type { ILibImpl } from '@enclavetech/kms-core';
-
-export class PGPLibImpl implements ILibImpl<PrivateKey, PublicKey, SessionKey> {
+export class Adapter implements IAdapter<PrivateKey, PublicKey, SessionKey> {
   async decryptSessionKey(armoredMessage: string, decryptionKeys: PrivateKey): Promise<SessionKey> {
     const message = await readMessage({ armoredMessage });
     return (await decryptSessionKeys({ message, decryptionKeys }))[0];
@@ -85,3 +84,5 @@ export class PGPLibImpl implements ILibImpl<PrivateKey, PublicKey, SessionKey> {
     return await encrypt({ message, passwords });
   }
 }
+
+export default Adapter;

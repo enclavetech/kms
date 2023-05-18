@@ -1,8 +1,8 @@
-import type { ILibImpl } from '../interfaces';
+import type { IAdapter } from '../interfaces';
 export declare class Worker<PrivateKeyType, PublicKeyType, SessionKeyType> {
-    private readonly libImpl;
+    private readonly adapter;
     private keyPairMap;
-    constructor(libImpl: ILibImpl<PrivateKeyType, PublicKeyType, SessionKeyType>);
+    constructor(libImpl: IAdapter<PrivateKeyType, PublicKeyType, SessionKeyType>);
     /**
      * Ensures an error response message is sent on exception.
      * @param fn The function to wrap.

@@ -1,18 +1,18 @@
 import { EnclaveKmsActionError, EnclaveKmsError } from '../../shared';
 import type { Action, CompletedJob, FailedJob, Job } from '../../shared/types';
-import type { ILibImpl, KeyPair, Session, SessionKey } from '../interfaces';
+import type { IAdapter, KeyPair, Session, SessionKey } from '../interfaces';
 import { kvStoreDelete, kvStoreGet, kvStoreSet } from '../utils/db';
 import { KeyPairMap } from './key-pair-map';
-import { WrappedLibImpl } from './wrapped-lib-impl';
+import { WrappedAdapter } from './wrapped-adapter';
 
 // TODO: group methods into namespaces
 
 export class Worker<PrivateKeyType, PublicKeyType, SessionKeyType> {
-  private readonly libImpl: WrappedLibImpl<PrivateKeyType, PublicKeyType, SessionKeyType>;
+  private readonly adapter: WrappedAdapter<PrivateKeyType, PublicKeyType, SessionKeyType>;
   private keyPairMap = new KeyPairMap<PrivateKeyType, PublicKeyType>();
 
-  constructor(libImpl: ILibImpl<PrivateKeyType, PublicKeyType, SessionKeyType>) {
-    this.libImpl = new WrappedLibImpl(libImpl);
+  constructor(libImpl: IAdapter<PrivateKeyType, PublicKeyType, SessionKeyType>) {
+    this.adapter = new WrappedAdapter(libImpl);
 
     self.onmessage = async (event: MessageEvent<Job<Action>>) => {
       const job: Job<Action> = event.data;
@@ -62,7 +62,7 @@ export class Worker<PrivateKeyType, PublicKeyType, SessionKeyType> {
 
       const privateKey = this.keyPairMap.getPrivateKey(kmsKeyID, job);
 
-      const decryptedMessage = await this.libImpl.decryptWithPrivateKey(payload, privateKey);
+      const decryptedMessage = await this.adapter.decryptWithPrivateKey(payload, privateKey);
 
       return {
         action,
@@ -79,7 +79,7 @@ export class Worker<PrivateKeyType, PublicKeyType, SessionKeyType> {
 
       const publicKey = this.keyPairMap.getPublicKey(kmsKeyID, job);
 
-      const encryptedMessage = await this.libImpl.encryptWithPublicKey(payload, publicKey);
+      const encryptedMessage = await this.adapter.encryptWithPublicKey(payload, publicKey);
 
       return {
         action,
@@ -111,9 +111,9 @@ export class Worker<PrivateKeyType, PublicKeyType, SessionKeyType> {
       for (const [id, keyPair] of this.keyPairMap) {
         const sessionKeyPair: SessionKey = {
           id,
-          publicKey: await this.libImpl.stringifyPublicKey(keyPair.publicKey),
+          publicKey: await this.adapter.stringifyPublicKey(keyPair.publicKey),
         };
-        if (keyPair.privateKey) sessionKeyPair.privateKey = await this.libImpl.stringifyPrivateKey(keyPair.privateKey);
+        if (keyPair.privateKey) sessionKeyPair.privateKey = await this.adapter.stringifyPrivateKey(keyPair.privateKey);
         session.keys.push(sessionKeyPair);
       }
 
@@ -122,7 +122,7 @@ export class Worker<PrivateKeyType, PublicKeyType, SessionKeyType> {
       const key = new TextDecoder().decode(crypto.getRandomValues(Uint8Array.from({ length: 32 })));
 
       const [sessionPayload] = await Promise.all([
-        this.libImpl.symmetricEncrypt(payload, key),
+        this.adapter.symmetricEncrypt(payload, key),
 
         // Store the session key
         kvStoreSet('session_key', key),
@@ -143,9 +143,9 @@ export class Worker<PrivateKeyType, PublicKeyType, SessionKeyType> {
 
       const privateKey = this.keyPairMap.getPrivateKey(kmsKeyID, job);
 
-      const sessionKey = await this.libImpl.decryptSessionKey(payloadKey, privateKey);
+      const sessionKey = await this.adapter.decryptSessionKey(payloadKey, privateKey);
 
-      const decryptedMessage = await this.libImpl.decryptWithSessionKey(payload, sessionKey);
+      const decryptedMessage = await this.adapter.decryptWithSessionKey(payload, sessionKey);
 
       return {
         action,
@@ -162,11 +162,11 @@ export class Worker<PrivateKeyType, PublicKeyType, SessionKeyType> {
 
       const publicKey = this.keyPairMap.getPublicKey(kmsKeyID, job);
 
-      const sessionKey = await this.libImpl.generateSessionKey(publicKey);
+      const sessionKey = await this.adapter.generateSessionKey(publicKey);
 
       const [encryptedMessage, encryptedSessionKey] = await Promise.all([
-        this.libImpl.encryptWithSessionKey(payload, sessionKey),
-        this.libImpl.encryptSessionKey(sessionKey, publicKey),
+        this.adapter.encryptWithSessionKey(payload, sessionKey),
+        this.adapter.encryptSessionKey(sessionKey, publicKey),
       ]);
 
       return {
@@ -188,10 +188,10 @@ export class Worker<PrivateKeyType, PublicKeyType, SessionKeyType> {
       // TODO: derive public key from private key if necessary
 
       const keyPair: KeyPair<PrivateKeyType, PublicKeyType> = {
-        publicKey: await this.libImpl.parsePublicKey(publicKey),
+        publicKey: await this.adapter.parsePublicKey(publicKey),
       };
 
-      if (privateKey) keyPair.privateKey = await this.libImpl.parsePrivateKey(privateKey);
+      if (privateKey) keyPair.privateKey = await this.adapter.parsePrivateKey(privateKey);
 
       this.keyPairMap.set(keyID, keyPair);
 
@@ -212,7 +212,7 @@ export class Worker<PrivateKeyType, PublicKeyType, SessionKeyType> {
         throw new EnclaveKmsActionError(job.action, 'No session key found');
       });
 
-      const sessionDecrypted = await this.libImpl.symmetricDecrypt(sessionEncrypted, key);
+      const sessionDecrypted = await this.adapter.symmetricDecrypt(sessionEncrypted, key);
 
       const session: Session = (() => {
         try {
@@ -255,8 +255,8 @@ export class Worker<PrivateKeyType, PublicKeyType, SessionKeyType> {
       const decryptKey = this.keyPairMap.getPrivateKey(decryptKeyID, job);
       const encryptKey = this.keyPairMap.getPublicKey(encryptKeyID, job);
 
-      const decryptedSessionKey = await this.libImpl.decryptSessionKey(sessionKey, decryptKey);
-      const encryptedSessionKey = await this.libImpl.encryptSessionKey(decryptedSessionKey, encryptKey);
+      const decryptedSessionKey = await this.adapter.decryptSessionKey(sessionKey, decryptKey);
+      const encryptedSessionKey = await this.adapter.encryptSessionKey(decryptedSessionKey, encryptKey);
 
       return {
         action,
@@ -278,7 +278,7 @@ export class Worker<PrivateKeyType, PublicKeyType, SessionKeyType> {
         action,
         jobID,
         ok: true,
-        payload: { payload: await this.libImpl.symmetricDecrypt(payload, passphrase) },
+        payload: { payload: await this.adapter.symmetricDecrypt(payload, passphrase) },
       };
     }, job);
 
@@ -291,7 +291,7 @@ export class Worker<PrivateKeyType, PublicKeyType, SessionKeyType> {
         action,
         jobID,
         ok: true,
-        payload: { payload: await this.libImpl.symmetricEncrypt(payload, passphrase) },
+        payload: { payload: await this.adapter.symmetricEncrypt(payload, passphrase) },
       };
     }, job);
 }

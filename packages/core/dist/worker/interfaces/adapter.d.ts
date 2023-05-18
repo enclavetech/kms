@@ -1,5 +1,5 @@
 import type { MaybePromise } from '../../shared/types/maybe';
-export interface ILibImpl<PrivateKeyType, PublicKeyType, SessionKeyType> {
+export interface IAdapter<PrivateKeyType, PublicKeyType, SessionKeyType> {
     generatePrivateKey(): MaybePromise<PrivateKeyType>;
     generateSessionKey(publicKey: PublicKeyType): MaybePromise<SessionKeyType>;
     parsePrivateKey(key: string): MaybePromise<PrivateKeyType>;

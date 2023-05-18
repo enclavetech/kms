@@ -1,10 +1,10 @@
-import type { ILibImpl } from '../interfaces/lib-impl';
+import type { IAdapter } from '../interfaces/adapter';
 import { AdapterError } from '../errors/adapter-error';
 
-export class WrappedLibImpl<PrivateKeyType, PublicKeyType, SessionKeyType>
-  implements ILibImpl<PrivateKeyType, PublicKeyType, SessionKeyType>
+export class WrappedAdapter<PrivateKeyType, PublicKeyType, SessionKeyType>
+  implements IAdapter<PrivateKeyType, PublicKeyType, SessionKeyType>
 {
-  constructor(private readonly libImpl: ILibImpl<PrivateKeyType, PublicKeyType, SessionKeyType>) {}
+  constructor(private readonly libImpl: IAdapter<PrivateKeyType, PublicKeyType, SessionKeyType>) {}
 
   /** Ensures a promise is always the return value and handles errors. */
   private async wrap<T>(fn: () => T, fnName: string): Promise<Awaited<T>> {

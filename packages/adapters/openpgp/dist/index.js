@@ -1,5 +1,5 @@
 import { createMessage, decrypt, decryptSessionKeys, encrypt, generateKey, generateSessionKey, readMessage, readPrivateKey, encryptSessionKey, readKey, } from 'openpgp';
-export class PGPLibImpl {
+export class Adapter {
     async decryptSessionKey(armoredMessage, decryptionKeys) {
         const message = await readMessage({ armoredMessage });
         return (await decryptSessionKeys({ message, decryptionKeys }))[0];
@@ -54,3 +54,4 @@ export class PGPLibImpl {
         return await encrypt({ message, passwords });
     }
 }
+export default Adapter;
