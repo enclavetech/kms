@@ -1,0 +1,27 @@
+{
+  "name": "@enclavetech/kms-jose",
+  "description": "jose support for Enclave KMS.",
+  "version": "1.0.0",
+  "license": "MIT",
+  "private": true,
+  "author": "Enclave Technology",
+  "repository": "github:enclavetech/kms",
+  "homepage": "https://github.com/enclavetech/kms#readme",
+  "keywords": [
+    "encryption",
+    "crypto"
+  ],
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "peerDependencies": {
+    "@enclavetech/kms-core": "*",
+    "jose": "^4.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.4"
+  }
+}

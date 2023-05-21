@@ -21,6 +21,7 @@
     "dev": "concurrently -k npm:dev:*",
     "dev:core": "npm run dev --workspace ./packages/core",
     "dev:openpgp": "npm run dev --workspace ./packages/adapters/openpgp",
+    "dev:jose": "npm run dev --workspace ./packages/adapters/jose",
     "lc": "echo Enclave KMS: $(find packages -type f -name *.js -exec cat {} \\; | wc -l) lines",
     "line-count": "npm run lc",
     "lint": "prettier --check . && eslint .",

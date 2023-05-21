@@ -52,7 +52,10 @@ Enclave KMS has been designed in a generic way to enable its use with virtually 
 |                Status                | Library                               | Adapter Package                                         |
 | :----------------------------------: | :------------------------------------ | :------------------------------------------------------ |
 | [:white_check_mark:](## 'Supported') | [OpenPGP.js](https://openpgpjs.org)   | [`@enclavetech/kms-openpgp`](packages/adapters/openpgp) |
-|    [:construction:](## 'Planned')    | [jose](https://github.com/panva/jose) |
+|     [:yellow_square:](## 'WIP')      | [jose](https://github.com/panva/jose) | [`@enclavetech/kms-jose`](packages/adapters/jose)       |
+
+<!-- TODO: library feature support matrix -->
+<!-- TODO: benchmarks -->
 
 ## Installation
 

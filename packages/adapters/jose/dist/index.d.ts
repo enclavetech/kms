@@ -1,0 +1,30 @@
+import type { IAdapter } from '@enclavetech/kms-core';
+import { type KeyLike, type CompactJWEHeaderParameters } from 'jose';
+export declare class Adapter implements IAdapter<KeyLike, KeyLike, KeyLike> {
+    private encoder;
+    private decoder;
+    asymmetricEncrypt(payload: string, key: KeyLike | Uint8Array): Promise<string>;
+    decrypt(payload: string, key: KeyLike | Uint8Array): Promise<string>;
+    decryptPrivateKey(privateKey: string, secret: string): Promise<KeyLike>;
+    decryptSessionKey(sessionKey: string, privateKey: KeyLike): Promise<KeyLike>;
+    readonly decryptWithPrivateKey: (payload: string, key: KeyLike | Uint8Array) => Promise<string>;
+    readonly decryptWithSessionKey: (payload: string, key: KeyLike | Uint8Array) => Promise<string>;
+    encrypt(payload: string, key: KeyLike | Uint8Array, protectedHeader: CompactJWEHeaderParameters): Promise<string>;
+    encryptPrivateKey(privateKey: KeyLike, secret: string): Promise<string>;
+    encryptSessionKey(sessionKey: KeyLike, publicKey: KeyLike): Promise<string>;
+    readonly encryptWithPrivateKey: (payload: string, key: KeyLike | Uint8Array) => Promise<string>;
+    readonly encryptWithPublicKey: (payload: string, key: KeyLike | Uint8Array) => Promise<string>;
+    encryptWithSessionKey(payload: string, key: KeyLike): Promise<string>;
+    generateKeyPair(): Promise<import("jose").GenerateKeyPairResult<KeyLike>>;
+    generatePrivateKey(): Promise<KeyLike>;
+    generateSessionKey(publicKey: KeyLike): KeyLike;
+    parseKey(key: string): Promise<KeyLike>;
+    readonly parsePrivateKey: (key: string) => Promise<KeyLike>;
+    readonly parsePublicKey: (key: string) => Promise<KeyLike>;
+    stringifyKey(key: KeyLike): Promise<string>;
+    readonly stringifyPrivateKey: (key: KeyLike) => Promise<string>;
+    readonly stringifyPublicKey: (key: KeyLike) => Promise<string>;
+    symmetricDecrypt(payload: string, passphrase: string): Promise<string>;
+    symmetricEncrypt(payload: string, password: string): Promise<string>;
+}
+export default Adapter;
