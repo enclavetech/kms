@@ -7,7 +7,9 @@ export type ResultPayload =
   | Payload<'asymmetricDecrypt' | 'hybridDecrypt' | 'symmetricDecrypt' | 'symmetricEncrypt', Payloads.CryptResult>
   | Payload<'asymmetricEncrypt' | 'reencryptSessionKey', Payloads.AsymmetricCryptPayload>
   | ActionMixin<'destroySession'>
+  | Payload<'encryptPrivateKey', Payloads.EncryptPrivateKeyResult>
   | Payload<'exportSession', Payloads.ExportSessionResult>
+  | Payload<'generateKeyPair', Payloads.GenerateKeyPairResult>
   | Payload<'hybridEncrypt', Payloads.HybridEncryptResult>
   | Payload<'importKeyPair', Payloads.ImportKeysResult>
   | Payload<'importSession', Payloads.ImportSessionResult<boolean>>;

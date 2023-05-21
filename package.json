@@ -24,7 +24,8 @@
     "lc": "echo Enclave KMS: $(find packages -type f -name *.js -exec cat {} \\; | wc -l) lines",
     "line-count": "npm run lc",
     "lint": "prettier --check . && eslint .",
-    "prettier": "prettier --write ."
+    "prettier": "prettier --write .",
+    "start": "npm run dev"
   },
   "devDependencies": {
     "@enclavetech/kms-core": "file:packages/core",

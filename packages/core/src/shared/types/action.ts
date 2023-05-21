@@ -2,12 +2,13 @@ export type Action =
   | 'asymmetricDecrypt'
   | 'asymmetricEncrypt'
   | 'destroySession'
+  | 'encryptPrivateKey'
   | 'exportSession'
+  | 'generateKeyPair'
   | 'hybridDecrypt'
   | 'hybridEncrypt'
   | 'importKeyPair'
   | 'importSession'
-  // TODO: rename to `hybridShareKey`
-  | 'reencryptSessionKey'
+  | 'reencryptSessionKey' // TODO: rename to `hybridShareKey`
   | 'symmetricDecrypt'
   | 'symmetricEncrypt';

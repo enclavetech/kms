@@ -4,9 +4,9 @@ import { KeyPairMap } from './key-pair-map';
 import { WrappedAdapter } from './wrapped-adapter';
 // TODO: group methods into namespaces
 export class Worker {
-    constructor(libImpl) {
+    constructor(adapter) {
         this.keyPairMap = new KeyPairMap();
-        this.asymmetricDecrypt = (job) => this.wrap(async () => {
+        this.asymmetricDecrypt = (job) => this.wrapJob(async () => {
             const { action, jobID } = job;
             const { kmsKeyID, payload } = job.payload;
             const privateKey = this.keyPairMap.getPrivateKey(kmsKeyID, job);
@@ -18,7 +18,7 @@ export class Worker {
                 payload: { payload: decryptedMessage },
             };
         }, job);
-        this.asymmetricEncrypt = (job) => this.wrap(async () => {
+        this.asymmetricEncrypt = (job) => this.wrapJob(async () => {
             const { action, jobID } = job;
             const { kmsKeyID, payload } = job.payload;
             const publicKey = this.keyPairMap.getPublicKey(kmsKeyID, job);
@@ -33,13 +33,25 @@ export class Worker {
                 },
             };
         }, job);
-        this.destroySession = (job) => this.wrap(async () => {
+        this.destroySession = (job) => this.wrapJob(async () => {
             const { action, jobID } = job;
             this.keyPairMap.clear();
             await kvStoreDelete('session_key');
             return { action, jobID, ok: true };
         }, job);
-        this.exportSession = (job) => this.wrap(async () => {
+        this.encryptPrivateKey = (job) => this.wrapJob(async () => {
+            const { action, jobID } = job;
+            const { privateKey, secret } = job.payload;
+            return {
+                action,
+                jobID,
+                ok: true,
+                payload: {
+                    privateKey: await this.adapter.encryptPrivateKey(await this.adapter.parsePrivateKey(privateKey), secret),
+                },
+            };
+        }, job);
+        this.exportSession = (job) => this.wrapJob(async () => {
             const { action, jobID } = job;
             const session = {
                 keys: new Array(),
@@ -67,7 +79,25 @@ export class Worker {
                 payload: { sessionPayload },
             };
         }, job);
-        this.hybridDecrypt = (job) => this.wrap(async () => {
+        this.generateKeyPair = (job) => this.wrapJob(async () => {
+            const { action, jobID } = job;
+            const keyPair = await this.adapter.generateKeyPair();
+            const privateKeyPromise = job.payload?.secret
+                ? this.adapter.encryptPrivateKey(keyPair.privateKey, job.payload.secret)
+                : this.adapter.stringifyPrivateKey(keyPair.privateKey);
+            const publicKeyPromise = this.adapter.stringifyPublicKey(keyPair.publicKey);
+            const [privateKey, publicKey] = await Promise.all([privateKeyPromise, publicKeyPromise]);
+            return {
+                action,
+                jobID,
+                ok: true,
+                payload: {
+                    privateKey,
+                    publicKey,
+                },
+            };
+        }, job);
+        this.hybridDecrypt = (job) => this.wrapJob(async () => {
             const { action, jobID } = job;
             const { kmsKeyID, payloadKey, payload } = job.payload;
             const privateKey = this.keyPairMap.getPrivateKey(kmsKeyID, job);
@@ -80,7 +110,7 @@ export class Worker {
                 payload: { payload: decryptedMessage },
             };
         }, job);
-        this.hybridEncrypt = (job) => this.wrap(async () => {
+        this.hybridEncrypt = (job) => this.wrapJob(async () => {
             const { action, jobID } = job;
             const { kmsKeyID, payload } = job.payload;
             const publicKey = this.keyPairMap.getPublicKey(kmsKeyID, job);
@@ -99,15 +129,17 @@ export class Worker {
                 },
             };
         }, job);
-        this.importKeyPair = (job) => this.wrap(async () => {
+        this.importKeyPair = (job) => this.wrapJob(async () => {
             const { action, jobID } = job;
-            const { keyID, privateKey, publicKey } = job.payload;
+            const { keyID, privateKey, publicKey, secret } = job.payload;
             // TODO: derive public key from private key if necessary
             const keyPair = {
                 publicKey: await this.adapter.parsePublicKey(publicKey),
             };
             if (privateKey)
-                keyPair.privateKey = await this.adapter.parsePrivateKey(privateKey);
+                keyPair.privateKey = await (secret
+                    ? this.adapter.decryptPrivateKey(privateKey, secret)
+                    : this.adapter.parsePrivateKey(privateKey));
             this.keyPairMap.set(keyID, keyPair);
             return {
                 action,
@@ -116,7 +148,7 @@ export class Worker {
                 payload: { keyIDs: [keyID] },
             };
         }, job);
-        this.importSession = (job) => this.wrap(async () => {
+        this.importSession = (job) => this.wrapJob(async () => {
             const { action, jobID } = job;
             const sessionEncrypted = job.payload.sessionPayload;
             const key = await kvStoreGet('session_key').catch(() => {
@@ -152,7 +184,7 @@ export class Worker {
                 },
             };
         }, job);
-        this.reencryptSessionKey = (job) => this.wrap(async () => {
+        this.reencryptSessionKey = (job) => this.wrapJob(async () => {
             const { action, jobID } = job;
             const { decryptKeyID, encryptKeyID, sessionKey } = job.payload;
             const decryptKey = this.keyPairMap.getPrivateKey(decryptKeyID, job);
@@ -169,7 +201,7 @@ export class Worker {
                 },
             };
         }, job);
-        this.symmetricDecrypt = (job) => this.wrap(async () => {
+        this.symmetricDecrypt = (job) => this.wrapJob(async () => {
             const { action, jobID } = job;
             const { payload, passphrase } = job.payload;
             return {
@@ -179,7 +211,7 @@ export class Worker {
                 payload: { payload: await this.adapter.symmetricDecrypt(payload, passphrase) },
             };
         }, job);
-        this.symmetricEncrypt = (job) => this.wrap(async () => {
+        this.symmetricEncrypt = (job) => this.wrapJob(async () => {
             const { action, jobID } = job;
             const { payload, passphrase } = job.payload;
             return {
@@ -189,7 +221,7 @@ export class Worker {
                 payload: { payload: await this.adapter.symmetricEncrypt(payload, passphrase) },
             };
         }, job);
-        this.adapter = new WrappedAdapter(libImpl);
+        this.adapter = new WrappedAdapter(adapter);
         self.onmessage = async (event) => {
             const job = event.data;
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -205,7 +237,7 @@ export class Worker {
      * @param job The job being processed.
      * @returns The return from `fn`.
      */
-    async wrap(fn, job) {
+    async wrapJob(fn, job) {
         try {
             return await fn();
         }

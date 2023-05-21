@@ -9,4 +9,6 @@ export interface ImportKeyRequest {
      * @todo Make it optional.
      */
     keyID: string;
+    /** The secret to decrypt the private key. */
+    secret?: string;
 }

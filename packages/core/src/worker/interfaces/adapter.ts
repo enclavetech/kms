@@ -1,8 +1,9 @@
 import type { MaybePromise } from '../../shared/types/maybe';
 
-// Allow library to define options objects
+// TODO: allow library to define options objects
 
 export interface IAdapter<PrivateKeyType, PublicKeyType, SessionKeyType> {
+  generateKeyPair(): MaybePromise<{ privateKey: PrivateKeyType; publicKey: PublicKeyType }>;
   generatePrivateKey(): MaybePromise<PrivateKeyType>;
   generateSessionKey(publicKey: PublicKeyType): MaybePromise<SessionKeyType>;
 
@@ -12,6 +13,8 @@ export interface IAdapter<PrivateKeyType, PublicKeyType, SessionKeyType> {
   stringifyPrivateKey(key: PrivateKeyType): MaybePromise<string>;
   stringifyPublicKey(key: PublicKeyType): MaybePromise<string>;
 
+  decryptPrivateKey(privateKey: string, secret: string): MaybePromise<PrivateKeyType>;
+  encryptPrivateKey(privateKey: PrivateKeyType, secret: string): MaybePromise<string>;
   decryptSessionKey(sessionKey: string, privateKey: PrivateKeyType): MaybePromise<SessionKeyType>;
   encryptSessionKey(sessionKey: SessionKeyType, publicKey: PublicKeyType): MaybePromise<string>;
 

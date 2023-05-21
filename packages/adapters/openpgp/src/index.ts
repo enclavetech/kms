@@ -5,8 +5,10 @@ import {
   type SessionKey,
   createMessage,
   decrypt,
+  decryptKey,
   decryptSessionKeys,
   encrypt,
+  encryptKey,
   generateKey,
   generateSessionKey,
   readMessage,
@@ -16,72 +18,83 @@ import {
 } from 'openpgp';
 
 export class Adapter implements IAdapter<PrivateKey, PublicKey, SessionKey> {
-  async decryptSessionKey(armoredMessage: string, decryptionKeys: PrivateKey): Promise<SessionKey> {
-    const message = await readMessage({ armoredMessage });
-    return (await decryptSessionKeys({ message, decryptionKeys }))[0];
+  async decryptPrivateKey(armoredKey: string, passphrase: string) {
+    return await decryptKey({ privateKey: await readPrivateKey({ armoredKey }), passphrase });
   }
 
-  async decryptWithPrivateKey(armoredMessage: string, decryptionKeys: PrivateKey): Promise<string> {
-    const message = await readMessage({ armoredMessage });
-    return (await decrypt({ message, decryptionKeys })).data;
+  async decryptSessionKey(armoredMessage: string, decryptionKeys: PrivateKey) {
+    return (await decryptSessionKeys({ message: await readMessage({ armoredMessage }), decryptionKeys }))[0];
   }
 
-  async decryptWithSessionKey(armoredMessage: string, sessionKeys: SessionKey): Promise<string> {
-    const message = await readMessage({ armoredMessage });
-    return (await decrypt({ message, sessionKeys })).data;
+  async decryptWithPrivateKey(armoredMessage: string, decryptionKeys: PrivateKey) {
+    return (await decrypt({ message: await readMessage({ armoredMessage }), decryptionKeys })).data;
   }
 
-  encryptSessionKey(sessionKey: SessionKey, encryptionKeys: PrivateKey): Promise<string> {
+  async decryptWithSessionKey(armoredMessage: string, sessionKeys: SessionKey) {
+    return (await decrypt({ message: await readMessage({ armoredMessage }), sessionKeys })).data;
+  }
+
+  derivePublicKey(privateKey: PrivateKey): PublicKey {
+    return privateKey.toPublic();
+  }
+
+  async encryptPrivateKey(privateKey: PrivateKey, passphrase: string) {
+    return (await encryptKey({ privateKey, passphrase })).armor();
+  }
+
+  encryptSessionKey(sessionKey: SessionKey, encryptionKeys: PrivateKey) {
     return encryptSessionKey({ format: 'armored', encryptionKeys, ...sessionKey });
   }
 
-  async encryptWithPrivateKey(text: string, encryptionKeys: PrivateKey): Promise<string> {
+  async encryptWithPrivateKey(text: string, encryptionKeys: PrivateKey) {
     const message = await createMessage({ text });
     return await encrypt({ message, encryptionKeys });
   }
 
-  async encryptWithPublicKey(text: string, encryptionKeys: PublicKey): Promise<string> {
+  async encryptWithPublicKey(text: string, encryptionKeys: PublicKey) {
     const message = await createMessage({ text });
     return await encrypt({ message, encryptionKeys });
   }
 
-  async encryptWithSessionKey(text: string, sessionKey: SessionKey): Promise<string> {
+  async encryptWithSessionKey(text: string, sessionKey: SessionKey) {
     const message = await createMessage({ text });
     return await encrypt({ message, sessionKey });
   }
 
-  async generatePrivateKey(): Promise<PrivateKey> {
+  generateKeyPair() {
+    return generateKey({ format: 'object', userIDs: {} });
+  }
+
+  async generatePrivateKey() {
     return (await generateKey({ format: 'object', userIDs: {} })).privateKey;
   }
 
-  generateSessionKey(encryptionKeys: PublicKey): Promise<SessionKey> {
+  generateSessionKey(encryptionKeys: PublicKey) {
     return generateSessionKey({ encryptionKeys });
   }
 
-  parsePrivateKey(armoredKey: string): Promise<PrivateKey> {
+  parsePrivateKey(armoredKey: string) {
     return readPrivateKey({ armoredKey });
   }
 
-  parsePublicKey(armoredKey: string): Promise<PublicKey> {
+  parsePublicKey(armoredKey: string) {
     return readKey({ armoredKey });
   }
 
-  stringifyPrivateKey(key: PrivateKey): string {
+  stringifyPrivateKey(key: PrivateKey) {
     return key.armor();
   }
 
-  stringifyPublicKey(key: PublicKey): string {
+  stringifyPublicKey(key: PublicKey) {
     return key.armor();
   }
 
-  async symmetricDecrypt(armoredMessage: string, passwords: string): Promise<string> {
-    const message = await readMessage({ armoredMessage });
-    return (await decrypt({ message, passwords })).data;
+  async symmetricDecrypt(armoredMessage: string, passwords: string) {
+    return (await decrypt({ message: await readMessage({ armoredMessage }), passwords })).data;
   }
 
-  async symmetricEncrypt(text: string, passwords: string): Promise<string> {
-    const message = await createMessage({ text });
-    return await encrypt({ message, passwords });
+  async symmetricEncrypt(text: string, passwords: string) {
+    return await encrypt({ message: await createMessage({ text }), passwords });
   }
 }
 

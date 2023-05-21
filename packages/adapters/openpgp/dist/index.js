@@ -1,16 +1,22 @@
-import { createMessage, decrypt, decryptSessionKeys, encrypt, generateKey, generateSessionKey, readMessage, readPrivateKey, encryptSessionKey, readKey, } from 'openpgp';
+import { createMessage, decrypt, decryptKey, decryptSessionKeys, encrypt, encryptKey, generateKey, generateSessionKey, readMessage, readPrivateKey, encryptSessionKey, readKey, } from 'openpgp';
 export class Adapter {
+    async decryptPrivateKey(armoredKey, passphrase) {
+        return await decryptKey({ privateKey: await readPrivateKey({ armoredKey }), passphrase });
+    }
     async decryptSessionKey(armoredMessage, decryptionKeys) {
-        const message = await readMessage({ armoredMessage });
-        return (await decryptSessionKeys({ message, decryptionKeys }))[0];
+        return (await decryptSessionKeys({ message: await readMessage({ armoredMessage }), decryptionKeys }))[0];
     }
     async decryptWithPrivateKey(armoredMessage, decryptionKeys) {
-        const message = await readMessage({ armoredMessage });
-        return (await decrypt({ message, decryptionKeys })).data;
+        return (await decrypt({ message: await readMessage({ armoredMessage }), decryptionKeys })).data;
     }
     async decryptWithSessionKey(armoredMessage, sessionKeys) {
-        const message = await readMessage({ armoredMessage });
-        return (await decrypt({ message, sessionKeys })).data;
+        return (await decrypt({ message: await readMessage({ armoredMessage }), sessionKeys })).data;
+    }
+    derivePublicKey(privateKey) {
+        return privateKey.toPublic();
+    }
+    async encryptPrivateKey(privateKey, passphrase) {
+        return (await encryptKey({ privateKey, passphrase })).armor();
     }
     encryptSessionKey(sessionKey, encryptionKeys) {
         return encryptSessionKey({ format: 'armored', encryptionKeys, ...sessionKey });
@@ -26,6 +32,9 @@ export class Adapter {
     async encryptWithSessionKey(text, sessionKey) {
         const message = await createMessage({ text });
         return await encrypt({ message, sessionKey });
+    }
+    generateKeyPair() {
+        return generateKey({ format: 'object', userIDs: {} });
     }
     async generatePrivateKey() {
         return (await generateKey({ format: 'object', userIDs: {} })).privateKey;
@@ -46,12 +55,10 @@ export class Adapter {
         return key.armor();
     }
     async symmetricDecrypt(armoredMessage, passwords) {
-        const message = await readMessage({ armoredMessage });
-        return (await decrypt({ message, passwords })).data;
+        return (await decrypt({ message: await readMessage({ armoredMessage }), passwords })).data;
     }
     async symmetricEncrypt(text, passwords) {
-        const message = await createMessage({ text });
-        return await encrypt({ message, passwords });
+        return await encrypt({ message: await createMessage({ text }), passwords });
     }
 }
 export default Adapter;
