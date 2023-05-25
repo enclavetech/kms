@@ -5,9 +5,6 @@ export class KeysNS extends NS {
     }
     async generateKeyPair(payload) {
         return (await this.postJobSingle({ action: 'generateKeyPair', payload })).payload;
-        // TODO: consider automatically importing keys into workers at generation time
-        // TODO: consider auto ID generator
-        // (both of these may be dependant on each other)
     }
     import(...requests) {
         // TODO: if failed for some workers only,

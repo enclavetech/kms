@@ -3,14 +3,14 @@ export class WrappedAdapter {
     constructor(adapter) {
         this.adapter = adapter;
     }
-    // TODO: move to worker, this class is probably unnecessary
     /** Ensures a promise is always the return value and handles errors. */
     async wrap(fn, fnName) {
         try {
             return await fn();
         }
         catch (e) {
-            throw new AdapterError(this.adapter.constructor.name, fnName);
+            // Adapters should throw simple error message strings which will be caught and passed along here
+            throw new AdapterError(this.adapter.constructor.name, fnName, typeof e === 'string' ? e : 'Unknown error');
         }
     }
     decryptPrivateKey(privateKey, secret) {

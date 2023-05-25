@@ -53,12 +53,12 @@ export class Adapter {
         return (await this.generateKeyPair()).privateKey;
     }
     generateSessionKey(publicKey) {
-        throw new Error('Method not implemented.'); // TODO
+        throw 'Method not implemented'; // TODO
     }
     async parseKey(key) {
         const parsed = await importJWK({ ...JSON.parse(key), ext: true }, KEY_ALG);
         if (parsed instanceof Uint8Array)
-            throw 'D:'; // TODO
+            throw 'Unexpected key format';
         return parsed;
     }
     async stringifyKey(key) {

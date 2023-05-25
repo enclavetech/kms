@@ -72,12 +72,12 @@ export class Adapter implements IAdapter<KeyLike, KeyLike, KeyLike> {
   }
 
   generateSessionKey(publicKey: KeyLike): KeyLike {
-    throw new Error('Method not implemented.'); // TODO
+    throw 'Method not implemented'; // TODO
   }
 
   async parseKey(key: string) {
     const parsed = await importJWK({ ...JSON.parse(key), ext: true }, KEY_ALG);
-    if (parsed instanceof Uint8Array) throw 'D:'; // TODO
+    if (parsed instanceof Uint8Array) throw 'Unexpected key format';
     return parsed;
   }
 

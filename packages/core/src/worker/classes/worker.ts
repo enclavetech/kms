@@ -271,7 +271,13 @@ export class Worker<PrivateKeyType, PublicKeyType, SessionKeyType> {
       await Promise.allSettled(
         session.keys.map(async ({ id: keyID, privateKey, publicKey }) => {
           try {
-            return this.importKeyPair({ action: 'importKeyPair', jobID, payload: { keyID, privateKey, publicKey } });
+            const keyImportResult = await this.importKeyPair({
+              action: 'importKeyPair',
+              jobID,
+              payload: { keyID, privateKey, publicKey },
+            });
+            importedKeyIDs.push(keyID);
+            return keyImportResult;
           } catch (e) {
             ok = false;
           }

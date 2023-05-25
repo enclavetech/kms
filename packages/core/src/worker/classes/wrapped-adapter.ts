@@ -11,7 +11,8 @@ export class WrappedAdapter<PrivateKeyType, PublicKeyType, SessionKeyType>
     try {
       return await fn();
     } catch (e) {
-      throw new AdapterError(this.adapter.constructor.name, fnName);
+      // Adapters should throw simple error message strings which will be caught and passed along here
+      throw new AdapterError(this.adapter.constructor.name, fnName, typeof e === 'string' ? e : 'Unknown error');
     }
   }
 
