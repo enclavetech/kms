@@ -17,7 +17,11 @@
     "packages/adapters/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces --if-present",
+    "build": "npm run build:core && npm run build:adapters",
+    "build:adapters": "concurrently npm:build:adapter:*",
+    "build:adapter:openpgp": "npm run build --workspace ./packages/adapters/openpgp",
+    "build:adapter:jose": "npm run build --workspace ./packages/adapters/jose",
+    "build:core": "npm run build --workspace ./packages/core",
     "dev": "concurrently -k npm:dev:*",
     "dev:core": "npm run dev --workspace ./packages/core",
     "dev:openpgp": "npm run dev --workspace ./packages/adapters/openpgp",
