@@ -21,7 +21,7 @@ export declare class Worker<PrivateKeyType, PublicKeyType, SessionKeyType> {
     private hybridEncrypt;
     private importKeyPair;
     private importSession;
-    private reencryptSessionKey;
+    private hybridShareKey;
     private symmetricDecrypt;
     private symmetricEncrypt;
 }

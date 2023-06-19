@@ -1,4 +1,4 @@
-export interface ReencryptSessionKeyRequest {
+export interface HybridShareKeyRequest {
     /** The session key to re-encrypt. */
     sessionKey: string;
     /** ID of the asymmetric key pair to decrypt the session key. */

@@ -296,7 +296,7 @@ export class Worker<PrivateKeyType, PublicKeyType, SessionKeyType> {
       };
     }, job);
 
-  private reencryptSessionKey = (job: Job<'reencryptSessionKey'>): Promise<CompletedJob<'reencryptSessionKey'>> =>
+  private hybridShareKey = (job: Job<'hybridShareKey'>): Promise<CompletedJob<'hybridShareKey'>> =>
     this.wrapJob(async () => {
       const { action, jobID } = job;
       const { decryptKeyID, encryptKeyID, sessionKey } = job.payload;

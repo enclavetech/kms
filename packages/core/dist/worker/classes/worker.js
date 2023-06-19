@@ -190,7 +190,7 @@ export class Worker {
                 },
             };
         }, job);
-        this.reencryptSessionKey = (job) => this.wrapJob(async () => {
+        this.hybridShareKey = (job) => this.wrapJob(async () => {
             const { action, jobID } = job;
             const { decryptKeyID, encryptKeyID, sessionKey } = job.payload;
             const decryptKey = this.keyPairMap.getPrivateKey(decryptKeyID, job);

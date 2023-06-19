@@ -7,6 +7,6 @@ export class HybridNS extends NS {
         return (await this.postJobSingle({ action: 'hybridEncrypt', payload })).payload;
     }
     async shareKey(payload) {
-        return (await this.postJobSingle({ action: 'reencryptSessionKey', payload })).payload;
+        return (await this.postJobSingle({ action: 'hybridShareKey', payload })).payload;
     }
 }

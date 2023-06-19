@@ -11,5 +11,5 @@ export type RequestPayload =
   | Payload<'hybridDecrypt', Payloads.HybridDecryptRequest>
   | Payload<'importKeyPair', Payloads.ImportKeyRequest>
   | Payload<'importSession', Payloads.ImportSessionRequest<boolean>>
-  | Payload<'reencryptSessionKey', Payloads.ReencryptSessionKeyRequest>
+  | Payload<'hybridShareKey', Payloads.HybridShareKeyRequest>
   | Payload<'symmetricDecrypt' | 'symmetricEncrypt', Payloads.SymmetricCryptPayload>;

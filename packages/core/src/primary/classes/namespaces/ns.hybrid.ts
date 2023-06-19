@@ -3,7 +3,7 @@ import type {
   CryptResult,
   HybridDecryptRequest,
   HybridEncryptResult,
-  ReencryptSessionKeyRequest,
+  HybridShareKeyRequest,
 } from '../../../shared/interfaces/payloads';
 import { NS } from './ns';
 
@@ -16,7 +16,7 @@ export class HybridNS extends NS {
     return (await this.postJobSingle({ action: 'hybridEncrypt', payload })).payload;
   }
 
-  async shareKey(payload: ReencryptSessionKeyRequest): Promise<AsymmetricCryptPayload> {
-    return (await this.postJobSingle({ action: 'reencryptSessionKey', payload })).payload;
+  async shareKey(payload: HybridShareKeyRequest): Promise<AsymmetricCryptPayload> {
+    return (await this.postJobSingle({ action: 'hybridShareKey', payload })).payload;
   }
 }
