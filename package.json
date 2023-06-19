@@ -19,16 +19,21 @@
   "scripts": {
     "build": "npm run build:core && npm run build:adapters",
     "build:adapters": "concurrently npm:build:adapter:*",
-    "build:adapter:openpgp": "npm run build --workspace ./packages/adapters/openpgp",
-    "build:adapter:jose": "npm run build --workspace ./packages/adapters/jose",
-    "build:core": "npm run build --workspace ./packages/core",
+    "build:adapter:jose": "cd packages/adapters/jose && npm run build",
+    "build:adapter:openpgp": "cd packages/adapters/openpgp && npm run build",
+    "build:core": "cd packages/core && npm run build",
     "dev": "concurrently -k npm:dev:*",
-    "dev:core": "npm run dev --workspace ./packages/core",
-    "dev:openpgp": "npm run dev --workspace ./packages/adapters/openpgp",
-    "dev:jose": "npm run dev --workspace ./packages/adapters/jose",
+    "dev:core": "cd packages/core && npm run dev",
+    "dev:jose": "cd packages/adapters/jose && npm run dev",
+    "dev:openpgp": "cd packages/adapters/openpgp && npm run dev",
     "lc": "echo Enclave KMS: $(find packages -type f -name *.js -exec cat {} \\; | wc -l) lines",
     "line-count": "npm run lc",
     "lint": "prettier --check . && eslint .",
+    "prepare": "npm run prepare:core && npm run prepare:adapters",
+    "prepare:adapters": "concurrently npm:prepare:adapter:*",
+    "prepare:adapter:openpgp": "cd packages/adapters/openpgp && npm run build",
+    "prepare:adapter:jose": "cd packages/adapters/jose && npm run build",
+    "prepare:core": "cd packages/core && npm run build",
     "prettier": "prettier --write .",
     "start": "npm run dev"
   },
@@ -40,6 +45,6 @@
     "eslint": ">=8.42.0",
     "eslint-config-prettier": ">=8.8.0",
     "prettier": ">=2.8.8",
-    "typescript": "^5.1.3"
+    "typescript": "~5.0.0"
   }
 }
