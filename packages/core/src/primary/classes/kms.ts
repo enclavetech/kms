@@ -1,3 +1,4 @@
+import { EnclaveKmsError } from '../../shared/errors/enclave-kms.error';
 import type { Action, Request, Result } from '../../shared/types';
 import { DEFAULT_CONFIG } from '../constants/default-config';
 import type { KmsConfig } from '../interfaces/kms-config';
@@ -18,8 +19,7 @@ export class KMS {
     const clusterSize = config?.clusterSize ?? DEFAULT_CONFIG.clusterSize;
 
     if (!clusterSize || clusterSize <= 0) {
-      // TODO: custom error class
-      throw 'Enclave KMS: Invalid clusterSize.';
+      throw new EnclaveKmsError('Invalid cluster size.');
     }
 
     this.cluster = Array.from({ length: clusterSize }, () => new ManagedWorker(workerConstructor()));
