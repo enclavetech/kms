@@ -41,10 +41,7 @@ export class Adapter {
         return this.asymmetricEncrypt(await this.stringifyKey(sessionKey), publicKey);
     }
     encryptWithSessionKey(payload, key) {
-        return this.encrypt(payload, key, {
-            alg: 'PBES2-HS512+A256KW',
-            enc: 'A256CBC-HS512',
-        });
+        throw 'Method not implemented'; // TODO
     }
     generateKeyPair() {
         return generateKeyPair(KEY_ALG, { extractable: true });

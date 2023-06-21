@@ -56,11 +56,8 @@ export class Adapter implements IAdapter<KeyLike, KeyLike, KeyLike> {
   readonly encryptWithPrivateKey = this.asymmetricEncrypt;
   readonly encryptWithPublicKey = this.asymmetricEncrypt;
 
-  encryptWithSessionKey(payload: string, key: KeyLike) {
-    return this.encrypt(payload, key, {
-      alg: 'PBES2-HS512+A256KW',
-      enc: 'A256CBC-HS512',
-    });
+  encryptWithSessionKey(payload: string, key: KeyLike): string {
+    throw 'Method not implemented'; // TODO
   }
 
   generateKeyPair() {

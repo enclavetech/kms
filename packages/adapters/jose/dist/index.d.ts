@@ -14,7 +14,7 @@ export declare class Adapter implements IAdapter<KeyLike, KeyLike, KeyLike> {
     encryptSessionKey(sessionKey: KeyLike, publicKey: KeyLike): Promise<string>;
     readonly encryptWithPrivateKey: (payload: string, key: KeyLike | Uint8Array) => Promise<string>;
     readonly encryptWithPublicKey: (payload: string, key: KeyLike | Uint8Array) => Promise<string>;
-    encryptWithSessionKey(payload: string, key: KeyLike): Promise<string>;
+    encryptWithSessionKey(payload: string, key: KeyLike): string;
     generateKeyPair(): Promise<import("jose").GenerateKeyPairResult<KeyLike>>;
     generatePrivateKey(): Promise<KeyLike>;
     generateSessionKey(publicKey: KeyLike): KeyLike;
