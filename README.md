@@ -49,10 +49,11 @@ Enclave KMS has been designed in a generic way to enable its use with virtually 
 
 <!-- TODO: provide adapter docs -->
 
-|                Status                | Library                               | Adapter Package                                         |
-| :----------------------------------: | :------------------------------------ | :------------------------------------------------------ |
-| [:white_check_mark:](## 'Supported') | [OpenPGP.js](https://openpgpjs.org)   | [`@enclavetech/kms-openpgp`](packages/adapters/openpgp) |
-|     [:yellow_square:](## 'WIP')      | [jose](https://github.com/panva/jose) | [`@enclavetech/kms-jose`](packages/adapters/jose)       |
+|                Status                | Library                                                                      | Adapter Package                                         | Notes                       |
+| :----------------------------------: | :--------------------------------------------------------------------------- | :------------------------------------------------------ | :-------------------------- |
+| [:white_check_mark:](## 'Supported') | [OpenPGP.js](https://openpgpjs.org)                                          | [`@enclavetech/kms-openpgp`](packages/adapters/openpgp) |
+|   [:yellow_square:](## 'Partial')    | [jose](https://github.com/panva/jose)                                        | [`@enclavetech/kms-jose`](packages/adapters/jose)       | `hybrid` API not supported. |
+|    [:construction:](## 'Planned')    | [WebCrypto](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API) |
 
 <!-- TODO: library feature support matrix -->
 <!-- TODO: benchmarks -->
