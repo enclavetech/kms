@@ -24,12 +24,11 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install dependencies & build
+      - name: Install dependencies
         run: npm i
 
       - name: Run ESLint
         run: npm run lint
 
-      # # Build already happens in prepare scripts during install
-      # - name: Build project
-      #   run: npm run build
+      - name: Build project
+        run: npm run build

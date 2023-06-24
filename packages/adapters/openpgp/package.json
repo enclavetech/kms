@@ -11,14 +11,13 @@
     "encryption",
     "crypto",
     "pgp",
-    "openpgpjs"
+    "openpgp"
   ],
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch",
-    "prepare": "tsc"
+    "dev": "tsc --watch"
   },
   "peerDependencies": {
     "@enclavetech/kms-core": "*",

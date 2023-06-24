@@ -29,11 +29,6 @@
     "lc": "echo Enclave KMS: $(find packages -type f -name *.js -exec cat {} \\; | wc -l) lines",
     "line-count": "npm run lc",
     "lint": "prettier --check . && eslint .",
-    "prepare": "npm run prepare:core && npm run prepare:adapters",
-    "prepare:adapters": "concurrently npm:prepare:adapter:*",
-    "prepare:adapter:openpgp": "cd packages/adapters/openpgp && npm run build",
-    "prepare:adapter:jose": "cd packages/adapters/jose && npm run build",
-    "prepare:core": "cd packages/core && npm run build",
     "prettier": "prettier --write .",
     "start": "npm run dev"
   },
